@@ -1,0 +1,41 @@
+{
+  "events_by_world": {
+    "medieval": [
+      {
+        "event_id": "m_001",
+        "text": "The village elder studies your face too long. A locked cellar door trembles beneath his house.",
+        "choices": [
+          {"label": "Ask about the cellar", "score": 2},
+          {"label": "Ignore and head to the gate", "score": 1}
+        ]
+      },
+      {
+        "event_id": "m_002",
+        "text": "At a three-way corridor, the torchlight bends as if breathing.",
+        "choices": [
+          {"label": "Go forward", "score": 2},
+          {"label": "Turn left", "score": 1},
+          {"label": "Turn right", "score": 1}
+        ]
+      }
+    ],
+    "future": [
+      {
+        "event_id": "f_001",
+        "text": "A terminal requests your biological signature, then prints a name you do not remember.",
+        "choices": [
+          {"label": "Authenticate", "score": 2},
+          {"label": "Disconnect power", "score": 1}
+        ]
+      },
+      {
+        "event_id": "f_002",
+        "text": "Factory core alarms rise. Something inside recognizes your previous deaths.",
+        "choices": [
+          {"label": "Rush in", "score": 2},
+          {"label": "Re-route through maintenance", "score": 1}
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-02-08T00:00:00Z",
+  "required_bytes_wifi": 7340032,
+  "required_bytes_cellular": 1048576,
+  "assets": [
+    {
+      "asset_id": "bg_medieval_village_01",
+      "type": "image",
+      "tags": ["world:medieval", "scene:village", "time:night"],
+      "priority": "high",
+      "version": 1,
+      "hash": "sha256:demo-medieval-village-01",
+      "size_bytes": 582341,
+      "cdn_url": "https://cdn.example.com/assets/bg_medieval_village_01_v1.webp"
+    },
+    {
+      "asset_id": "bg_future_factory_01",
+      "type": "image",
+      "tags": ["world:future", "scene:factory", "tone:cold"],
+      "priority": "high",
+      "version": 1,
+      "hash": "sha256:demo-future-factory-01",
+      "size_bytes": 612022,
+      "cdn_url": "https://cdn.example.com/assets/bg_future_factory_01_v1.webp"
+    }
+  ],
+  "deleted_asset_ids": []
+}

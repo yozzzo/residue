@@ -1,0 +1,16 @@
+{
+  "worlds": [
+    {
+      "world_id": "medieval",
+      "name": "Medieval",
+      "blurb": "Stone village and sealed catacombs",
+      "tags": ["world:medieval", "tone:grim"]
+    },
+    {
+      "world_id": "future",
+      "name": "Future",
+      "blurb": "Rusting sectors and machine prayers",
+      "tags": ["world:future", "tone:cold"]
+    }
+  ]
+}
