@@ -26,7 +26,7 @@
         "right": null,
         "back": "m_n01"
       },
-      "event_ids": ["m_e02"]
+      "event_ids": ["m_e02", "m_e02b"]
     },
     {
       "node_id": "m_n03",
@@ -160,7 +160,7 @@
         "right": null,
         "back": "m_n11"
       },
-      "event_ids": ["m_e_boss"],
+      "event_ids": ["m_e_boss", "m_e_residue_reveal"],
       "enemy_ids": ["m_boss_sealed_bishop"]
     }
   ]

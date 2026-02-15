@@ -15,6 +15,7 @@ var current_node: Dictionary = {}
 var current_event: Dictionary = {}
 var event_index: int = 0
 var pending_battle_enemy: String = ""
+var node_event_queue: Array = []
 
 
 func _ready() -> void:
@@ -37,22 +38,39 @@ func _load_node(node_id: String) -> void:
 	GameState.record_node_visit()
 	event_index = 0
 	
+	# Build event queue, filtering by conditions
+	node_event_queue = _build_event_queue()
+	
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
-	header.text = "Run - %s | Loop %d" % [world.get("name", "???"), GameState.loop_count]
+	var truth_stage: int = GameState.get_truth_stage()
+	header.text = "Run - %s | Loop %d | 真実段階 %d" % [world.get("name", "???"), GameState.loop_count, truth_stage]
 	location_label.text = "📍 %s" % current_node.get("name", "Unknown Location")
 	
 	_process_node()
 
 
-func _process_node() -> void:
+func _build_event_queue() -> Array:
 	var event_ids: Array = current_node.get("event_ids", [])
+	var queue: Array = []
 	
-	if event_index < event_ids.size():
-		var event_id: String = event_ids[event_index]
-		current_event = GameState.get_event_by_id(GameState.selected_world_id, event_id)
-		if not current_event.is_empty():
-			_render_event()
-			return
+	for event_id: Variant in event_ids:
+		var event: Dictionary = GameState.get_event_by_id(GameState.selected_world_id, str(event_id))
+		if event.is_empty():
+			continue
+		
+		# Check event-level conditions
+		var conditions: Dictionary = event.get("conditions", {})
+		if conditions.is_empty() or GameState.check_event_conditions(conditions):
+			queue.append(event)
+	
+	return queue
+
+
+func _process_node() -> void:
+	if event_index < node_event_queue.size():
+		current_event = node_event_queue[event_index]
+		_render_event()
+		return
 	
 	# No more events, show navigation
 	_render_navigation_only()
@@ -64,20 +82,41 @@ func _render_event() -> void:
 	var node_type: String = current_node.get("node_type", "explore")
 	var event_type: String = current_event.get("type", "explore")
 	
-	# Show event text with atmosphere
+	# Build event text with atmosphere and reaction slots
 	var desc: String = current_node.get("description", "")
 	var event_text: String = current_event.get("text", "")
-	body_text.text = "[i]%s[/i]\n\n%s" % [desc, event_text]
 	
-	# Render choices
-	var choices: Array = current_event.get("choices", [])
-	for choice: Variant in choices:
+	# Phase 2: Apply reaction slots based on conditions
+	var reaction_slots: Array = current_event.get("reaction_slots", [])
+	var reaction_text: String = _get_matching_reaction(reaction_slots)
+	
+	if reaction_text.is_empty():
+		body_text.text = "[i]%s[/i]\n\n%s" % [desc, event_text]
+	else:
+		body_text.text = "[i]%s[/i]\n\n%s%s" % [desc, event_text, reaction_text]
+	
+	# Phase 2: Filter choices by conditions
+	var all_choices: Array = current_event.get("choices", [])
+	var filtered_choices: Array = GameState.filter_choices(all_choices)
+	
+	# Render filtered choices
+	for choice: Variant in filtered_choices:
 		var button := Button.new()
 		button.text = choice.get("label", "選択")
 		button.pressed.connect(_on_choice_selected.bind(choice))
 		choices_box.add_child(button)
 	
 	_update_status()
+
+
+func _get_matching_reaction(reaction_slots: Array) -> String:
+	# Return the first matching reaction text
+	for slot: Variant in reaction_slots:
+		if slot is Dictionary:
+			var conditions: Dictionary = slot.get("conditions", {})
+			if GameState.check_event_conditions(conditions):
+				return str(slot.get("text", ""))
+	return ""
 
 
 func _render_navigation_only() -> void:
@@ -136,14 +175,31 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	var score := int(choice.get("score", 0))
 	# Score is now handled by soul calculation
 	
-	# Apply tag
+	# Phase 2: Apply trait tags from choice
+	var tags: Variant = choice.get("tags")
+	if tags != null and tags is Array:
+		for tag: Variant in tags:
+			GameState.add_trait_tag(str(tag), 1)
+	
+	# Legacy: Apply single tag (backward compatibility)
 	var tag: Variant = choice.get("tag")
 	if tag != null and tag is String and not tag.is_empty():
 		GameState.add_run_tag(tag)
+		GameState.add_trait_tag(tag, 1)
 	
 	# Record discovery
 	if choice.get("discovery", false):
 		GameState.record_discovery()
+	
+	# Phase 2: Set memory flag from choice
+	var sets_flag: Variant = choice.get("sets_flag")
+	if sets_flag != null and sets_flag is String and not sets_flag.is_empty():
+		GameState.set_memory_flag(sets_flag)
+	
+	# Phase 2: Set memory flag from event (after completing it)
+	var event_sets_flag: Variant = current_event.get("sets_flag")
+	if event_sets_flag != null and event_sets_flag is String and not event_sets_flag.is_empty():
+		GameState.set_memory_flag(event_sets_flag)
 	
 	# Handle special actions
 	if choice.has("flee") and choice["flee"] == true:
@@ -179,6 +235,16 @@ func _on_navigate(target_node_id: String) -> void:
 func on_battle_result(result: String) -> void:
 	match result:
 		"victory":
+			# Set victory flag for boss battles
+			if pending_battle_enemy.contains("boss"):
+				var flag_name: String = pending_battle_enemy.replace("_boss", "") + "_defeated"
+				GameState.set_memory_flag(flag_name)
+				# Also set specific boss defeat flags
+				if pending_battle_enemy == "m_boss_sealed_bishop":
+					GameState.set_memory_flag("bishop_defeated")
+				elif pending_battle_enemy == "f_boss_core_prophet":
+					GameState.set_memory_flag("prophet_defeated")
+			
 			# Continue with node
 			event_index += 1
 			_process_node()
@@ -223,10 +289,17 @@ func _clear_ui() -> void:
 
 
 func _update_status() -> void:
-	status_label.text = "HP: %d/%d | Gold: %d | 深度: %d | 討伐: %d" % [
+	# Show dominant traits in status
+	var dominant_traits: Array = GameState.get_dominant_traits(2)
+	var traits_text: String = ""
+	if dominant_traits.size() > 0:
+		traits_text = " | 傾向: " + ", ".join(dominant_traits)
+	
+	status_label.text = "HP: %d/%d | Gold: %d | 深度: %d | 討伐: %d%s" % [
 		GameState.run_hp,
 		GameState.run_max_hp,
 		GameState.run_gold,
 		GameState.run_nodes_visited,
-		GameState.run_kills
+		GameState.run_kills,
+		traits_text
 	]

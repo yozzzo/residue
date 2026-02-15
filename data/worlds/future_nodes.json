@@ -160,7 +160,7 @@
         "right": null,
         "back": "f_n11"
       },
-      "event_ids": ["f_e_boss"],
+      "event_ids": ["f_e_boss", "f_e_residue_reveal"],
       "enemy_ids": ["f_boss_core_prophet"]
     }
   ]

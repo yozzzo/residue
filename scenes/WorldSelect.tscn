@@ -34,6 +34,7 @@ theme_override_constants/separation = 16
 
 [node name="Header" type="Label" parent="Margin/RootVBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "World Select"
 
 [node name="WorldDesc" type="Label" parent="Margin/RootVBox"]
@@ -41,18 +42,29 @@ layout_mode = 2
 text = "Choose a world. Core history stays stable; your route changes by flags."
 autowrap_mode = 2
 
+[node name="TraitsPanel" type="PanelContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+
+[node name="TraitsLabel" type="Label" parent="Margin/RootVBox/TraitsPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+text = "傾向: なし"
+
 [node name="WorldButtons" type="VBoxContainer" parent="Margin/RootVBox"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/separation = 8
 
 [node name="Footer" type="HBoxContainer" parent="Margin/RootVBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 16
 
 [node name="BackButton" type="Button" parent="Margin/RootVBox/Footer"]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Back"
 
 [node name="MetaLabel" type="Label" parent="Margin/RootVBox/Footer"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Soul: 0"

@@ -5,86 +5,197 @@
         "event_id": "m_e01",
         "type": "explore",
         "text": "村の入口に立つ。石畳は苔むし、足跡ひとつない。門の向こうで何かが待っている気配がする。",
+        "reaction_slots": [
+          {
+            "conditions": {"min_loop": 3},
+            "text": "\n\n……この道を歩いた記憶がある。何度も。"
+          },
+          {
+            "conditions": {"requires_flag": "mayor_basement_seen"},
+            "text": "\n\n石畳の下、あの地下室に繋がる道があるはずだ。"
+          }
+        ],
         "choices": [
-          {"label": "門を潜る", "score": 1, "tag": "bold"},
-          {"label": "周囲を調べる", "score": 2, "tag": "cautious", "discovery": true}
+          {"label": "門を潜る", "score": 1, "tags": ["bold", "reckless"]},
+          {"label": "周囲を調べる", "score": 2, "tags": ["cautious", "thorough"], "discovery": true}
         ]
       },
       {
         "event_id": "m_e02",
         "type": "dialogue",
         "text": "村長の家。扉を叩くと、老人が隙間から覗く。「あんた、何度目だ？」意味のわからない問いかけ。地下から軋む音がする。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_tag": "curious", "tag_threshold": 3},
+            "text": "\n\n老人の目が揺らぐ。「お前は……覚えている方か」"
+          },
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n老人の顔に見覚えがある。何度も見た。何度も死んだ。"
+          }
+        ],
         "choices": [
-          {"label": "「何度目とは？」と問う", "score": 2, "tag": "curious"},
-          {"label": "地下について尋ねる", "score": 3, "tag": "truth_seeker", "discovery": true},
-          {"label": "立ち去る", "score": 1}
+          {"label": "「何度目とは？」と問う", "score": 2, "tags": ["curious", "defiant"]},
+          {"label": "地下について尋ねる", "score": 3, "tags": ["curious", "reckless"], "discovery": true, "sets_flag": "mayor_basement_asked"},
+          {"label": "立ち去る", "score": 1, "tags": ["cautious"]}
+        ]
+      },
+      {
+        "event_id": "m_e02b",
+        "type": "dialogue",
+        "text": "村長は沈黙する。しかし目は地下への扉を見ている。「……見たいのか。見れば、お前も残る」",
+        "conditions": {"requires_flag": "mayor_basement_asked"},
+        "sets_flag": "mayor_basement_seen",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_tag": "defiant", "tag_threshold": 5},
+            "text": "\n\n「残る、か。俺は何度でも戻ってくる」"
+          }
+        ],
+        "choices": [
+          {"label": "地下へ降りる", "score": 5, "tags": ["bold", "reckless", "curious"], "discovery": true},
+          {"label": "やめておく", "score": 1, "tags": ["cautious", "obedient"]}
         ]
       },
       {
         "event_id": "m_e03",
         "type": "explore",
         "text": "崩れた礼拝堂。祭壇には古い血痕。壁の聖画は削り取られ、代わりに何かの紋章が刻まれている。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "bishop_defeated"},
+            "text": "\n\n紋章が光る。司教を倒した記憶が、この場所に染み付いている。"
+          }
+        ],
         "choices": [
-          {"label": "紋章を調べる", "score": 2, "tag": "scholar", "discovery": true},
-          {"label": "祭壇に祈る", "score": 1, "tag": "pious"},
-          {"label": "先へ進む", "score": 1}
+          {"label": "紋章を調べる", "score": 2, "tags": ["curious", "thorough"], "discovery": true},
+          {"label": "祭壇に祈る", "score": 1, "tags": ["merciful", "obedient"]},
+          {"label": "先へ進む", "score": 1, "tags": ["hasty"]}
         ]
       },
       {
         "event_id": "m_e04",
         "type": "battle",
         "text": "廃屋の影から、かつて人だったものが現れる。錆びた剣を引きずり、虚ろな眼窩がお前を捉える。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_tag": "merciful", "tag_threshold": 5},
+            "text": "\n\nその姿に、かつての人間を見る。救いはあるのか。"
+          }
+        ],
         "choices": [
-          {"label": "戦う", "score": 0, "start_battle": "m_hollow_guard"},
-          {"label": "逃げる（前のノードへ戻る）", "score": 0, "flee": true}
+          {"label": "戦う", "score": 0, "start_battle": "m_hollow_guard", "tags": ["bold"]},
+          {"label": "逃げる（前のノードへ戻る）", "score": 0, "flee": true, "tags": ["cautious"]}
         ]
       },
       {
         "event_id": "m_e05",
         "type": "dialogue",
         "text": "井戸の底から声が聞こえる。「お前もここへ来たか」——誰の声かわからない。いや、自分の声に似ている。",
+        "reaction_slots": [
+          {
+            "conditions": {"min_loop": 7},
+            "text": "\n\n何度も聞いた声だ。何度も死んだ自分の声。"
+          },
+          {
+            "conditions": {"requires_truth_stage": 1},
+            "text": "\n\n声は続ける。「毎回、同じことを聞く。毎回、同じ答えを返す」"
+          }
+        ],
         "choices": [
-          {"label": "井戸を覗き込む", "score": 3, "tag": "reckless", "discovery": true},
-          {"label": "応えない", "score": 1}
+          {"label": "井戸を覗き込む", "score": 3, "tags": ["reckless", "curious", "fearless"], "discovery": true, "sets_flag": "well_peeked"},
+          {"label": "応えない", "score": 1, "tags": ["cautious", "pragmatic"]}
         ]
       },
       {
         "event_id": "m_e06",
         "type": "explore",
         "text": "地下墓地の入口。階段を降りると、湿った空気と腐敗臭。壁には無数の手形。誰かが這い上がろうとした痕跡。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "well_peeked"},
+            "text": "\n\n井戸で聞いた声が、ここでも響く。「お前も這い上がれ」"
+          }
+        ],
         "choices": [
-          {"label": "降りる", "score": 2, "tag": "bold"},
-          {"label": "手形を調べる", "score": 2, "tag": "observer", "discovery": true}
+          {"label": "降りる", "score": 2, "tags": ["bold", "fearless"]},
+          {"label": "手形を調べる", "score": 2, "tags": ["thorough", "curious"], "discovery": true}
         ]
       },
       {
         "event_id": "m_e07",
         "type": "dialogue",
         "text": "封印の間。床の紋章が淡く光る。声が響く——「封印を解くな」「解かねば真実は得られぬ」二つの声。どちらが正しい？",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_tag": "defiant", "tag_threshold": 5},
+            "text": "\n\n「正しさなど関係ない。俺は知りたいだけだ」"
+          },
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n二つの声は、同じ存在から発せられている。司教の——"
+          }
+        ],
         "choices": [
-          {"label": "封印を解く", "score": 3, "tag": "defiant", "discovery": true},
-          {"label": "封印を強化する", "score": 2, "tag": "guardian"},
-          {"label": "何もしない", "score": 1}
+          {"label": "封印を解く", "score": 3, "tags": ["defiant", "reckless", "curious"], "discovery": true, "sets_flag": "seal_broken"},
+          {"label": "封印を強化する", "score": 2, "tags": ["obedient", "cautious"]},
+          {"label": "何もしない", "score": 1, "tags": ["pragmatic"]}
         ]
       },
       {
         "event_id": "m_e08",
         "type": "explore",
         "text": "祭壇の前室。蝋燭が勝手に灯る。祭壇には古い書物。最後のページには——お前の名前が書かれている。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "seal_broken"},
+            "text": "\n\n封印を解いた瞬間から、この名前は変わっていない。何度繰り返しても。"
+          },
+          {
+            "conditions": {"min_loop": 10},
+            "text": "\n\n数十回分の名前が重なっている。全て、お前の名前だ。"
+          }
+        ],
         "choices": [
-          {"label": "書物を読む", "score": 3, "tag": "truth_seeker", "discovery": true},
-          {"label": "書物を燃やす", "score": 2, "tag": "defiant"},
-          {"label": "そのまま進む", "score": 1}
+          {"label": "書物を読む", "score": 3, "tags": ["curious", "thorough"], "discovery": true, "sets_flag": "tome_read"},
+          {"label": "書物を燃やす", "score": 2, "tags": ["defiant", "reckless"]},
+          {"label": "そのまま進む", "score": 1, "tags": ["hasty", "pragmatic"]}
         ]
       },
       {
         "event_id": "m_e_boss",
         "type": "battle",
         "text": "地下聖堂の最奥。玉座に座る者の口は糸で縫い合わされている。しかし声が頭に響く。「お前は何度も来た。何度も死んだ。そして何度も忘れた。今度こそ覚えていられるか？」",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "tome_read"},
+            "text": "\n\n「書物を読んだか。ならば知っているはずだ——お前が何者か」"
+          },
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n「もう隠す必要はない。お前は Residue だ。消し残り。死の痕跡」"
+          },
+          {
+            "conditions": {"min_loop": 7, "requires_flag": "mayor_basement_seen"},
+            "text": "\n\n「お前は消したと思っている。この世界は忘れない。残るんだ。Residue として」"
+          }
+        ],
         "choices": [
-          {"label": "「覚えている」と答える", "score": 0, "start_battle": "m_boss_sealed_bishop", "tag": "truth_seeker"},
-          {"label": "「何の話だ」と答える", "score": 0, "start_battle": "m_boss_sealed_bishop"},
-          {"label": "逃げる", "score": 0, "flee": true}
+          {"label": "「覚えている」と答える", "score": 0, "start_battle": "m_boss_sealed_bishop", "tags": ["defiant", "fearless"]},
+          {"label": "「何の話だ」と答える", "score": 0, "start_battle": "m_boss_sealed_bishop", "tags": ["pragmatic"]},
+          {"label": "逃げる", "score": 0, "flee": true, "tags": ["cautious"]}
+        ],
+        "sets_flag": "bishop_encountered"
+      },
+      {
+        "event_id": "m_e_residue_reveal",
+        "type": "dialogue",
+        "text": "「Residue——それがお前の正体だ。死んでも消えない。繰り返す。残り続ける。この世界のすべてが、お前の痕跡で染まっている」",
+        "conditions": {"min_loop": 7, "requires_truth_stage": 2, "requires_flag": "mayor_basement_seen"},
+        "sets_flag": "residue_truth_revealed",
+        "choices": [
+          {"label": "「だから何度でも戻ってくる」", "score": 5, "tags": ["defiant", "fearless"], "discovery": true},
+          {"label": "「忘れさせてくれ」", "score": 3, "tags": ["merciful", "empathetic"]}
         ]
       }
     ],
@@ -93,78 +204,175 @@
         "event_id": "f_e01",
         "type": "explore",
         "text": "廃棄セクターの入口。錆びた隔壁には「立入禁止：記録消去対象区画」と書かれている。消されたはずの場所。",
+        "reaction_slots": [
+          {
+            "conditions": {"min_loop": 3},
+            "text": "\n\nこの警告を、何度見ただろう。"
+          },
+          {
+            "conditions": {"requires_flag": "core_log_read"},
+            "text": "\n\n消去ログに、お前の侵入記録がある。47回。"
+          }
+        ],
         "choices": [
-          {"label": "侵入する", "score": 1, "tag": "bold"},
-          {"label": "周囲のログを確認する", "score": 2, "tag": "analyst", "discovery": true}
+          {"label": "侵入する", "score": 1, "tags": ["bold", "reckless"]},
+          {"label": "周囲のログを確認する", "score": 2, "tags": ["cautious", "thorough"], "discovery": true}
         ]
       },
       {
         "event_id": "f_e02",
         "type": "dialogue",
         "text": "認証ターミナルが起動する。「ようこそ、被験体N-07」——覚えのない識別名。「前回の終了記録：死亡」と表示される。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_tag": "curious", "tag_threshold": 5},
+            "text": "\n\n「死亡回数：46」追加情報が表示される。"
+          },
+          {
+            "conditions": {"requires_truth_stage": 1},
+            "text": "\n\n「残存記憶：断片的。人格継続性：未確認」システムが診断を続ける。"
+          }
+        ],
         "choices": [
-          {"label": "認証を通す", "score": 2, "tag": "compliant"},
-          {"label": "端末をハックする", "score": 3, "tag": "hacker", "discovery": true},
-          {"label": "無視して進む", "score": 1}
+          {"label": "認証を通す", "score": 2, "tags": ["obedient", "pragmatic"]},
+          {"label": "端末をハックする", "score": 3, "tags": ["defiant", "curious"], "discovery": true, "sets_flag": "terminal_hacked"},
+          {"label": "無視して進む", "score": 1, "tags": ["hasty"]}
         ]
       },
       {
         "event_id": "f_e03",
         "type": "explore",
         "text": "整備区画。放棄された作業台に、誰かの日記データが残っている。「もう17回目だ。記憶は消されても、体は覚えている」",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "terminal_hacked"},
+            "text": "\n\n日記の筆者ID：N-06。お前の一つ前のモデル。"
+          },
+          {
+            "conditions": {"min_loop": 5},
+            "text": "\n\n「18回目の俺へ。逃げるな。真実を見ろ」追記があった。"
+          }
+        ],
         "choices": [
-          {"label": "日記を全て読む", "score": 3, "tag": "truth_seeker", "discovery": true},
-          {"label": "データを消去する", "score": 1, "tag": "cautious"},
-          {"label": "工具を回収する", "score": 2}
+          {"label": "日記を全て読む", "score": 3, "tags": ["curious", "thorough"], "discovery": true, "sets_flag": "diary_read"},
+          {"label": "データを消去する", "score": 1, "tags": ["cautious", "pragmatic"]},
+          {"label": "工具を回収する", "score": 2, "tags": ["greedy", "pragmatic"]}
         ]
       },
       {
         "event_id": "f_e04",
         "type": "dialogue",
         "text": "データ保管庫。削除されたログが次々と復元される。全てお前の記録——何十回もの侵入、何十回もの死。同じ場所で、同じように。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "diary_read"},
+            "text": "\n\nN-06の記録も混じっている。N-05も。N-01まで遡る。全員、同じ顔だ。"
+          },
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n「プロジェクト・Residue：被験体の記憶を消去しても、行動パターンは残る」"
+          }
+        ],
+        "sets_flag": "core_log_read",
         "choices": [
-          {"label": "記録を精査する", "score": 3, "tag": "analyst", "discovery": true},
-          {"label": "記録を完全消去する", "score": 2, "tag": "defiant"},
-          {"label": "目を背ける", "score": 1}
+          {"label": "記録を精査する", "score": 3, "tags": ["thorough", "curious"], "discovery": true},
+          {"label": "記録を完全消去する", "score": 2, "tags": ["defiant", "reckless"]},
+          {"label": "目を背ける", "score": 1, "tags": ["cautious"]}
         ]
       },
       {
         "event_id": "f_e05",
         "type": "explore",
         "text": "研究棟。培養槽には何も——いや、一つだけ、お前と同じ顔をした死体が浮いている。「Model N-06」とラベルが貼られている。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "core_log_read"},
+            "text": "\n\nお前はN-07。つまり、あと何体いるのか。"
+          },
+          {
+            "conditions": {"min_loop": 7},
+            "text": "\n\n培養槽の奥に、さらに多くの槽が見える。N-08、N-09……空だ。まだ。"
+          }
+        ],
         "choices": [
-          {"label": "培養槽を調べる", "score": 3, "tag": "truth_seeker", "discovery": true},
-          {"label": "培養槽を破壊する", "score": 2, "tag": "defiant"},
-          {"label": "見なかったことにする", "score": 1}
+          {"label": "培養槽を調べる", "score": 3, "tags": ["curious", "thorough"], "discovery": true, "sets_flag": "tank_examined"},
+          {"label": "培養槽を破壊する", "score": 2, "tags": ["defiant", "reckless", "cruel"]},
+          {"label": "見なかったことにする", "score": 1, "tags": ["cautious", "pragmatic"]}
         ]
       },
       {
         "event_id": "f_e06",
         "type": "dialogue",
         "text": "緊急シェルターの壁に刻まれたメッセージ。「逃げろ。コアに近づくな。お前が何者か、知らないほうがいい」——筆跡はお前のものに似ている。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "tank_examined"},
+            "text": "\n\n筆跡を分析する。N-06のものだ。彼も、ここまで来た。"
+          },
+          {
+            "conditions": {"requires_tag": "defiant", "tag_threshold": 5},
+            "text": "\n\n「知らないほうがいい」——そんな選択肢は、とうに捨てた。"
+          }
+        ],
         "choices": [
-          {"label": "コアを目指す", "score": 2, "tag": "bold"},
-          {"label": "メッセージを解読する", "score": 3, "tag": "analyst", "discovery": true},
-          {"label": "引き返す", "score": 1, "flee": true}
+          {"label": "コアを目指す", "score": 2, "tags": ["bold", "defiant", "fearless"]},
+          {"label": "メッセージを解読する", "score": 3, "tags": ["thorough", "curious"], "discovery": true, "sets_flag": "shelter_message_read"},
+          {"label": "引き返す", "score": 1, "flee": true, "tags": ["cautious", "obedient"]}
         ]
       },
       {
         "event_id": "f_e07",
         "type": "explore",
         "text": "コアへの最終通路。警告が点滅する。「この先、人格保持は保証されません」システムがお前を止めようとしている。",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "shelter_message_read"},
+            "text": "\n\nN-06のメッセージが蘇る。彼は警告に従った。だから彼は、N-07に道を譲った。"
+          },
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n「人格保持」——そもそも、お前に保持すべき人格があるのか？"
+          }
+        ],
         "choices": [
-          {"label": "構わず進む", "score": 2, "tag": "reckless"},
-          {"label": "システムと対話する", "score": 3, "tag": "diplomat", "discovery": true}
+          {"label": "構わず進む", "score": 2, "tags": ["reckless", "fearless", "defiant"]},
+          {"label": "システムと対話する", "score": 3, "tags": ["curious", "empathetic"], "discovery": true, "sets_flag": "system_dialogue"}
         ]
       },
       {
         "event_id": "f_e_boss",
         "type": "battle",
         "text": "工場中枢。無数のケーブルに繋がれた意識体が待っている。「また会えたな、N-07。これで47回目だ。お前は毎回ここに来て、毎回負ける。そして毎回忘れる。今回は違うと、毎回言う。」",
+        "reaction_slots": [
+          {
+            "conditions": {"requires_flag": "system_dialogue"},
+            "text": "\n\n「システムと話したか。彼は私の一部だ。お前を導くために残した」"
+          },
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n「Residue——お前たちはそう呼ばれている。消し残り。私の実験の残滓」"
+          },
+          {
+            "conditions": {"min_loop": 7, "requires_flag": "core_log_read"},
+            "text": "\n\n「お前は消したと思っている。記録を。記憶を。だが、行動は消えない。残るんだ。Residue として」"
+          }
+        ],
         "choices": [
-          {"label": "「今回こそ違う」", "score": 0, "start_battle": "f_boss_core_prophet", "tag": "defiant"},
-          {"label": "「なぜ教える？」", "score": 0, "start_battle": "f_boss_core_prophet", "tag": "curious"},
-          {"label": "逃げる", "score": 0, "flee": true}
+          {"label": "「今回こそ違う」", "score": 0, "start_battle": "f_boss_core_prophet", "tags": ["defiant", "fearless"]},
+          {"label": "「なぜ教える？」", "score": 0, "start_battle": "f_boss_core_prophet", "tags": ["curious", "empathetic"]},
+          {"label": "逃げる", "score": 0, "flee": true, "tags": ["cautious"]}
+        ],
+        "sets_flag": "prophet_encountered"
+      },
+      {
+        "event_id": "f_e_residue_reveal",
+        "type": "dialogue",
+        "text": "「Residue——消し残り。記憶を消しても、行動パターンは残る。お前は47回、同じ選択をしてきた。48回目も、同じだろう」",
+        "conditions": {"min_loop": 7, "requires_truth_stage": 2, "requires_flag": "core_log_read"},
+        "sets_flag": "residue_truth_revealed",
+        "choices": [
+          {"label": "「なら48回目こそ変える」", "score": 5, "tags": ["defiant", "fearless"], "discovery": true},
+          {"label": "「同じでいい。それが俺だ」", "score": 3, "tags": ["pragmatic", "empathetic"]}
         ]
       }
     ]
