@@ -12,7 +12,7 @@ func save_state(payload: Dictionary) -> void:
 
 
 func load_state() -> Dictionary:
-	var primary := _read_json(PRIMARY_SAVE_PATH)
+	var primary: Dictionary = _read_json(PRIMARY_SAVE_PATH)
 	if not primary.is_empty():
 		return primary
 	return _read_json(BACKUP_SAVE_PATH)
@@ -28,7 +28,7 @@ func _rotate_backup() -> void:
 
 
 func _write_json(path: String, payload: Dictionary) -> void:
-	var file := FileAccess.open(path, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		push_warning("Failed to open save file: %s" % path)
 		return
@@ -38,10 +38,10 @@ func _write_json(path: String, payload: Dictionary) -> void:
 func _read_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}
-	var file := FileAccess.open(path, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		return {}
-	var parsed := JSON.parse_string(file.get_as_text())
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
 	if parsed is Dictionary:
 		return parsed
 	return {}

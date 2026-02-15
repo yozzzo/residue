@@ -1,0 +1,100 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/BattleScreen.gd" id="1_battle"]
+
+[node name="BattleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_battle")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.12, 0.06, 0.08, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 32
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="Label" parent="Margin/Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "戦闘"
+
+[node name="EnemyPanel" type="VBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="EnemyName" type="Label" parent="Margin/Root/EnemyPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "敵の名前"
+
+[node name="EnemyHP" type="Label" parent="Margin/Root/EnemyPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.3, 0.3, 1)
+text = "HP: 100 / 100"
+
+[node name="EnemyDesc" type="RichTextLabel" parent="Margin/Root/EnemyPanel"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/default_color = Color(0.7, 0.7, 0.7, 1)
+bbcode_enabled = true
+text = "敵の説明"
+fit_content = true
+
+[node name="HSeparator" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="BattleLog" type="RichTextLabel" parent="Margin/Root"]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = ""
+scroll_following = true
+
+[node name="HSeparator2" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="PlayerStatus" type="Label" parent="Margin/Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
+theme_override_font_sizes/font_size = 18
+text = "あなた: HP 100 / 100 | Gold: 0"
+
+[node name="Commands" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="AttackButton" type="Button" parent="Margin/Root/Commands"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "攻撃"
+
+[node name="DefendButton" type="Button" parent="Margin/Root/Commands"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "防御"
+
+[node name="FleeButton" type="Button" parent="Margin/Root/Commands"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "逃走"

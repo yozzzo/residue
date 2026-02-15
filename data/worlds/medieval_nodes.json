@@ -1,0 +1,167 @@
+{
+  "world_id": "medieval",
+  "start_node": "m_n01",
+  "nodes": [
+    {
+      "node_id": "m_n01",
+      "node_type": "explore",
+      "name": "村の入口",
+      "description": "石畳の道が霧の中へ続く。村人の姿は見えない。",
+      "edges": {
+        "forward": "m_n02",
+        "left": null,
+        "right": null,
+        "back": null
+      },
+      "event_ids": ["m_e01"]
+    },
+    {
+      "node_id": "m_n02",
+      "node_type": "event",
+      "name": "村長の家",
+      "description": "窓は塞がれ、地下への扉が軋む音がする。",
+      "edges": {
+        "forward": "m_n03",
+        "left": "m_n04",
+        "right": null,
+        "back": "m_n01"
+      },
+      "event_ids": ["m_e02"]
+    },
+    {
+      "node_id": "m_n03",
+      "node_type": "explore",
+      "name": "礼拝堂跡",
+      "description": "崩れた祭壇。祈りの残響が空気を震わせる。",
+      "edges": {
+        "forward": "m_n05",
+        "left": null,
+        "right": "m_n06",
+        "back": "m_n02"
+      },
+      "event_ids": ["m_e03"]
+    },
+    {
+      "node_id": "m_n04",
+      "node_type": "battle",
+      "name": "廃屋の路地",
+      "description": "影が動く。逃げ場はない。",
+      "edges": {
+        "forward": "m_n07",
+        "left": null,
+        "right": null,
+        "back": "m_n02"
+      },
+      "event_ids": ["m_e04"],
+      "enemy_ids": ["m_hollow_guard"]
+    },
+    {
+      "node_id": "m_n05",
+      "node_type": "event",
+      "name": "井戸の広場",
+      "description": "干上がった井戸。底から声が聞こえる気がする。",
+      "edges": {
+        "forward": "m_n08",
+        "left": "m_n06",
+        "right": null,
+        "back": "m_n03"
+      },
+      "event_ids": ["m_e05"]
+    },
+    {
+      "node_id": "m_n06",
+      "node_type": "battle",
+      "name": "崩れた塔",
+      "description": "瓦礫の隙間から這い出るものがいる。",
+      "edges": {
+        "forward": null,
+        "left": null,
+        "right": null,
+        "back": "m_n03"
+      },
+      "event_ids": [],
+      "enemy_ids": ["m_crawling_shade"]
+    },
+    {
+      "node_id": "m_n07",
+      "node_type": "explore",
+      "name": "地下墓地入口",
+      "description": "石の階段が闇へ降りる。湿った空気が肺を満たす。",
+      "edges": {
+        "forward": "m_n09",
+        "left": null,
+        "right": null,
+        "back": "m_n04"
+      },
+      "event_ids": ["m_e06"]
+    },
+    {
+      "node_id": "m_n08",
+      "node_type": "battle",
+      "name": "朽ちた修道院",
+      "description": "祈りの姿勢で固まった者たちがいる。一体だけ、動いた。",
+      "edges": {
+        "forward": "m_n10",
+        "left": null,
+        "right": null,
+        "back": "m_n05"
+      },
+      "event_ids": [],
+      "enemy_ids": ["m_cursed_monk"]
+    },
+    {
+      "node_id": "m_n09",
+      "node_type": "battle",
+      "name": "骨の回廊",
+      "description": "壁も床も骨で組まれている。その一部が歩き出す。",
+      "edges": {
+        "forward": "m_n11",
+        "left": "m_n10",
+        "right": null,
+        "back": "m_n07"
+      },
+      "event_ids": [],
+      "enemy_ids": ["m_bone_collector"]
+    },
+    {
+      "node_id": "m_n10",
+      "node_type": "event",
+      "name": "封印の間",
+      "description": "古い紋章が床に刻まれている。誰かがここを守っていた。",
+      "edges": {
+        "forward": "m_n12",
+        "left": null,
+        "right": "m_n09",
+        "back": "m_n08"
+      },
+      "event_ids": ["m_e07"]
+    },
+    {
+      "node_id": "m_n11",
+      "node_type": "explore",
+      "name": "祭壇の前室",
+      "description": "蝋燭が勝手に灯る。誰かが待っている気配。",
+      "edges": {
+        "forward": "m_n12",
+        "left": null,
+        "right": null,
+        "back": "m_n09"
+      },
+      "event_ids": ["m_e08"]
+    },
+    {
+      "node_id": "m_n12",
+      "node_type": "boss",
+      "name": "地下聖堂",
+      "description": "闇の中に玉座がある。座す者の眼だけが光る。口は縫われ、しかし声が聞こえる。",
+      "edges": {
+        "forward": null,
+        "left": null,
+        "right": null,
+        "back": "m_n11"
+      },
+      "event_ids": ["m_e_boss"],
+      "enemy_ids": ["m_boss_sealed_bishop"]
+    }
+  ]
+}

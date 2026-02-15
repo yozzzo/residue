@@ -1,0 +1,124 @@
+{
+  "enemies": [
+    {
+      "enemy_id": "m_hollow_guard",
+      "name": "虚ろな衛兵",
+      "description": "かつて村を守っていた男。今は空洞の眼窩だけが残る。",
+      "hp": 30,
+      "attack": 8,
+      "defense": 3,
+      "rewards": {
+        "gold": 5,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "m_crawling_shade",
+      "name": "這い寄る影",
+      "description": "壁から剥がれた何か。形を持たぬ飢え。",
+      "hp": 20,
+      "attack": 12,
+      "defense": 1,
+      "rewards": {
+        "gold": 3,
+        "tags": ["shadow_slayer"]
+      }
+    },
+    {
+      "enemy_id": "m_cursed_monk",
+      "name": "呪われた修道士",
+      "description": "祈りの姿勢のまま石化した男。近づくと動き出す。",
+      "hp": 45,
+      "attack": 10,
+      "defense": 5,
+      "rewards": {
+        "gold": 8,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "m_bone_collector",
+      "name": "骨収集者",
+      "description": "地下墓地を徘徊する、骨で編まれた人型。",
+      "hp": 55,
+      "attack": 14,
+      "defense": 4,
+      "rewards": {
+        "gold": 12,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "m_boss_sealed_bishop",
+      "name": "封印されし司教",
+      "description": "村人が決して語らぬ存在。地下聖堂の最奥で待つ。その口は縫い合わされ、眼だけが真実を知る。",
+      "hp": 120,
+      "attack": 18,
+      "defense": 8,
+      "rewards": {
+        "gold": 50,
+        "tags": ["bishop_slayer", "truth_seeker"]
+      }
+    },
+    {
+      "enemy_id": "f_drone_swarm",
+      "name": "廃棄ドローン群",
+      "description": "壊れた偵察機の残骸。群れで襲う本能だけが残る。",
+      "hp": 25,
+      "attack": 6,
+      "defense": 2,
+      "rewards": {
+        "gold": 4,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "f_memory_glitch",
+      "name": "記憶のグリッチ",
+      "description": "削除されたはずのデータが実体化したもの。触れると過去が乱れる。",
+      "hp": 35,
+      "attack": 15,
+      "defense": 0,
+      "rewards": {
+        "gold": 6,
+        "tags": ["glitch_touched"]
+      }
+    },
+    {
+      "enemy_id": "f_rusted_sentinel",
+      "name": "錆びた歩哨",
+      "description": "セクター警備の自動兵。動力は切れているはずだが、何かが動かしている。",
+      "hp": 50,
+      "attack": 12,
+      "defense": 8,
+      "rewards": {
+        "gold": 10,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "f_echo_hunter",
+      "name": "残響狩り",
+      "description": "死者の電子痕跡を追う存在。お前の死を覚えている。",
+      "hp": 60,
+      "attack": 16,
+      "defense": 5,
+      "rewards": {
+        "gold": 15,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "f_boss_core_prophet",
+      "name": "コア預言者",
+      "description": "工場中枢に眠る意識体。全ての周回を観測し、記録し続けてきた。お前の死を何度も見たと告げる。",
+      "hp": 140,
+      "attack": 20,
+      "defense": 10,
+      "rewards": {
+        "gold": 60,
+        "tags": ["prophet_witness", "machine_breaker"]
+      }
+    }
+  ]
+}

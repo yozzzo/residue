@@ -2,38 +2,169 @@
   "events_by_world": {
     "medieval": [
       {
-        "event_id": "m_001",
-        "text": "The village elder studies your face too long. A locked cellar door trembles beneath his house.",
+        "event_id": "m_e01",
+        "type": "explore",
+        "text": "村の入口に立つ。石畳は苔むし、足跡ひとつない。門の向こうで何かが待っている気配がする。",
         "choices": [
-          {"label": "Ask about the cellar", "score": 2},
-          {"label": "Ignore and head to the gate", "score": 1}
+          {"label": "門を潜る", "score": 1, "tag": "bold"},
+          {"label": "周囲を調べる", "score": 2, "tag": "cautious", "discovery": true}
         ]
       },
       {
-        "event_id": "m_002",
-        "text": "At a three-way corridor, the torchlight bends as if breathing.",
+        "event_id": "m_e02",
+        "type": "dialogue",
+        "text": "村長の家。扉を叩くと、老人が隙間から覗く。「あんた、何度目だ？」意味のわからない問いかけ。地下から軋む音がする。",
         "choices": [
-          {"label": "Go forward", "score": 2},
-          {"label": "Turn left", "score": 1},
-          {"label": "Turn right", "score": 1}
+          {"label": "「何度目とは？」と問う", "score": 2, "tag": "curious"},
+          {"label": "地下について尋ねる", "score": 3, "tag": "truth_seeker", "discovery": true},
+          {"label": "立ち去る", "score": 1}
+        ]
+      },
+      {
+        "event_id": "m_e03",
+        "type": "explore",
+        "text": "崩れた礼拝堂。祭壇には古い血痕。壁の聖画は削り取られ、代わりに何かの紋章が刻まれている。",
+        "choices": [
+          {"label": "紋章を調べる", "score": 2, "tag": "scholar", "discovery": true},
+          {"label": "祭壇に祈る", "score": 1, "tag": "pious"},
+          {"label": "先へ進む", "score": 1}
+        ]
+      },
+      {
+        "event_id": "m_e04",
+        "type": "battle",
+        "text": "廃屋の影から、かつて人だったものが現れる。錆びた剣を引きずり、虚ろな眼窩がお前を捉える。",
+        "choices": [
+          {"label": "戦う", "score": 0, "start_battle": "m_hollow_guard"},
+          {"label": "逃げる（前のノードへ戻る）", "score": 0, "flee": true}
+        ]
+      },
+      {
+        "event_id": "m_e05",
+        "type": "dialogue",
+        "text": "井戸の底から声が聞こえる。「お前もここへ来たか」——誰の声かわからない。いや、自分の声に似ている。",
+        "choices": [
+          {"label": "井戸を覗き込む", "score": 3, "tag": "reckless", "discovery": true},
+          {"label": "応えない", "score": 1}
+        ]
+      },
+      {
+        "event_id": "m_e06",
+        "type": "explore",
+        "text": "地下墓地の入口。階段を降りると、湿った空気と腐敗臭。壁には無数の手形。誰かが這い上がろうとした痕跡。",
+        "choices": [
+          {"label": "降りる", "score": 2, "tag": "bold"},
+          {"label": "手形を調べる", "score": 2, "tag": "observer", "discovery": true}
+        ]
+      },
+      {
+        "event_id": "m_e07",
+        "type": "dialogue",
+        "text": "封印の間。床の紋章が淡く光る。声が響く——「封印を解くな」「解かねば真実は得られぬ」二つの声。どちらが正しい？",
+        "choices": [
+          {"label": "封印を解く", "score": 3, "tag": "defiant", "discovery": true},
+          {"label": "封印を強化する", "score": 2, "tag": "guardian"},
+          {"label": "何もしない", "score": 1}
+        ]
+      },
+      {
+        "event_id": "m_e08",
+        "type": "explore",
+        "text": "祭壇の前室。蝋燭が勝手に灯る。祭壇には古い書物。最後のページには——お前の名前が書かれている。",
+        "choices": [
+          {"label": "書物を読む", "score": 3, "tag": "truth_seeker", "discovery": true},
+          {"label": "書物を燃やす", "score": 2, "tag": "defiant"},
+          {"label": "そのまま進む", "score": 1}
+        ]
+      },
+      {
+        "event_id": "m_e_boss",
+        "type": "battle",
+        "text": "地下聖堂の最奥。玉座に座る者の口は糸で縫い合わされている。しかし声が頭に響く。「お前は何度も来た。何度も死んだ。そして何度も忘れた。今度こそ覚えていられるか？」",
+        "choices": [
+          {"label": "「覚えている」と答える", "score": 0, "start_battle": "m_boss_sealed_bishop", "tag": "truth_seeker"},
+          {"label": "「何の話だ」と答える", "score": 0, "start_battle": "m_boss_sealed_bishop"},
+          {"label": "逃げる", "score": 0, "flee": true}
         ]
       }
     ],
     "future": [
       {
-        "event_id": "f_001",
-        "text": "A terminal requests your biological signature, then prints a name you do not remember.",
+        "event_id": "f_e01",
+        "type": "explore",
+        "text": "廃棄セクターの入口。錆びた隔壁には「立入禁止：記録消去対象区画」と書かれている。消されたはずの場所。",
         "choices": [
-          {"label": "Authenticate", "score": 2},
-          {"label": "Disconnect power", "score": 1}
+          {"label": "侵入する", "score": 1, "tag": "bold"},
+          {"label": "周囲のログを確認する", "score": 2, "tag": "analyst", "discovery": true}
         ]
       },
       {
-        "event_id": "f_002",
-        "text": "Factory core alarms rise. Something inside recognizes your previous deaths.",
+        "event_id": "f_e02",
+        "type": "dialogue",
+        "text": "認証ターミナルが起動する。「ようこそ、被験体N-07」——覚えのない識別名。「前回の終了記録：死亡」と表示される。",
         "choices": [
-          {"label": "Rush in", "score": 2},
-          {"label": "Re-route through maintenance", "score": 1}
+          {"label": "認証を通す", "score": 2, "tag": "compliant"},
+          {"label": "端末をハックする", "score": 3, "tag": "hacker", "discovery": true},
+          {"label": "無視して進む", "score": 1}
+        ]
+      },
+      {
+        "event_id": "f_e03",
+        "type": "explore",
+        "text": "整備区画。放棄された作業台に、誰かの日記データが残っている。「もう17回目だ。記憶は消されても、体は覚えている」",
+        "choices": [
+          {"label": "日記を全て読む", "score": 3, "tag": "truth_seeker", "discovery": true},
+          {"label": "データを消去する", "score": 1, "tag": "cautious"},
+          {"label": "工具を回収する", "score": 2}
+        ]
+      },
+      {
+        "event_id": "f_e04",
+        "type": "dialogue",
+        "text": "データ保管庫。削除されたログが次々と復元される。全てお前の記録——何十回もの侵入、何十回もの死。同じ場所で、同じように。",
+        "choices": [
+          {"label": "記録を精査する", "score": 3, "tag": "analyst", "discovery": true},
+          {"label": "記録を完全消去する", "score": 2, "tag": "defiant"},
+          {"label": "目を背ける", "score": 1}
+        ]
+      },
+      {
+        "event_id": "f_e05",
+        "type": "explore",
+        "text": "研究棟。培養槽には何も——いや、一つだけ、お前と同じ顔をした死体が浮いている。「Model N-06」とラベルが貼られている。",
+        "choices": [
+          {"label": "培養槽を調べる", "score": 3, "tag": "truth_seeker", "discovery": true},
+          {"label": "培養槽を破壊する", "score": 2, "tag": "defiant"},
+          {"label": "見なかったことにする", "score": 1}
+        ]
+      },
+      {
+        "event_id": "f_e06",
+        "type": "dialogue",
+        "text": "緊急シェルターの壁に刻まれたメッセージ。「逃げろ。コアに近づくな。お前が何者か、知らないほうがいい」——筆跡はお前のものに似ている。",
+        "choices": [
+          {"label": "コアを目指す", "score": 2, "tag": "bold"},
+          {"label": "メッセージを解読する", "score": 3, "tag": "analyst", "discovery": true},
+          {"label": "引き返す", "score": 1, "flee": true}
+        ]
+      },
+      {
+        "event_id": "f_e07",
+        "type": "explore",
+        "text": "コアへの最終通路。警告が点滅する。「この先、人格保持は保証されません」システムがお前を止めようとしている。",
+        "choices": [
+          {"label": "構わず進む", "score": 2, "tag": "reckless"},
+          {"label": "システムと対話する", "score": 3, "tag": "diplomat", "discovery": true}
+        ]
+      },
+      {
+        "event_id": "f_e_boss",
+        "type": "battle",
+        "text": "工場中枢。無数のケーブルに繋がれた意識体が待っている。「また会えたな、N-07。これで47回目だ。お前は毎回ここに来て、毎回負ける。そして毎回忘れる。今回は違うと、毎回言う。」",
+        "choices": [
+          {"label": "「今回こそ違う」", "score": 0, "start_battle": "f_boss_core_prophet", "tag": "defiant"},
+          {"label": "「なぜ教える？」", "score": 0, "start_battle": "f_boss_core_prophet", "tag": "curious"},
+          {"label": "逃げる", "score": 0, "flee": true}
         ]
       }
     ]

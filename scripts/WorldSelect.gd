@@ -15,15 +15,15 @@ func _ready() -> void:
 
 
 func _populate_world_buttons() -> void:
-	for child in world_buttons.get_children():
+	for child: Node in world_buttons.get_children():
 		child.queue_free()
 
-	for world in GameState.get_worlds():
+	for world: Variant in GameState.get_worlds():
 		var button := Button.new()
-		var world_id := world.get("world_id", "unknown")
-		var name := world.get("name", world_id)
-		var blurb := world.get("blurb", "")
-		button.text = "%s: %s" % [name, blurb]
+		var world_id: String = world.get("world_id", "unknown")
+		var world_name: String = world.get("name", world_id)
+		var blurb: String = world.get("blurb", "")
+		button.text = "%s: %s" % [world_name, blurb]
 		button.pressed.connect(_on_world_button_pressed.bind(world_id))
 		world_buttons.add_child(button)
 
