@@ -32,7 +32,7 @@ func get_available_locales() -> Array:
 	return _available_locales.duplicate()
 
 
-func tr(key: String, params: Dictionary = {}) -> String:
+func t(key: String, params: Dictionary = {}) -> String:
 	## Translate a key, optionally with parameter substitution
 	## Keys use dot notation: "ui.start", "ui.battle_attack", etc.
 	## Params replace {param_name} in the string

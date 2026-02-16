@@ -31,17 +31,17 @@ func _setup_screen() -> void:
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
 	var world_name: String = LocaleManager.tr_data(world, "name")
 	
-	header.text = LocaleManager.tr("ui.job_select")
-	world_info.text = LocaleManager.tr("ui.world_label", {"name": world_name})
-	back_button.text = LocaleManager.tr("ui.back")
-	confirm_button.text = LocaleManager.tr("ui.confirm")
+	header.text = LocaleManager.t("ui.job_select")
+	world_info.text = LocaleManager.t("ui.world_label", {"name": world_name})
+	back_button.text = LocaleManager.t("ui.back")
+	confirm_button.text = LocaleManager.t("ui.confirm")
 	
 	_update_soul_label()
 	_populate_job_list()
 
 
 func _update_soul_label() -> void:
-	soul_label.text = LocaleManager.tr("ui.soul_label", {"amount": GameState.soul_points})
+	soul_label.text = LocaleManager.t("ui.soul_label", {"amount": GameState.soul_points})
 
 
 func _populate_job_list() -> void:
@@ -95,7 +95,7 @@ func _create_job_card(job: Dictionary) -> Control:
 		if is_foreign:
 			var origin_world: Dictionary = GameState.get_world_by_id(origin)
 			var origin_name: String = LocaleManager.tr_data(origin_world, "name")
-			origin_text = " [%s: %s]" % [LocaleManager.tr("ui.other_world_mark"), origin_name]
+			origin_text = " [%s: %s]" % [LocaleManager.t("ui.other_world_mark"), origin_name]
 		else:
 			var origin_world: Dictionary = GameState.get_world_by_id(origin)
 			var origin_name: String = LocaleManager.tr_data(origin_world, "name")
@@ -127,7 +127,7 @@ func _create_job_card(job: Dictionary) -> Control:
 	if not special_ability.is_empty():
 		var ability_name: String = LocaleManager.tr_data(special_ability, "name")
 		var ability_label := Label.new()
-		ability_label.text = LocaleManager.tr("ui.special_ability", {"name": ability_name})
+		ability_label.text = LocaleManager.t("ui.special_ability", {"name": ability_name})
 		ability_label.add_theme_font_size_override("font_size", 14)
 		ability_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.6))
 		info_vbox.add_child(ability_label)
@@ -139,7 +139,7 @@ func _create_job_card(job: Dictionary) -> Control:
 	
 	if is_unlocked:
 		var select_btn := Button.new()
-		select_btn.text = LocaleManager.tr("ui.select")
+		select_btn.text = LocaleManager.t("ui.select")
 		select_btn.custom_minimum_size = Vector2(100, 40)
 		select_btn.pressed.connect(_on_job_select_pressed.bind(job_id, select_btn))
 		button_vbox.add_child(select_btn)
@@ -147,7 +147,7 @@ func _create_job_card(job: Dictionary) -> Control:
 		
 		# Highlight if currently selected
 		if job_id == selected_job_id or (selected_job_id.is_empty() and job_id == GameState.current_job):
-			select_btn.text = LocaleManager.tr("ui.selected")
+			select_btn.text = LocaleManager.t("ui.selected")
 			selected_job_id = job_id
 			confirm_button.disabled = false
 	else:
@@ -155,12 +155,12 @@ func _create_job_card(job: Dictionary) -> Control:
 		var cost: int = int(unlock_conditions.get("soul_points", 0))
 		
 		var cost_label := Label.new()
-		cost_label.text = LocaleManager.tr("ui.unlock_cost", {"cost": cost})
+		cost_label.text = LocaleManager.t("ui.unlock_cost", {"cost": cost})
 		cost_label.add_theme_color_override("font_color", Color(0.8, 0.6, 0.2))
 		button_vbox.add_child(cost_label)
 		
 		var unlock_btn := Button.new()
-		unlock_btn.text = LocaleManager.tr("ui.unlock")
+		unlock_btn.text = LocaleManager.t("ui.unlock")
 		unlock_btn.custom_minimum_size = Vector2(100, 40)
 		unlock_btn.disabled = not can_unlock
 		unlock_btn.pressed.connect(_on_job_unlock_pressed.bind(job_id))
@@ -190,11 +190,11 @@ func _on_job_select_pressed(job_id: String, button: Button) -> void:
 	# Deselect previous
 	for jid: String in job_buttons.keys():
 		var btn: Button = job_buttons[jid]
-		btn.text = LocaleManager.tr("ui.select")
+		btn.text = LocaleManager.t("ui.select")
 	
 	# Select new
 	selected_job_id = job_id
-	button.text = LocaleManager.tr("ui.selected")
+	button.text = LocaleManager.t("ui.selected")
 	confirm_button.disabled = false
 
 
@@ -213,7 +213,7 @@ func _show_unlock_notification(job_id: String) -> void:
 	
 	# Simple notification overlay
 	var notification := Label.new()
-	notification.text = LocaleManager.tr("ui.unlocked_notification", {"name": job_name})
+	notification.text = LocaleManager.t("ui.unlocked_notification", {"name": job_name})
 	notification.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	notification.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	notification.add_theme_font_size_override("font_size", 28)

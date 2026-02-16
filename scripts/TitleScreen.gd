@@ -41,7 +41,7 @@ func _setup_lang_button() -> void:
 
 func _update_lang_button() -> void:
 	if lang_button != null:
-		lang_button.text = LocaleManager.tr("ui.lang_toggle")
+		lang_button.text = LocaleManager.t("ui.lang_toggle")
 
 
 func _on_lang_button_pressed() -> void:
@@ -56,9 +56,9 @@ func _on_locale_changed(_locale: String) -> void:
 
 
 func _update_texts() -> void:
-	title_label.text = LocaleManager.tr("ui.title")
-	start_button.text = LocaleManager.tr("ui.start")
-	quit_button.text = LocaleManager.tr("ui.quit")
+	title_label.text = LocaleManager.t("ui.title")
+	start_button.text = LocaleManager.t("ui.start")
+	quit_button.text = LocaleManager.t("ui.quit")
 	_update_subtitle()
 
 
@@ -70,11 +70,11 @@ func _update_subtitle() -> void:
 		max_truth_stage = maxi(max_truth_stage, stage)
 	
 	if max_truth_stage >= 3:
-		subtitle_label.text = LocaleManager.tr("ui.subtitle_truth_3")
+		subtitle_label.text = LocaleManager.t("ui.subtitle_truth_3")
 	elif max_truth_stage >= 2:
-		subtitle_label.text = LocaleManager.tr("ui.subtitle_truth_2")
+		subtitle_label.text = LocaleManager.t("ui.subtitle_truth_2")
 	else:
-		subtitle_label.text = LocaleManager.tr("ui.subtitle")
+		subtitle_label.text = LocaleManager.t("ui.subtitle")
 
 
 func _setup_title_style() -> void:

@@ -31,8 +31,8 @@ func _on_locale_changed(_locale: String) -> void:
 
 func _update_texts() -> void:
 	if header_label != null:
-		header_label.text = LocaleManager.tr("ui.world_select")
-	back_button.text = LocaleManager.tr("ui.back")
+		header_label.text = LocaleManager.t("ui.world_select")
+	back_button.text = LocaleManager.t("ui.back")
 
 
 func _apply_theme() -> void:
@@ -55,7 +55,7 @@ func _populate_world_buttons() -> void:
 		var truth_stage: int = GameState.get_truth_stage(world_id)
 		var truth_text: String = ""
 		if truth_stage > 0:
-			truth_text = " [%s]" % LocaleManager.tr("ui.truth_stage", {"stage": truth_stage})
+			truth_text = " [%s]" % LocaleManager.t("ui.truth_stage", {"stage": truth_stage})
 		
 		# Add visual indicator based on world type
 		var world_icon: String = "🏰" if world_id == "medieval" else "🔮" if world_id == "future" else "⚡"
@@ -68,7 +68,7 @@ func _populate_world_buttons() -> void:
 
 
 func _update_meta_text() -> void:
-	meta_label.text = LocaleManager.tr("ui.loop_soul", {
+	meta_label.text = LocaleManager.t("ui.loop_soul", {
 		"loop": GameState.loop_count,
 		"soul": GameState.soul_points
 	})
@@ -80,7 +80,7 @@ func _update_traits_display() -> void:
 	
 	var dominant_traits: Array = GameState.get_dominant_traits(5)
 	if dominant_traits.size() == 0:
-		traits_label.text = LocaleManager.tr("ui.traits_none")
+		traits_label.text = LocaleManager.t("ui.traits_none")
 		return
 	
 	var traits_with_values: Array = []
@@ -88,7 +88,7 @@ func _update_traits_display() -> void:
 		var value: int = GameState.get_trait_tag_value(trait_tag)
 		traits_with_values.append("%s(%d)" % [trait_tag, value])
 	
-	traits_label.text = LocaleManager.tr("ui.traits_label", {
+	traits_label.text = LocaleManager.t("ui.traits_label", {
 		"traits": ", ".join(traits_with_values)
 	})
 

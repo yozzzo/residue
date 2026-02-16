@@ -160,11 +160,11 @@ func update_status() -> void:
 	var node_name: String = LocaleManager.tr_data(node, "name")
 	if node_name.is_empty():
 		node_name = node.get("name", "---")
-	location_label.text = LocaleManager.tr("ui.location", {"name": node_name})
+	location_label.text = LocaleManager.t("ui.location", {"name": node_name})
 
 
 func update_location(node_name: String) -> void:
-	location_label.text = LocaleManager.tr("ui.location", {"name": node_name})
+	location_label.text = LocaleManager.t("ui.location", {"name": node_name})
 
 
 func show_bar() -> void:

@@ -30,8 +30,8 @@ func _apply_theme() -> void:
 
 
 func _setup_screen() -> void:
-	header.text = LocaleManager.tr("ui.inheritance_header")
-	skip_button.text = LocaleManager.tr("ui.inheritance_skip")
+	header.text = LocaleManager.t("ui.inheritance_header")
+	skip_button.text = LocaleManager.t("ui.inheritance_skip")
 	
 	var is_clear: bool = GameState.run_is_clear
 	var soul_gain: int = GameState.last_run_score
@@ -42,23 +42,23 @@ func _setup_screen() -> void:
 %s: [color=gold]%d[/color]
 
 """ % [
-		LocaleManager.tr("ui.inheritance_run_end", {"loop": GameState.loop_count - 1}),
-		LocaleManager.tr("ui.inheritance_soul_gain", {"amount": soul_gain}).split(":")[0],
+		LocaleManager.t("ui.inheritance_run_end", {"loop": GameState.loop_count - 1}),
+		LocaleManager.t("ui.inheritance_soul_gain", {"amount": soul_gain}).split(":")[0],
 		soul_gain,
-		LocaleManager.tr("ui.inheritance_soul_total", {"amount": GameState.soul_points}).split(":")[0],
+		LocaleManager.t("ui.inheritance_soul_total", {"amount": GameState.soul_points}).split(":")[0],
 		GameState.soul_points
 	]
 	
 	if is_clear:
-		desc_text += "[center][color=green]%s[/color][/center]\n\n" % LocaleManager.tr("ui.inheritance_clear")
+		desc_text += "[center][color=green]%s[/color][/center]\n\n" % LocaleManager.t("ui.inheritance_clear")
 	
-	desc_text += LocaleManager.tr("ui.inheritance_prompt")
+	desc_text += LocaleManager.t("ui.inheritance_prompt")
 	
 	# Show dominant traits
 	var dominant_traits: Array = GameState.get_dominant_traits(3)
 	if dominant_traits.size() > 0:
 		desc_text += "\n\n[b]%s[/b] %s" % [
-			LocaleManager.tr("ui.inheritance_traits"),
+			LocaleManager.t("ui.inheritance_traits"),
 			", ".join(dominant_traits)
 		]
 	
@@ -66,7 +66,7 @@ func _setup_screen() -> void:
 	var flags_text: String = _get_recent_flags_text()
 	if not flags_text.is_empty():
 		desc_text += "\n\n[b]%s[/b] %s" % [
-			LocaleManager.tr("ui.inheritance_memories"),
+			LocaleManager.t("ui.inheritance_memories"),
 			flags_text
 		]
 	
@@ -109,20 +109,20 @@ func _generate_localized_candidates() -> Array:
 		
 		match candidate_type:
 			"soul_bonus":
-				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_soul_bonus", {"amount": value})
-				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_soul_bonus_desc", {"amount": value})
+				localized_candidate["label"] = LocaleManager.t("ui.inheritance_soul_bonus", {"amount": value})
+				localized_candidate["description"] = LocaleManager.t("ui.inheritance_soul_bonus_desc", {"amount": value})
 			"hp_bonus":
-				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_hp_bonus", {"amount": value})
-				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_hp_bonus_desc", {"amount": value})
+				localized_candidate["label"] = LocaleManager.t("ui.inheritance_hp_bonus", {"amount": value})
+				localized_candidate["description"] = LocaleManager.t("ui.inheritance_hp_bonus_desc", {"amount": value})
 			"gold_start":
-				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_gold_start", {"amount": value})
-				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_gold_start_desc", {"amount": value})
+				localized_candidate["label"] = LocaleManager.t("ui.inheritance_gold_start", {"amount": value})
+				localized_candidate["description"] = LocaleManager.t("ui.inheritance_gold_start_desc", {"amount": value})
 			"tag_boost":
-				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_tag_boost", {"tag": value})
-				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_tag_boost_desc", {"tag": value})
+				localized_candidate["label"] = LocaleManager.t("ui.inheritance_tag_boost", {"tag": value})
+				localized_candidate["description"] = LocaleManager.t("ui.inheritance_tag_boost_desc", {"tag": value})
 			"memory_hint":
-				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_memory_hint")
-				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_memory_hint_desc")
+				localized_candidate["label"] = LocaleManager.t("ui.inheritance_memory_hint")
+				localized_candidate["description"] = LocaleManager.t("ui.inheritance_memory_hint_desc")
 		
 		localized.append(localized_candidate)
 	
@@ -169,7 +169,7 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	
 	var title := Label.new()
 	title.add_theme_font_size_override("font_size", 18)
-	title.text = "【%s】" % candidate.get("label", LocaleManager.tr("ui.inheritance_header"))
+	title.text = "【%s】" % candidate.get("label", LocaleManager.t("ui.inheritance_header"))
 	vbox.add_child(title)
 	
 	var desc := Label.new()
@@ -178,7 +178,7 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	vbox.add_child(desc)
 	
 	var button := Button.new()
-	button.text = LocaleManager.tr("ui.select")
+	button.text = LocaleManager.t("ui.select")
 	button.custom_minimum_size = Vector2(100, 40)
 	button.pressed.connect(_on_candidate_selected.bind(candidate))
 	hbox.add_child(button)

@@ -43,7 +43,7 @@ func _on_locale_changed(_locale: String) -> void:
 
 
 func _update_texts() -> void:
-	exit_button.text = LocaleManager.tr("ui.run_exit")
+	exit_button.text = LocaleManager.t("ui.run_exit")
 
 
 func _setup_typewriter() -> void:
@@ -109,9 +109,9 @@ func _load_node(node_id: String) -> void:
 	var job_name: String = LocaleManager.tr_data(job, "name")
 	var foreign_indicator: String = ""
 	if GameState.run_is_foreign_job:
-		foreign_indicator = LocaleManager.tr("ui.foreign_indicator")
+		foreign_indicator = LocaleManager.t("ui.foreign_indicator")
 	
-	header.text = LocaleManager.tr("ui.run_header", {
+	header.text = LocaleManager.t("ui.run_header", {
 		"world": world_name,
 		"job": job_name,
 		"foreign": foreign_indicator,
@@ -128,25 +128,25 @@ func _update_location_display() -> void:
 	var node_name: String = LocaleManager.tr_data(current_node, "name")
 	if node_name.is_empty():
 		node_name = current_node.get("name", "Unknown Location")
-	location_label.text = LocaleManager.tr("ui.location", {"name": node_name})
+	location_label.text = LocaleManager.t("ui.location", {"name": node_name})
 	
 	# Show available directions
 	var edges: Dictionary = current_node.get("edges", {})
 	var directions: Array = []
 	if edges.has("forward") and not str(edges["forward"]).is_empty():
-		directions.append(LocaleManager.tr("ui.dir_forward"))
+		directions.append(LocaleManager.t("ui.dir_forward"))
 	if edges.has("left") and not str(edges["left"]).is_empty():
-		directions.append(LocaleManager.tr("ui.dir_left"))
+		directions.append(LocaleManager.t("ui.dir_left"))
 	if edges.has("right") and not str(edges["right"]).is_empty():
-		directions.append(LocaleManager.tr("ui.dir_right"))
+		directions.append(LocaleManager.t("ui.dir_right"))
 	if edges.has("back") and not str(edges["back"]).is_empty():
-		directions.append(LocaleManager.tr("ui.dir_back"))
+		directions.append(LocaleManager.t("ui.dir_back"))
 	
 	if direction_label != null:
 		if directions.size() > 0:
-			direction_label.text = LocaleManager.tr("ui.directions", {"dirs": " ".join(directions)})
+			direction_label.text = LocaleManager.t("ui.directions", {"dirs": " ".join(directions)})
 		else:
-			direction_label.text = LocaleManager.tr("ui.dead_end")
+			direction_label.text = LocaleManager.t("ui.dead_end")
 
 
 func _build_event_queue() -> Array:
@@ -214,7 +214,7 @@ func _render_event() -> void:
 		var button := Button.new()
 		var choice_label: String = LocaleManager.tr_data(choice, "label")
 		if choice_label.is_empty():
-			choice_label = choice.get("label", LocaleManager.tr("ui.select"))
+			choice_label = choice.get("label", LocaleManager.t("ui.select"))
 		button.text = choice_label
 		button.pressed.connect(_on_choice_selected.bind(choice))
 		button.disabled = true  # Enabled after typewriter completes
@@ -267,9 +267,9 @@ func _render_navigation_only() -> void:
 	var nav_text: String
 	if node_type == "boss" and _has_boss_enemy():
 		# Boss node without event means boss defeated
-		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.tr("ui.nav_boss_cleared")]
+		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.t("ui.nav_boss_cleared")]
 	else:
-		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.tr("ui.nav_where")]
+		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.t("ui.nav_where")]
 	
 	typewriter.display_text(nav_text, TypewriterEffect.Speed.FAST)
 	
@@ -289,10 +289,10 @@ func _render_navigation_buttons() -> void:
 	var edges: Dictionary = current_node.get("edges", {})
 	
 	var directions := {
-		"forward": LocaleManager.tr("ui.nav_forward"),
-		"left": LocaleManager.tr("ui.nav_left"),
-		"right": LocaleManager.tr("ui.nav_right"),
-		"back": LocaleManager.tr("ui.nav_back")
+		"forward": LocaleManager.t("ui.nav_forward"),
+		"left": LocaleManager.t("ui.nav_left"),
+		"right": LocaleManager.t("ui.nav_right"),
+		"back": LocaleManager.t("ui.nav_back")
 	}
 	
 	for dir: String in directions.keys():
@@ -307,7 +307,7 @@ func _render_navigation_buttons() -> void:
 	var node_type: String = current_node.get("node_type", "")
 	if node_type == "boss":
 		var clear_btn := Button.new()
-		clear_btn.text = LocaleManager.tr("ui.run_clear")
+		clear_btn.text = LocaleManager.t("ui.run_clear")
 		clear_btn.pressed.connect(_on_run_clear)
 		navigation_box.add_child(clear_btn)
 
@@ -462,13 +462,13 @@ func _on_exit_run() -> void:
 func _show_fallback_event() -> void:
 	_clear_ui()
 	var text: String = "[b]%s[/b]\n\n%s" % [
-		LocaleManager.tr("ui.node_missing"),
-		LocaleManager.tr("ui.node_missing_hint")
+		LocaleManager.t("ui.node_missing"),
+		LocaleManager.t("ui.node_missing_hint")
 	]
 	typewriter.display_text(text, TypewriterEffect.Speed.INSTANT)
 	
 	var back_btn := Button.new()
-	back_btn.text = LocaleManager.tr("ui.run_exit")
+	back_btn.text = LocaleManager.t("ui.run_exit")
 	back_btn.pressed.connect(_on_exit_run)
 	choices_box.add_child(back_btn)
 
@@ -485,7 +485,7 @@ func _update_status() -> void:
 	var dominant_traits: Array = GameState.get_dominant_traits(2)
 	var traits_text: String = ""
 	if dominant_traits.size() > 0:
-		traits_text = " | %s" % LocaleManager.tr("ui.status_traits", {"traits": ", ".join(dominant_traits)})
+		traits_text = " | %s" % LocaleManager.t("ui.status_traits", {"traits": ", ".join(dominant_traits)})
 	
 	# Phase 3: Show cross-link items if any
 	var items_text: String = ""
@@ -493,10 +493,10 @@ func _update_status() -> void:
 		var item_names: Array = []
 		for item_id: String in GameState.cross_link_items:
 			item_names.append(LocaleManager.get_item_name(item_id))
-		items_text = " | %s" % LocaleManager.tr("ui.status_items", {"items": ", ".join(item_names)})
+		items_text = " | %s" % LocaleManager.t("ui.status_items", {"items": ", ".join(item_names)})
 	
 	status_label.text = "%s%s%s" % [
-		LocaleManager.tr("ui.status_full", {
+		LocaleManager.t("ui.status_full", {
 			"hp": GameState.run_hp,
 			"maxhp": GameState.run_max_hp,
 			"gold": GameState.run_gold,
