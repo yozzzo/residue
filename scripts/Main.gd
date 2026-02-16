@@ -38,21 +38,21 @@ func _setup_status_bar() -> void:
 
 func _show_title() -> void:
 	status_bar.hide_bar()
-	_swap_screen(TITLE_SCENE.instantiate())
+	await _swap_screen(TITLE_SCENE.instantiate())
 	current_screen.start_requested.connect(_on_start_requested)
 	current_screen.quit_requested.connect(_on_quit_requested)
 
 
 func _show_world_select() -> void:
 	status_bar.hide_bar()
-	_swap_screen(WORLD_SELECT_SCENE.instantiate())
+	await _swap_screen(WORLD_SELECT_SCENE.instantiate())
 	current_screen.back_requested.connect(_on_back_to_title)
 	current_screen.world_selected.connect(_on_world_selected)
 
 
 func _show_job_select() -> void:
 	status_bar.hide_bar()
-	_swap_screen(JOB_SELECT_SCENE.instantiate())
+	await _swap_screen(JOB_SELECT_SCENE.instantiate())
 	current_screen.back_requested.connect(_on_back_to_world_select)
 	current_screen.job_selected.connect(_on_job_selected)
 
@@ -62,7 +62,7 @@ func _show_run() -> void:
 	ThemeManager.set_world(GameState.selected_world_id)
 	
 	run_screen_instance = RUN_SCENE.instantiate()
-	_swap_screen(run_screen_instance)
+	await _swap_screen(run_screen_instance)
 	run_screen_instance.run_ended.connect(_on_run_ended)
 	run_screen_instance.battle_requested.connect(_on_battle_requested)
 	run_screen_instance.status_updated.connect(_on_status_updated)
@@ -90,13 +90,13 @@ func _show_inheritance() -> void:
 	ThemeManager.set_world("default")
 	
 	var inheritance_screen := INHERITANCE_SCENE.instantiate()
-	_swap_screen(inheritance_screen)
+	await _swap_screen(inheritance_screen)
 	inheritance_screen.inheritance_selected.connect(_on_inheritance_selected)
 
 
 func _swap_screen(next_screen: Control) -> void:
 	if use_transitions and transition_layer != null:
-		_swap_with_transition(next_screen)
+		await _swap_with_transition(next_screen)
 	else:
 		_swap_immediate(next_screen)
 

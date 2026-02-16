@@ -6,7 +6,8 @@ config_version=5
 [application]
 config/name="Residue"
 run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.2")
+config/features=PackedStringArray("4.6")
+config/icon="res://icon.png"
 
 [autoload]
 GameState="*res://scripts/GameState.gd"
@@ -20,5 +21,6 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [rendering]
-renderer/rendering_method="forward_plus"
+renderer/rendering_method="mobile"
 textures/canvas_textures/default_texture_filter=0
+textures/vram_compression/import_etc2_astc=true
