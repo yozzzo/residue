@@ -20,47 +20,60 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.07, 0.07, 0.08, 1)
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="SafeArea" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -150.0
-offset_right = 300.0
-offset_bottom = 150.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 48
+
+[node name="VBox" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 alignment = 1
 theme_override_constants/separation = 24
 
-[node name="Title" type="Label" parent="VBox"]
+[node name="Title" type="Label" parent="SafeArea/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 72
+theme_override_colors/font_color = Color(0.9, 0.85, 0.8, 1)
 text = "RESIDUE"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="VBox"]
+[node name="Subtitle" type="Label" parent="SafeArea/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.6, 0.55, 0.5, 1)
 text = "A Roguelike of Inherited Traces"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 32)
+[node name="Spacer" type="Control" parent="SafeArea/VBox"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 
-[node name="StartButton" type="Button" parent="VBox"]
-custom_minimum_size = Vector2(200, 48)
+[node name="LangButton" type="Button" parent="SafeArea/VBox"]
+custom_minimum_size = Vector2(120, 56)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
+text = "日本語"
+
+[node name="StartButton" type="Button" parent="SafeArea/VBox"]
+custom_minimum_size = Vector2(300, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
 text = "Start"
 
-[node name="QuitButton" type="Button" parent="VBox"]
-custom_minimum_size = Vector2(200, 48)
+[node name="QuitButton" type="Button" parent="SafeArea/VBox"]
+custom_minimum_size = Vector2(300, 56)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 22
 text = "Quit"

@@ -124,3 +124,31 @@ func bbcode_highlight(text: String) -> String:
 func bbcode_danger(text: String) -> String:
 	var color: Color = current_theme.get("danger", Color.RED)
 	return "[color=#%s]%s[/color]" % [color.to_html(false), text]
+
+
+## Get button normal color based on current world theme
+func get_button_color() -> Color:
+	match current_world:
+		"medieval":
+			return Color(0.25, 0.2, 0.3, 0.9)
+		"future":
+			return Color(0.15, 0.25, 0.35, 0.9)
+		_:
+			return Color(0.25, 0.25, 0.3, 0.9)
+
+
+## Get button hover color based on current world theme
+func get_button_hover_color() -> Color:
+	match current_world:
+		"medieval":
+			return Color(0.35, 0.28, 0.4, 0.95)
+		"future":
+			return Color(0.22, 0.35, 0.45, 0.95)
+		_:
+			return Color(0.35, 0.35, 0.4, 0.95)
+
+
+## Get accent-tinted button color
+func get_accent_button_color() -> Color:
+	var accent: Color = get_accent_color()
+	return Color(accent.r * 0.4, accent.g * 0.4, accent.b * 0.4, 0.9)

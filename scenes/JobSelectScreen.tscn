@@ -23,9 +23,9 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 48
-theme_override_constants/margin_right = 60
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 48
 
 [node name="RootVBox" type="VBoxContainer" parent="Margin"]
@@ -34,15 +34,22 @@ theme_override_constants/separation = 16
 
 [node name="Header" type="Label" parent="Margin/RootVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 32
 text = "ジョブ選択"
 
-[node name="WorldInfo" type="Label" parent="Margin/RootVBox"]
+[node name="InfoHBox" type="HBoxContainer" parent="Margin/RootVBox"]
 layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="WorldInfo" type="Label" parent="Margin/RootVBox/InfoHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.75, 0.75, 0.8, 1)
 text = "世界: "
 
-[node name="SoulLabel" type="Label" parent="Margin/RootVBox"]
+[node name="SoulLabel" type="Label" parent="Margin/RootVBox/InfoHBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 text = "所持魂価値: 0"
 
@@ -57,15 +64,16 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 16
 
 [node name="Footer" type="HBoxContainer" parent="Margin/RootVBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="BackButton" type="Button" parent="Margin/RootVBox/Footer"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(140, 56)
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "戻る"
 
 [node name="Spacer" type="Control" parent="Margin/RootVBox/Footer"]
@@ -73,6 +81,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="ConfirmButton" type="Button" parent="Margin/RootVBox/Footer"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(180, 56)
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "開始"

@@ -4,7 +4,7 @@ signal back_requested
 signal world_selected(world_id: String)
 
 @onready var header_label: Label = $Margin/RootVBox/Header
-@onready var world_buttons: VBoxContainer = $Margin/RootVBox/WorldButtons
+@onready var world_buttons: VBoxContainer = $Margin/RootVBox/ScrollContainer/WorldButtons
 @onready var back_button: Button = $Margin/RootVBox/Footer/BackButton
 @onready var meta_label: Label = $Margin/RootVBox/Footer/MetaLabel
 @onready var traits_label: Label = $Margin/RootVBox/TraitsPanel/TraitsLabel
@@ -39,6 +39,14 @@ func _apply_theme() -> void:
 	# Use default theme for world select (neutral)
 	ThemeManager.set_world("default")
 	background.color = ThemeManager.get_background_color()
+	
+	# Style back button
+	var normal := UITheme.create_button_stylebox(Color(0.2, 0.2, 0.3, 0.8))
+	var hover := UITheme.create_button_stylebox(Color(0.3, 0.3, 0.4, 0.9))
+	var pressed := UITheme.create_button_stylebox(Color(0.15, 0.15, 0.25, 1.0))
+	back_button.add_theme_stylebox_override("normal", normal)
+	back_button.add_theme_stylebox_override("hover", hover)
+	back_button.add_theme_stylebox_override("pressed", pressed)
 
 
 func _populate_world_buttons() -> void:
@@ -46,7 +54,6 @@ func _populate_world_buttons() -> void:
 		child.queue_free()
 
 	for world: Variant in GameState.get_worlds():
-		var button := Button.new()
 		var world_id: String = world.get("world_id", "unknown")
 		var world_name: String = LocaleManager.tr_data(world, "name")
 		var blurb: String = LocaleManager.tr_data(world, "blurb")
@@ -60,11 +67,65 @@ func _populate_world_buttons() -> void:
 		# Add visual indicator based on world type
 		var world_icon: String = "🏰" if world_id == "medieval" else "🔮" if world_id == "future" else "⚡"
 		
-		button.text = "%s %s: %s%s" % [world_icon, world_name, blurb, truth_text]
-		button.custom_minimum_size = Vector2(0, 52)
-		button.add_theme_font_size_override("font_size", 18)
-		button.pressed.connect(_on_world_button_pressed.bind(world_id))
-		world_buttons.add_child(button)
+		# Create card-style button
+		var card := _create_world_card(world_id, world_icon, world_name, blurb, truth_text)
+		world_buttons.add_child(card)
+
+
+func _create_world_card(world_id: String, icon: String, name: String, blurb: String, truth_text: String) -> Control:
+	var card := UITheme.create_world_card()
+	
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	card.add_child(vbox)
+	
+	# World name with icon
+	var name_label := Label.new()
+	name_label.text = "%s %s%s" % [icon, name, truth_text]
+	name_label.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
+	name_label.add_theme_color_override("font_color", Color(0.95, 0.9, 0.85))
+	vbox.add_child(name_label)
+	
+	# Blurb
+	var blurb_label := Label.new()
+	blurb_label.text = blurb
+	blurb_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
+	blurb_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
+	blurb_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(blurb_label)
+	
+	# Make entire card clickable with Button overlay
+	var button := Button.new()
+	button.anchors_preset = Control.PRESET_FULL_RECT
+	button.flat = true
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.pressed.connect(_on_world_button_pressed.bind(world_id))
+	
+	# Hover effect
+	button.mouse_entered.connect(func(): _on_card_hover(card, true))
+	button.mouse_exited.connect(func(): _on_card_hover(card, false))
+	
+	card.add_child(button)
+	
+	return card
+
+
+func _on_card_hover(card: PanelContainer, hovered: bool) -> void:
+	var stylebox := StyleBoxFlat.new()
+	if hovered:
+		stylebox.bg_color = Color(0.18, 0.18, 0.25, 0.95)
+		stylebox.set_border_width_all(2)
+		stylebox.border_color = Color(0.5, 0.5, 0.6, 0.8)
+	else:
+		stylebox.bg_color = Color(0.12, 0.12, 0.18, 0.9)
+		stylebox.set_border_width_all(1)
+		stylebox.border_color = Color(0.35, 0.35, 0.45, 0.6)
+	stylebox.set_corner_radius_all(UITheme.CARD_CORNER_RADIUS)
+	stylebox.content_margin_left = UITheme.CARD_PADDING
+	stylebox.content_margin_right = UITheme.CARD_PADDING
+	stylebox.content_margin_top = UITheme.CARD_PADDING
+	stylebox.content_margin_bottom = UITheme.CARD_PADDING
+	card.add_theme_stylebox_override("panel", stylebox)
 
 
 func _update_meta_text() -> void:

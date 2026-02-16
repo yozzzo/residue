@@ -21,10 +21,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 56
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 48
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
@@ -32,20 +32,21 @@ theme_override_constants/separation = 16
 
 [node name="Header" type="Label" parent="Margin/Root"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "戦闘"
 
 [node name="EnemyPanel" type="VBoxContainer" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
 [node name="EnemyName" type="Label" parent="Margin/Root/EnemyPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 0.85, 0.8, 1)
 text = "敵の名前"
 
 [node name="EnemyHPBar" type="ProgressBar" parent="Margin/Root/EnemyPanel"]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 max_value = 100.0
 value = 100.0
@@ -53,12 +54,14 @@ show_percentage = false
 
 [node name="EnemyHP" type="Label" parent="Margin/Root/EnemyPanel"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.9, 0.3, 0.3, 1)
 text = "HP: 100 / 100"
 
 [node name="EnemyDesc" type="RichTextLabel" parent="Margin/Root/EnemyPanel"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
+theme_override_font_sizes/normal_font_size = 18
 theme_override_colors/default_color = Color(0.7, 0.7, 0.7, 1)
 bbcode_enabled = true
 text = "敵の説明"
@@ -71,6 +74,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
 text = ""
 scroll_following = true
@@ -87,11 +91,11 @@ theme_override_constants/separation = 16
 
 [node name="PlayerLabel" type="Label" parent="Margin/Root/PlayerPanel/PlayerHBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 20
 text = "あなた:"
 
 [node name="PlayerHPBar" type="ProgressBar" parent="Margin/Root/PlayerPanel/PlayerHBox"]
-custom_minimum_size = Vector2(150, 24)
+custom_minimum_size = Vector2(180, 28)
 layout_mode = 2
 max_value = 100.0
 value = 100.0
@@ -101,7 +105,7 @@ show_percentage = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 18
 text = "HP 100 / 100 | Gold: 0"
 
 [node name="Commands" type="HBoxContainer" parent="Margin/Root"]
@@ -109,25 +113,25 @@ layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="AttackButton" type="Button" parent="Margin/Root/Commands"]
-custom_minimum_size = Vector2(100, 48)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 18
-text = "攻撃"
+theme_override_font_sizes/font_size = 24
+text = "⚔️ 攻撃"
 
 [node name="DefendButton" type="Button" parent="Margin/Root/Commands"]
-custom_minimum_size = Vector2(100, 48)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 18
-text = "防御"
+theme_override_font_sizes/font_size = 24
+text = "🛡️ 防御"
 
 [node name="FleeButton" type="Button" parent="Margin/Root/Commands"]
-custom_minimum_size = Vector2(100, 48)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 18
-text = "逃走"
+theme_override_font_sizes/font_size = 24
+text = "🏃 逃走"
 
 [node name="PopupContainer" type="Control" parent="."]
 layout_mode = 1

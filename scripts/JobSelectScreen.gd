@@ -4,8 +4,8 @@ signal back_requested
 signal job_selected(job_id: String)
 
 @onready var header: Label = $Margin/RootVBox/Header
-@onready var world_info: Label = $Margin/RootVBox/WorldInfo
-@onready var soul_label: Label = $Margin/RootVBox/SoulLabel
+@onready var world_info: Label = $Margin/RootVBox/InfoHBox/WorldInfo
+@onready var soul_label: Label = $Margin/RootVBox/InfoHBox/SoulLabel
 @onready var job_list: VBoxContainer = $Margin/RootVBox/ScrollContainer/JobList
 @onready var back_button: Button = $Margin/RootVBox/Footer/BackButton
 @onready var confirm_button: Button = $Margin/RootVBox/Footer/ConfirmButton
@@ -36,8 +36,31 @@ func _setup_screen() -> void:
 	back_button.text = LocaleManager.t("ui.back")
 	confirm_button.text = LocaleManager.t("ui.confirm")
 	
+	# Style footer buttons
+	_style_footer_buttons()
+	
 	_update_soul_label()
 	_populate_job_list()
+
+
+func _style_footer_buttons() -> void:
+	# Back button
+	var back_normal := UITheme.create_button_stylebox(Color(0.2, 0.2, 0.3, 0.8))
+	var back_hover := UITheme.create_button_stylebox(Color(0.3, 0.3, 0.4, 0.9))
+	var back_pressed := UITheme.create_button_stylebox(Color(0.15, 0.15, 0.25, 1.0))
+	back_button.add_theme_stylebox_override("normal", back_normal)
+	back_button.add_theme_stylebox_override("hover", back_hover)
+	back_button.add_theme_stylebox_override("pressed", back_pressed)
+	
+	# Confirm button (primary)
+	var confirm_normal := UITheme.create_button_stylebox(Color(0.3, 0.4, 0.35, 0.9))
+	var confirm_hover := UITheme.create_button_stylebox(Color(0.4, 0.5, 0.45, 0.95))
+	var confirm_pressed := UITheme.create_button_stylebox(Color(0.25, 0.35, 0.3, 1.0))
+	var confirm_disabled := UITheme.create_button_stylebox(Color(0.15, 0.15, 0.15, 0.5))
+	confirm_button.add_theme_stylebox_override("normal", confirm_normal)
+	confirm_button.add_theme_stylebox_override("hover", confirm_hover)
+	confirm_button.add_theme_stylebox_override("pressed", confirm_pressed)
+	confirm_button.add_theme_stylebox_override("disabled", confirm_disabled)
 
 
 func _update_soul_label() -> void:
@@ -67,14 +90,19 @@ func _create_job_card(job: Dictionary) -> Control:
 	var is_unlocked: bool = GameState.is_job_unlocked(job_id)
 	var can_unlock: bool = GameState.can_unlock_job(job_id)
 	
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 100)
+	# Use UITheme card panel
+	var panel := UITheme.create_card_panel()
+	panel.custom_minimum_size = Vector2(0, 120)
+	
+	# Style based on selection state
+	var is_selected: bool = job_id == selected_job_id or (selected_job_id.is_empty() and job_id == GameState.current_job)
+	_apply_job_card_style(panel, is_selected, is_unlocked)
 	
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 12)
+	margin.add_theme_constant_override("margin_left", UITheme.CARD_PADDING)
+	margin.add_theme_constant_override("margin_top", UITheme.CARD_PADDING)
+	margin.add_theme_constant_override("margin_right", UITheme.CARD_PADDING)
+	margin.add_theme_constant_override("margin_bottom", UITheme.CARD_PADDING)
 	panel.add_child(margin)
 	
 	var hbox := HBoxContainer.new()
@@ -83,12 +111,12 @@ func _create_job_card(job: Dictionary) -> Control:
 	
 	var info_vbox := VBoxContainer.new()
 	info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info_vbox.add_theme_constant_override("separation", 4)
+	info_vbox.add_theme_constant_override("separation", 6)
 	hbox.add_child(info_vbox)
 	
 	# Job name with origin indicator
 	var name_label := Label.new()
-	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
 	var origin_text: String = ""
 	if origin != null and origin is String:
 		var is_foreign: bool = GameState.is_foreign_job(job_id, GameState.selected_world_id)
@@ -103,11 +131,14 @@ func _create_job_card(job: Dictionary) -> Control:
 	name_label.text = "【%s】%s" % [job_name, origin_text]
 	if not is_unlocked:
 		name_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	else:
+		name_label.add_theme_color_override("font_color", Color(0.95, 0.9, 0.85))
 	info_vbox.add_child(name_label)
 	
 	# Description
 	var desc_label := Label.new()
 	desc_label.text = description
+	desc_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_vbox.add_child(desc_label)
@@ -118,7 +149,7 @@ func _create_job_card(job: Dictionary) -> Control:
 	if not stats_text.is_empty():
 		var stats_label := Label.new()
 		stats_label.text = stats_text
-		stats_label.add_theme_font_size_override("font_size", 14)
+		stats_label.add_theme_font_size_override("font_size", UITheme.FONT_SMALL)
 		stats_label.add_theme_color_override("font_color", Color(0.6, 0.8, 1.0))
 		info_vbox.add_child(stats_label)
 	
@@ -128,25 +159,28 @@ func _create_job_card(job: Dictionary) -> Control:
 		var ability_name: String = LocaleManager.tr_data(special_ability, "name")
 		var ability_label := Label.new()
 		ability_label.text = LocaleManager.t("ui.special_ability", {"name": ability_name})
-		ability_label.add_theme_font_size_override("font_size", 14)
+		ability_label.add_theme_font_size_override("font_size", UITheme.FONT_SMALL)
 		ability_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.6))
 		info_vbox.add_child(ability_label)
 	
 	# Buttons
 	var button_vbox := VBoxContainer.new()
 	button_vbox.add_theme_constant_override("separation", 8)
+	button_vbox.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hbox.add_child(button_vbox)
 	
 	if is_unlocked:
 		var select_btn := Button.new()
 		select_btn.text = LocaleManager.t("ui.select")
-		select_btn.custom_minimum_size = Vector2(100, 40)
-		select_btn.pressed.connect(_on_job_select_pressed.bind(job_id, select_btn))
+		select_btn.custom_minimum_size = Vector2(120, UITheme.BUTTON_MIN_HEIGHT)
+		select_btn.add_theme_font_size_override("font_size", UITheme.FONT_BUTTON)
+		_style_job_button(select_btn, is_selected)
+		select_btn.pressed.connect(_on_job_select_pressed.bind(job_id, select_btn, panel))
 		button_vbox.add_child(select_btn)
 		job_buttons[job_id] = select_btn
 		
 		# Highlight if currently selected
-		if job_id == selected_job_id or (selected_job_id.is_empty() and job_id == GameState.current_job):
+		if is_selected:
 			select_btn.text = LocaleManager.t("ui.selected")
 			selected_job_id = job_id
 			confirm_button.disabled = false
@@ -156,17 +190,57 @@ func _create_job_card(job: Dictionary) -> Control:
 		
 		var cost_label := Label.new()
 		cost_label.text = LocaleManager.t("ui.unlock_cost", {"cost": cost})
+		cost_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 		cost_label.add_theme_color_override("font_color", Color(0.8, 0.6, 0.2))
 		button_vbox.add_child(cost_label)
 		
 		var unlock_btn := Button.new()
 		unlock_btn.text = LocaleManager.t("ui.unlock")
-		unlock_btn.custom_minimum_size = Vector2(100, 40)
+		unlock_btn.custom_minimum_size = Vector2(120, UITheme.BUTTON_MIN_HEIGHT)
+		unlock_btn.add_theme_font_size_override("font_size", UITheme.FONT_BUTTON)
 		unlock_btn.disabled = not can_unlock
+		_style_job_button(unlock_btn, false)
 		unlock_btn.pressed.connect(_on_job_unlock_pressed.bind(job_id))
 		button_vbox.add_child(unlock_btn)
 	
 	return panel
+
+
+func _apply_job_card_style(panel: PanelContainer, is_selected: bool, is_unlocked: bool) -> void:
+	var stylebox := StyleBoxFlat.new()
+	if is_selected:
+		stylebox.bg_color = Color(0.15, 0.18, 0.25, 0.95)
+		stylebox.set_border_width_all(2)
+		stylebox.border_color = Color(0.6, 0.7, 0.9, 0.9)
+	elif is_unlocked:
+		stylebox.bg_color = Color(0.1, 0.1, 0.15, 0.9)
+		stylebox.set_border_width_all(1)
+		stylebox.border_color = Color(0.3, 0.3, 0.4, 0.6)
+	else:
+		stylebox.bg_color = Color(0.08, 0.08, 0.1, 0.7)
+		stylebox.set_border_width_all(1)
+		stylebox.border_color = Color(0.2, 0.2, 0.25, 0.4)
+	stylebox.set_corner_radius_all(UITheme.CARD_CORNER_RADIUS)
+	panel.add_theme_stylebox_override("panel", stylebox)
+
+
+func _style_job_button(button: Button, is_selected: bool) -> void:
+	var normal: StyleBoxFlat
+	var hover: StyleBoxFlat
+	var pressed: StyleBoxFlat
+	
+	if is_selected:
+		normal = UITheme.create_button_stylebox(Color(0.3, 0.5, 0.4, 0.9))
+		hover = UITheme.create_button_stylebox(Color(0.35, 0.55, 0.45, 0.95))
+		pressed = UITheme.create_button_stylebox(Color(0.25, 0.45, 0.35, 1.0))
+	else:
+		normal = UITheme.create_button_stylebox(Color(0.25, 0.25, 0.35, 0.9))
+		hover = UITheme.create_button_stylebox(Color(0.35, 0.35, 0.45, 0.95))
+		pressed = UITheme.create_button_stylebox(Color(0.2, 0.2, 0.3, 1.0))
+	
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
 
 
 func _format_stat_modifiers(modifiers: Dictionary) -> String:
@@ -186,16 +260,11 @@ func _format_stat_modifiers(modifiers: Dictionary) -> String:
 	return ", ".join(parts)
 
 
-func _on_job_select_pressed(job_id: String, button: Button) -> void:
-	# Deselect previous
-	for jid: String in job_buttons.keys():
-		var btn: Button = job_buttons[jid]
-		btn.text = LocaleManager.t("ui.select")
-	
-	# Select new
+func _on_job_select_pressed(job_id: String, button: Button, panel: PanelContainer = null) -> void:
+	# Deselect previous - refresh list to update all cards
 	selected_job_id = job_id
-	button.text = LocaleManager.t("ui.selected")
 	confirm_button.disabled = false
+	_populate_job_list()
 
 
 func _on_job_unlock_pressed(job_id: String) -> void:

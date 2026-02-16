@@ -5,10 +5,10 @@ signal battle_requested(enemy_id: String)
 signal status_updated
 
 @onready var header: Label = $Margin/Root/Header
-@onready var location_label: Label = $Margin/Root/LocationPanel/LocationName
-@onready var direction_label: Label = $Margin/Root/LocationPanel/DirectionInfo
+@onready var location_label: Label = $Margin/Root/LocationPanel/LocationVBox/LocationName
+@onready var direction_label: Label = $Margin/Root/LocationPanel/LocationVBox/DirectionInfo
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
-@onready var choices_box: VBoxContainer = $Margin/Root/Choices
+@onready var choices_box: VBoxContainer = $Margin/Root/ScrollChoices/Choices
 @onready var navigation_box: HBoxContainer = $Margin/Root/Navigation
 @onready var status_label: Label = $Margin/Root/Bottom/StatusLabel
 @onready var exit_button: Button = $Margin/Root/Bottom/ExitRunButton
@@ -56,6 +56,25 @@ func _setup_typewriter() -> void:
 func _apply_theme() -> void:
 	# Apply world-specific colors
 	background.color = ThemeManager.get_background_color()
+	
+	# Style exit button
+	var normal := UITheme.create_button_stylebox(Color(0.35, 0.2, 0.2, 0.9))
+	var hover := UITheme.create_button_stylebox(Color(0.45, 0.25, 0.25, 0.95))
+	var pressed := UITheme.create_button_stylebox(Color(0.3, 0.15, 0.15, 1.0))
+	exit_button.add_theme_stylebox_override("normal", normal)
+	exit_button.add_theme_stylebox_override("hover", hover)
+	exit_button.add_theme_stylebox_override("pressed", pressed)
+	
+	# Style location panel
+	var location_panel: PanelContainer = $Margin/Root/LocationPanel
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.1, 0.15, 0.8)
+	panel_style.set_corner_radius_all(8)
+	panel_style.content_margin_left = 16
+	panel_style.content_margin_right = 16
+	panel_style.content_margin_top = 12
+	panel_style.content_margin_bottom = 12
+	location_panel.add_theme_stylebox_override("panel", panel_style)
 	
 	# Connect to theme changes
 	if not ThemeManager.theme_changed.is_connected(_on_theme_changed):
@@ -211,11 +230,10 @@ func _render_event() -> void:
 	
 	# Render filtered choices (disabled until text completes)
 	for choice: Variant in filtered_choices:
-		var button := Button.new()
 		var choice_label: String = LocaleManager.tr_data(choice, "label")
 		if choice_label.is_empty():
 			choice_label = choice.get("label", LocaleManager.t("ui.select"))
-		button.text = choice_label
+		var button := UITheme.create_choice_button(choice_label)
 		button.pressed.connect(_on_choice_selected.bind(choice))
 		button.disabled = true  # Enabled after typewriter completes
 		choices_box.add_child(button)
@@ -298,16 +316,14 @@ func _render_navigation_buttons() -> void:
 	for dir: String in directions.keys():
 		var target_node: Variant = edges.get(dir)
 		if target_node != null and target_node is String and not target_node.is_empty():
-			var btn := Button.new()
-			btn.text = directions[dir]
+			var btn := UITheme.create_nav_button(directions[dir])
 			btn.pressed.connect(_on_navigate.bind(str(target_node)))
 			navigation_box.add_child(btn)
 	
 	# Check if this is the final boss node and boss is defeated
 	var node_type: String = current_node.get("node_type", "")
 	if node_type == "boss":
-		var clear_btn := Button.new()
-		clear_btn.text = LocaleManager.t("ui.run_clear")
+		var clear_btn := UITheme.create_primary_button(LocaleManager.t("ui.run_clear"))
 		clear_btn.pressed.connect(_on_run_clear)
 		navigation_box.add_child(clear_btn)
 
@@ -467,8 +483,7 @@ func _show_fallback_event() -> void:
 	]
 	typewriter.display_text(text, TypewriterEffect.Speed.INSTANT)
 	
-	var back_btn := Button.new()
-	back_btn.text = LocaleManager.t("ui.run_exit")
+	var back_btn := UITheme.create_choice_button(LocaleManager.t("ui.run_exit"))
 	back_btn.pressed.connect(_on_exit_run)
 	choices_box.add_child(back_btn)
 

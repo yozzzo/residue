@@ -49,9 +49,9 @@ func _on_locale_changed(_locale: String) -> void:
 
 
 func _update_button_texts() -> void:
-	attack_btn.text = LocaleManager.t("ui.battle_attack")
-	defend_btn.text = LocaleManager.t("ui.battle_defend")
-	flee_btn.text = LocaleManager.t("ui.battle_flee")
+	attack_btn.text = "⚔️ " + LocaleManager.t("ui.battle_attack")
+	defend_btn.text = "🛡️ " + LocaleManager.t("ui.battle_defend")
+	flee_btn.text = "🏃 " + LocaleManager.t("ui.battle_flee")
 
 
 func _apply_theme() -> void:
@@ -63,6 +63,53 @@ func _apply_theme() -> void:
 		base_color.g * 0.8,
 		base_color.b * 0.9
 	)
+	
+	# Style battle command buttons
+	_style_battle_buttons()
+	
+	# Style player panel
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.12, 0.1, 0.9)
+	panel_style.set_corner_radius_all(8)
+	panel_style.content_margin_left = 16
+	panel_style.content_margin_right = 16
+	panel_style.content_margin_top = 12
+	panel_style.content_margin_bottom = 12
+	player_panel.add_theme_stylebox_override("panel", panel_style)
+	
+	# Style HP bars
+	UITheme.style_hp_bar(enemy_hp_bar, true)
+	UITheme.style_hp_bar(player_hp_bar, true)
+
+
+func _style_battle_buttons() -> void:
+	# Attack button (red-ish)
+	var atk_normal := UITheme.create_button_stylebox(Color(0.4, 0.25, 0.25, 0.9))
+	var atk_hover := UITheme.create_button_stylebox(Color(0.5, 0.3, 0.3, 0.95))
+	var atk_pressed := UITheme.create_button_stylebox(Color(0.35, 0.2, 0.2, 1.0))
+	var disabled := UITheme.create_button_stylebox(Color(0.2, 0.15, 0.15, 0.5))
+	attack_btn.add_theme_stylebox_override("normal", atk_normal)
+	attack_btn.add_theme_stylebox_override("hover", atk_hover)
+	attack_btn.add_theme_stylebox_override("pressed", atk_pressed)
+	attack_btn.add_theme_stylebox_override("disabled", disabled)
+	
+	# Defend button (blue-ish)
+	var def_normal := UITheme.create_button_stylebox(Color(0.25, 0.3, 0.4, 0.9))
+	var def_hover := UITheme.create_button_stylebox(Color(0.3, 0.35, 0.5, 0.95))
+	var def_pressed := UITheme.create_button_stylebox(Color(0.2, 0.25, 0.35, 1.0))
+	defend_btn.add_theme_stylebox_override("normal", def_normal)
+	defend_btn.add_theme_stylebox_override("hover", def_hover)
+	defend_btn.add_theme_stylebox_override("pressed", def_pressed)
+	defend_btn.add_theme_stylebox_override("disabled", disabled)
+	
+	# Flee button (gray-ish)
+	var flee_normal := UITheme.create_button_stylebox(Color(0.3, 0.3, 0.3, 0.9))
+	var flee_hover := UITheme.create_button_stylebox(Color(0.4, 0.4, 0.4, 0.95))
+	var flee_pressed := UITheme.create_button_stylebox(Color(0.25, 0.25, 0.25, 1.0))
+	flee_btn.add_theme_stylebox_override("normal", flee_normal)
+	flee_btn.add_theme_stylebox_override("hover", flee_hover)
+	flee_btn.add_theme_stylebox_override("pressed", flee_pressed)
+	flee_btn.add_theme_stylebox_override("disabled", disabled)
 
 
 func set_enemy(p_enemy_id: String) -> void:
@@ -117,8 +164,21 @@ func _show_job_ability_hint() -> void:
 func _add_overclock_button() -> void:
 	var overclock_btn := Button.new()
 	overclock_btn.name = "OverclockButton"
-	overclock_btn.text = LocaleManager.t("ui.battle_overclock")
-	overclock_btn.custom_minimum_size = Vector2(120, 44)
+	overclock_btn.text = "⚡ " + LocaleManager.t("ui.battle_overclock")
+	overclock_btn.custom_minimum_size = Vector2(0, 64)
+	overclock_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	overclock_btn.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
+	
+	# Style overclock button (yellow/electric)
+	var normal := UITheme.create_button_stylebox(Color(0.4, 0.35, 0.2, 0.9))
+	var hover := UITheme.create_button_stylebox(Color(0.5, 0.45, 0.25, 0.95))
+	var pressed := UITheme.create_button_stylebox(Color(0.35, 0.3, 0.15, 1.0))
+	var disabled := UITheme.create_button_stylebox(Color(0.2, 0.18, 0.1, 0.5))
+	overclock_btn.add_theme_stylebox_override("normal", normal)
+	overclock_btn.add_theme_stylebox_override("hover", hover)
+	overclock_btn.add_theme_stylebox_override("pressed", pressed)
+	overclock_btn.add_theme_stylebox_override("disabled", disabled)
+	
 	overclock_btn.pressed.connect(_on_overclock)
 	commands_box.add_child(overclock_btn)
 

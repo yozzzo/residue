@@ -25,11 +25,12 @@ func _on_locale_changed(_locale: String) -> void:
 
 
 func _create_ui() -> void:
-	# Container
+	# Container with safe area offset
 	var container := Control.new()
 	container.name = "StatusBarContainer"
 	container.anchors_preset = Control.PRESET_TOP_WIDE
-	container.offset_bottom = 48
+	container.offset_top = UITheme.MARGIN_TOP - 8  # Position just inside safe area
+	container.offset_bottom = UITheme.MARGIN_TOP + 44  # Compact height
 	add_child(container)
 	
 	# Panel background
@@ -44,21 +45,21 @@ func _create_ui() -> void:
 	# Margin
 	var margin := MarginContainer.new()
 	margin.anchors_preset = Control.PRESET_FULL_RECT
-	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_left", UITheme.MARGIN_SIDE)
 	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_right", UITheme.MARGIN_SIDE)
 	margin.add_theme_constant_override("margin_bottom", 8)
 	panel.add_child(margin)
 	
 	# HBox for content
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 24)
+	hbox.add_theme_constant_override("separation", 20)
 	margin.add_child(hbox)
 	
 	# Job icon/name
 	job_label = Label.new()
 	job_label.name = "JobLabel"
-	job_label.add_theme_font_size_override("font_size", 14)
+	job_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	job_label.text = "【---】"
 	hbox.add_child(job_label)
 	
@@ -69,34 +70,37 @@ func _create_ui() -> void:
 	
 	var hp_icon := Label.new()
 	hp_icon.text = "❤️"
+	hp_icon.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	hp_section.add_child(hp_icon)
 	
 	hp_bar = ProgressBar.new()
 	hp_bar.name = "HPBar"
-	hp_bar.custom_minimum_size = Vector2(100, 20)
+	hp_bar.custom_minimum_size = Vector2(100, 22)
 	hp_bar.max_value = 100
 	hp_bar.value = 100
 	hp_bar.show_percentage = false
+	UITheme.style_hp_bar(hp_bar, false)
 	hp_section.add_child(hp_bar)
 	
 	hp_label = Label.new()
 	hp_label.name = "HPLabel"
-	hp_label.add_theme_font_size_override("font_size", 14)
+	hp_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	hp_label.text = "100/100"
 	hp_section.add_child(hp_label)
 	
 	# Gold section
 	var gold_section := HBoxContainer.new()
-	gold_section.add_theme_constant_override("separation", 4)
+	gold_section.add_theme_constant_override("separation", 6)
 	hbox.add_child(gold_section)
 	
 	var gold_icon := Label.new()
 	gold_icon.text = "💰"
+	gold_icon.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	gold_section.add_child(gold_icon)
 	
 	gold_label = Label.new()
 	gold_label.name = "GoldLabel"
-	gold_label.add_theme_font_size_override("font_size", 14)
+	gold_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	gold_label.text = "0"
 	gold_section.add_child(gold_label)
 	
@@ -108,7 +112,7 @@ func _create_ui() -> void:
 	# Location
 	location_label = Label.new()
 	location_label.name = "LocationLabel"
-	location_label.add_theme_font_size_override("font_size", 14)
+	location_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
 	location_label.text = "📍 ---"
 	location_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hbox.add_child(location_label)
@@ -116,8 +120,10 @@ func _create_ui() -> void:
 
 func _update_panel_style() -> void:
 	var stylebox := StyleBoxFlat.new()
-	stylebox.bg_color = ThemeManager.get_status_bar_color() if ThemeManager != null else Color(0.05, 0.05, 0.08, 0.95)
+	stylebox.bg_color = ThemeManager.get_status_bar_color() if ThemeManager != null else Color(0.05, 0.05, 0.08, 0.92)
 	stylebox.set_corner_radius_all(0)
+	stylebox.set_border_width(SIDE_BOTTOM, 1)
+	stylebox.border_color = Color(0.2, 0.2, 0.25, 0.5)
 	panel.add_theme_stylebox_override("panel", stylebox)
 
 
@@ -130,19 +136,8 @@ func update_status() -> void:
 	hp_bar.max_value = GameState.run_max_hp
 	hp_bar.value = GameState.run_hp
 	
-	# HP bar color based on health percentage
-	var hp_percent: float = float(GameState.run_hp) / float(GameState.run_max_hp)
-	var hp_color: Color
-	if hp_percent > 0.5:
-		hp_color = Color(0.3, 0.7, 0.4)
-	elif hp_percent > 0.25:
-		hp_color = Color(0.8, 0.7, 0.3)
-	else:
-		hp_color = Color(0.8, 0.3, 0.3)
-	
-	var hp_stylebox := StyleBoxFlat.new()
-	hp_stylebox.bg_color = hp_color
-	hp_bar.add_theme_stylebox_override("fill", hp_stylebox)
+	# Use UITheme for HP bar color
+	UITheme.update_hp_bar_color(hp_bar, GameState.run_hp, GameState.run_max_hp)
 	
 	# Gold
 	gold_label.text = str(GameState.run_gold)

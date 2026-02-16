@@ -23,22 +23,24 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 48
-theme_override_constants/margin_right = 60
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 48
 
 [node name="RootVBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 20
 
 [node name="Header" type="Label" parent="Margin/RootVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 32
 text = "World Select"
 
 [node name="WorldDesc" type="Label" parent="Margin/RootVBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.7, 0.7, 0.75, 1)
 text = "Choose a world. Core history stays stable; your route changes by flags."
 autowrap_mode = 2
 
@@ -47,24 +49,37 @@ layout_mode = 2
 
 [node name="TraitsLabel" type="Label" parent="Margin/RootVBox/TraitsPanel"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
 text = "傾向: なし"
 
-[node name="WorldButtons" type="VBoxContainer" parent="Margin/RootVBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/RootVBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+
+[node name="WorldButtons" type="VBoxContainer" parent="Margin/RootVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
 
 [node name="Footer" type="HBoxContainer" parent="Margin/RootVBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="BackButton" type="Button" parent="Margin/RootVBox/Footer"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(140, 56)
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "Back"
+
+[node name="Spacer" type="Control" parent="Margin/RootVBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="MetaLabel" type="Label" parent="Margin/RootVBox/Footer"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
 text = "Soul: 0"
+vertical_alignment = 1

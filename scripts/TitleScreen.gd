@@ -3,12 +3,12 @@ extends Control
 signal start_requested
 signal quit_requested
 
-@onready var start_button: Button = $VBox/StartButton
-@onready var quit_button: Button = $VBox/QuitButton
-@onready var title_label: Label = $VBox/Title
-@onready var subtitle_label: Label = $VBox/Subtitle
+@onready var start_button: Button = $SafeArea/VBox/StartButton
+@onready var quit_button: Button = $SafeArea/VBox/QuitButton
+@onready var title_label: Label = $SafeArea/VBox/Title
+@onready var subtitle_label: Label = $SafeArea/VBox/Subtitle
 @onready var background: ColorRect = $Background
-@onready var lang_button: Button = $VBox/LangButton
+@onready var lang_button: Button = $SafeArea/VBox/LangButton
 
 var glitch_material: ShaderMaterial
 
@@ -31,10 +31,12 @@ func _setup_lang_button() -> void:
 	if lang_button == null:
 		lang_button = Button.new()
 		lang_button.name = "LangButton"
-		$VBox.add_child(lang_button)
-		$VBox.move_child(lang_button, 0)
+		$SafeArea/VBox.add_child(lang_button)
+		$SafeArea/VBox.move_child(lang_button, 0)
 	
-	lang_button.custom_minimum_size = Vector2(60, 40)
+	# Touch-friendly size
+	lang_button.custom_minimum_size = Vector2(120, 56)
+	lang_button.add_theme_font_size_override("font_size", 22)
 	lang_button.pressed.connect(_on_lang_button_pressed)
 	_update_lang_button()
 
@@ -78,12 +80,26 @@ func _update_subtitle() -> void:
 
 
 func _setup_title_style() -> void:
-	# Larger font for title
-	title_label.add_theme_font_size_override("font_size", 72)
+	# Title uses UITheme constants
+	title_label.add_theme_font_size_override("font_size", UITheme.FONT_TITLE)
 	title_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.8))
 	
-	subtitle_label.add_theme_font_size_override("font_size", 18)
+	subtitle_label.add_theme_font_size_override("font_size", 20)
 	subtitle_label.add_theme_color_override("font_color", Color(0.6, 0.55, 0.5))
+	
+	# Apply button styling
+	_style_button(start_button, true)
+	_style_button(quit_button, false)
+
+
+func _style_button(button: Button, primary: bool) -> void:
+	var normal := UITheme.create_button_stylebox(Color(0.3, 0.3, 0.4, 0.9) if primary else Color(0.2, 0.2, 0.3, 0.8))
+	var hover := UITheme.create_button_stylebox(Color(0.4, 0.4, 0.5, 0.95) if primary else Color(0.3, 0.3, 0.4, 0.9))
+	var pressed := UITheme.create_button_stylebox(Color(0.25, 0.25, 0.35, 1.0))
+	
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
 
 
 func _setup_glitch_effect() -> void:

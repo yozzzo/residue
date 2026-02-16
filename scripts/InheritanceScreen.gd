@@ -4,7 +4,7 @@ signal inheritance_selected
 
 @onready var header: Label = $Margin/Root/Header
 @onready var description_label: RichTextLabel = $Margin/Root/Description
-@onready var candidates_box: VBoxContainer = $Margin/Root/Candidates
+@onready var candidates_box: VBoxContainer = $Margin/Root/ScrollContainer/Candidates
 @onready var skip_button: Button = $Margin/Root/Footer/SkipButton
 @onready var background: ColorRect = $Background
 
@@ -27,6 +27,14 @@ func _apply_theme() -> void:
 	# Use default theme for inheritance (neutral/ethereal)
 	ThemeManager.set_world("default")
 	background.color = Color(0.06, 0.06, 0.1)  # Slightly different for ethereal feel
+	
+	# Style skip button
+	var normal := UITheme.create_button_stylebox(Color(0.25, 0.25, 0.3, 0.8))
+	var hover := UITheme.create_button_stylebox(Color(0.35, 0.35, 0.4, 0.9))
+	var pressed := UITheme.create_button_stylebox(Color(0.2, 0.2, 0.25, 1.0))
+	skip_button.add_theme_stylebox_override("normal", normal)
+	skip_button.add_theme_stylebox_override("hover", hover)
+	skip_button.add_theme_stylebox_override("pressed", pressed)
 
 
 func _setup_screen() -> void:
@@ -140,22 +148,22 @@ func _render_candidates() -> void:
 
 
 func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 90)
+	var panel := UITheme.create_card_panel()
+	panel.custom_minimum_size = Vector2(0, 110)
 	
-	# Style the panel
+	# Style the panel with ethereal colors
 	var stylebox := StyleBoxFlat.new()
-	stylebox.bg_color = Color(0.1, 0.1, 0.15, 0.9)
-	stylebox.set_corner_radius_all(6)
+	stylebox.bg_color = Color(0.1, 0.1, 0.18, 0.9)
+	stylebox.set_corner_radius_all(UITheme.CARD_CORNER_RADIUS)
 	stylebox.set_border_width_all(1)
-	stylebox.border_color = Color(0.3, 0.3, 0.4)
+	stylebox.border_color = Color(0.4, 0.35, 0.5, 0.6)
 	panel.add_theme_stylebox_override("panel", stylebox)
 	
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 12)
+	margin.add_theme_constant_override("margin_left", UITheme.CARD_PADDING)
+	margin.add_theme_constant_override("margin_top", UITheme.CARD_PADDING)
+	margin.add_theme_constant_override("margin_right", UITheme.CARD_PADDING)
+	margin.add_theme_constant_override("margin_bottom", UITheme.CARD_PADDING)
 	panel.add_child(margin)
 	
 	var hbox := HBoxContainer.new()
@@ -164,22 +172,35 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", 6)
 	hbox.add_child(vbox)
 	
 	var title := Label.new()
-	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_font_size_override("font_size", UITheme.FONT_HEADING)
+	title.add_theme_color_override("font_color", Color(0.95, 0.9, 0.8))
 	title.text = "【%s】" % candidate.get("label", LocaleManager.t("ui.inheritance_header"))
 	vbox.add_child(title)
 	
 	var desc := Label.new()
-	desc.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	desc.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
+	desc.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
 	desc.text = candidate.get("description", "")
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc)
 	
 	var button := Button.new()
 	button.text = LocaleManager.t("ui.select")
-	button.custom_minimum_size = Vector2(100, 40)
+	button.custom_minimum_size = Vector2(120, UITheme.BUTTON_MIN_HEIGHT)
+	button.add_theme_font_size_override("font_size", UITheme.FONT_BUTTON)
+	
+	# Style button
+	var btn_normal := UITheme.create_button_stylebox(Color(0.3, 0.35, 0.45, 0.9))
+	var btn_hover := UITheme.create_button_stylebox(Color(0.4, 0.45, 0.55, 0.95))
+	var btn_pressed := UITheme.create_button_stylebox(Color(0.25, 0.3, 0.4, 1.0))
+	button.add_theme_stylebox_override("normal", btn_normal)
+	button.add_theme_stylebox_override("hover", btn_hover)
+	button.add_theme_stylebox_override("pressed", btn_pressed)
+	
 	button.pressed.connect(_on_candidate_selected.bind(candidate))
 	hbox.add_child(button)
 	

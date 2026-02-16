@@ -14,6 +14,7 @@ LocaleManager="*res://scripts/LocaleManager.gd"
 GameState="*res://scripts/GameState.gd"
 ThemeManager="*res://scripts/ThemeManager.gd"
 AudioManager="*res://scripts/AudioManager.gd"
+UITheme="*res://scripts/UITheme.gd"
 
 [display]
 window/size/viewport_width=1280
