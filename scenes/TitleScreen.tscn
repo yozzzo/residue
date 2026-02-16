@@ -27,9 +27,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 128
+theme_override_constants/margin_left = 96
 theme_override_constants/margin_top = 80
-theme_override_constants/margin_right = 128
+theme_override_constants/margin_right = 96
 theme_override_constants/margin_bottom = 64
 
 [node name="VBox" type="VBoxContainer" parent="SafeArea"]
