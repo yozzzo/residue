@@ -30,7 +30,20 @@ func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_run)
 	_setup_typewriter()
 	_apply_theme()
+	_update_texts()
 	_start_run()
+	
+	LocaleManager.locale_changed.connect(_on_locale_changed)
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_update_texts()
+	_update_location_display()
+	_update_status()
+
+
+func _update_texts() -> void:
+	exit_button.text = LocaleManager.tr("ui.run_exit")
 
 
 func _setup_typewriter() -> void:
@@ -88,22 +101,23 @@ func _load_node(node_id: String) -> void:
 	node_event_queue = _build_event_queue()
 	
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
+	var world_name: String = LocaleManager.tr_data(world, "name")
 	var truth_stage: int = GameState.get_truth_stage()
 	
 	# Phase 3: Show job info in header
 	var job: Dictionary = GameState.get_job_by_id(GameState.current_job)
-	var job_name: String = job.get("name", "放浪者")
+	var job_name: String = LocaleManager.tr_data(job, "name")
 	var foreign_indicator: String = ""
 	if GameState.run_is_foreign_job:
-		foreign_indicator = " [他世界]"
+		foreign_indicator = LocaleManager.tr("ui.foreign_indicator")
 	
-	header.text = "Run - %s | %s%s | Loop %d | 真実段階 %d" % [
-		world.get("name", "???"),
-		job_name,
-		foreign_indicator,
-		GameState.loop_count,
-		truth_stage
-	]
+	header.text = LocaleManager.tr("ui.run_header", {
+		"world": world_name,
+		"job": job_name,
+		"foreign": foreign_indicator,
+		"loop": GameState.loop_count,
+		"truth": truth_stage
+	})
 	
 	_update_location_display()
 	status_updated.emit()
@@ -111,23 +125,28 @@ func _load_node(node_id: String) -> void:
 
 
 func _update_location_display() -> void:
-	var node_name: String = current_node.get("name", "Unknown Location")
-	location_label.text = "📍 %s" % node_name
+	var node_name: String = LocaleManager.tr_data(current_node, "name")
+	if node_name.is_empty():
+		node_name = current_node.get("name", "Unknown Location")
+	location_label.text = LocaleManager.tr("ui.location", {"name": node_name})
 	
 	# Show available directions
 	var edges: Dictionary = current_node.get("edges", {})
 	var directions: Array = []
 	if edges.has("forward") and not str(edges["forward"]).is_empty():
-		directions.append("↑前")
+		directions.append(LocaleManager.tr("ui.dir_forward"))
 	if edges.has("left") and not str(edges["left"]).is_empty():
-		directions.append("←左")
+		directions.append(LocaleManager.tr("ui.dir_left"))
 	if edges.has("right") and not str(edges["right"]).is_empty():
-		directions.append("→右")
+		directions.append(LocaleManager.tr("ui.dir_right"))
 	if edges.has("back") and not str(edges["back"]).is_empty():
-		directions.append("↓戻")
+		directions.append(LocaleManager.tr("ui.dir_back"))
 	
 	if direction_label != null:
-		direction_label.text = "進路: " + " ".join(directions) if directions.size() > 0 else "行き止まり"
+		if directions.size() > 0:
+			direction_label.text = LocaleManager.tr("ui.directions", {"dirs": " ".join(directions)})
+		else:
+			direction_label.text = LocaleManager.tr("ui.dead_end")
 
 
 func _build_event_queue() -> Array:
@@ -164,8 +183,12 @@ func _render_event() -> void:
 	var event_type: String = current_event.get("type", "explore")
 	
 	# Build event text with atmosphere and reaction slots
-	var desc: String = current_node.get("description", "")
-	var event_text: String = current_event.get("text", "")
+	var desc: String = LocaleManager.tr_data(current_node, "description")
+	if desc.is_empty():
+		desc = current_node.get("description", "")
+	var event_text: String = LocaleManager.tr_data(current_event, "text")
+	if event_text.is_empty():
+		event_text = current_event.get("text", "")
 	
 	# Phase 2: Apply reaction slots based on conditions
 	var reaction_slots: Array = current_event.get("reaction_slots", [])
@@ -189,7 +212,10 @@ func _render_event() -> void:
 	# Render filtered choices (disabled until text completes)
 	for choice: Variant in filtered_choices:
 		var button := Button.new()
-		button.text = choice.get("label", "選択")
+		var choice_label: String = LocaleManager.tr_data(choice, "label")
+		if choice_label.is_empty():
+			choice_label = choice.get("label", LocaleManager.tr("ui.select"))
+		button.text = choice_label
 		button.pressed.connect(_on_choice_selected.bind(choice))
 		button.disabled = true  # Enabled after typewriter completes
 		choices_box.add_child(button)
@@ -218,27 +244,32 @@ func _apply_atmosphere_effects(text: String) -> String:
 
 
 func _get_matching_reaction(reaction_slots: Array) -> String:
-	# Return the first matching reaction text
+	# Return the first matching reaction text (localized if available)
 	for slot: Variant in reaction_slots:
 		if slot is Dictionary:
 			var conditions: Dictionary = slot.get("conditions", {})
 			if GameState.check_event_conditions(conditions):
-				return str(slot.get("text", ""))
+				var text: String = LocaleManager.tr_data(slot, "text")
+				if text.is_empty():
+					text = str(slot.get("text", ""))
+				return text
 	return ""
 
 
 func _render_navigation_only() -> void:
 	_clear_ui()
 	
-	var desc: String = current_node.get("description", "")
+	var desc: String = LocaleManager.tr_data(current_node, "description")
+	if desc.is_empty():
+		desc = current_node.get("description", "")
 	var node_type: String = current_node.get("node_type", "explore")
 	
 	var nav_text: String
 	if node_type == "boss" and _has_boss_enemy():
 		# Boss node without event means boss defeated
-		nav_text = "[i]%s[/i]\n\n静寂。終わりの気配。この世界の核心に辿り着いた。" % desc
+		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.tr("ui.nav_boss_cleared")]
 	else:
-		nav_text = "[i]%s[/i]\n\nどこへ向かう？" % desc
+		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.tr("ui.nav_where")]
 	
 	typewriter.display_text(nav_text, TypewriterEffect.Speed.FAST)
 	
@@ -258,10 +289,10 @@ func _render_navigation_buttons() -> void:
 	var edges: Dictionary = current_node.get("edges", {})
 	
 	var directions := {
-		"forward": "前へ進む",
-		"left": "左へ",
-		"right": "右へ",
-		"back": "戻る"
+		"forward": LocaleManager.tr("ui.nav_forward"),
+		"left": LocaleManager.tr("ui.nav_left"),
+		"right": LocaleManager.tr("ui.nav_right"),
+		"back": LocaleManager.tr("ui.nav_back")
 	}
 	
 	for dir: String in directions.keys():
@@ -276,7 +307,7 @@ func _render_navigation_buttons() -> void:
 	var node_type: String = current_node.get("node_type", "")
 	if node_type == "boss":
 		var clear_btn := Button.new()
-		clear_btn.text = "✦ 周回クリア ✦"
+		clear_btn.text = LocaleManager.tr("ui.run_clear")
 		clear_btn.pressed.connect(_on_run_clear)
 		navigation_box.add_child(clear_btn)
 
@@ -360,7 +391,9 @@ func _complete_cross_link_with_notification(link_id: String) -> void:
 		return
 	
 	var link: Dictionary = GameState.get_cross_link_by_id(link_id)
-	var link_name: String = link.get("name", "因果リンク")
+	var link_name: String = LocaleManager.tr_data(link, "name")
+	if link_name.is_empty():
+		link_name = link.get("name", "Cross-Link")
 	
 	# Show notification in body text (will be cleared on next event)
 	# The revelation event will follow naturally from the event queue
@@ -428,10 +461,14 @@ func _on_exit_run() -> void:
 
 func _show_fallback_event() -> void:
 	_clear_ui()
-	typewriter.display_text("[b]このノードは存在しません。[/b]\n\nワールドデータを確認してください。", TypewriterEffect.Speed.INSTANT)
+	var text: String = "[b]%s[/b]\n\n%s" % [
+		LocaleManager.tr("ui.node_missing"),
+		LocaleManager.tr("ui.node_missing_hint")
+	]
+	typewriter.display_text(text, TypewriterEffect.Speed.INSTANT)
 	
 	var back_btn := Button.new()
-	back_btn.text = "周回を終了"
+	back_btn.text = LocaleManager.tr("ui.run_exit")
 	back_btn.pressed.connect(_on_exit_run)
 	choices_box.add_child(back_btn)
 
@@ -448,27 +485,24 @@ func _update_status() -> void:
 	var dominant_traits: Array = GameState.get_dominant_traits(2)
 	var traits_text: String = ""
 	if dominant_traits.size() > 0:
-		traits_text = " | 傾向: " + ", ".join(dominant_traits)
+		traits_text = " | %s" % LocaleManager.tr("ui.status_traits", {"traits": ", ".join(dominant_traits)})
 	
 	# Phase 3: Show cross-link items if any
 	var items_text: String = ""
 	if GameState.cross_link_items.size() > 0:
 		var item_names: Array = []
 		for item_id: String in GameState.cross_link_items:
-			if item_id == "quantum_circuit":
-				item_names.append("量子回路")
-			elif item_id == "ancient_cipher":
-				item_names.append("古代暗号")
-			else:
-				item_names.append(item_id)
-		items_text = " | 所持: " + ", ".join(item_names)
+			item_names.append(LocaleManager.get_item_name(item_id))
+		items_text = " | %s" % LocaleManager.tr("ui.status_items", {"items": ", ".join(item_names)})
 	
-	status_label.text = "HP: %d/%d | Gold: %d | 深度: %d | 討伐: %d%s%s" % [
-		GameState.run_hp,
-		GameState.run_max_hp,
-		GameState.run_gold,
-		GameState.run_nodes_visited,
-		GameState.run_kills,
+	status_label.text = "%s%s%s" % [
+		LocaleManager.tr("ui.status_full", {
+			"hp": GameState.run_hp,
+			"maxhp": GameState.run_max_hp,
+			"gold": GameState.run_gold,
+			"depth": GameState.run_nodes_visited,
+			"kills": GameState.run_kills
+		}),
 		traits_text,
 		items_text
 	]

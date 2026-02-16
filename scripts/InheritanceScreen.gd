@@ -15,6 +15,12 @@ func _ready() -> void:
 	skip_button.pressed.connect(_on_skip_pressed)
 	_apply_theme()
 	_setup_screen()
+	
+	LocaleManager.locale_changed.connect(_on_locale_changed)
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_setup_screen()
 
 
 func _apply_theme() -> void:
@@ -24,68 +30,103 @@ func _apply_theme() -> void:
 
 
 func _setup_screen() -> void:
-	header.text = "継承の選択"
+	header.text = LocaleManager.tr("ui.inheritance_header")
+	skip_button.text = LocaleManager.tr("ui.inheritance_skip")
 	
 	var is_clear: bool = GameState.run_is_clear
 	var soul_gain: int = GameState.last_run_score
 	
-	var desc_text: String = """[center][b]周回%d 終了[/b][/center]
+	var desc_text: String = """[center][b]%s[/b][/center]
 
-獲得魂価値: [color=gold]%d[/color]
-累計魂価値: [color=gold]%d[/color]
+%s: [color=gold]%d[/color]
+%s: [color=gold]%d[/color]
 
-""" % [GameState.loop_count - 1, soul_gain, GameState.soul_points]
+""" % [
+		LocaleManager.tr("ui.inheritance_run_end", {"loop": GameState.loop_count - 1}),
+		LocaleManager.tr("ui.inheritance_soul_gain", {"amount": soul_gain}).split(":")[0],
+		soul_gain,
+		LocaleManager.tr("ui.inheritance_soul_total", {"amount": GameState.soul_points}).split(":")[0],
+		GameState.soul_points
+	]
 	
 	if is_clear:
-		desc_text += "[center][color=green]✦ クリア達成 ✦[/color][/center]\n\n"
+		desc_text += "[center][color=green]%s[/color][/center]\n\n" % LocaleManager.tr("ui.inheritance_clear")
 	
-	desc_text += "次の周回に持ち越す継承を選んでください。"
+	desc_text += LocaleManager.tr("ui.inheritance_prompt")
 	
 	# Show dominant traits
 	var dominant_traits: Array = GameState.get_dominant_traits(3)
 	if dominant_traits.size() > 0:
-		desc_text += "\n\n[b]蓄積された傾向:[/b] " + ", ".join(dominant_traits)
+		desc_text += "\n\n[b]%s[/b] %s" % [
+			LocaleManager.tr("ui.inheritance_traits"),
+			", ".join(dominant_traits)
+		]
 	
 	# Show acquired memory flags (hints)
 	var flags_text: String = _get_recent_flags_text()
 	if not flags_text.is_empty():
-		desc_text += "\n\n[b]獲得した記憶:[/b] " + flags_text
+		desc_text += "\n\n[b]%s[/b] %s" % [
+			LocaleManager.tr("ui.inheritance_memories"),
+			flags_text
+		]
 	
 	description_label.text = desc_text
 	
 	# Generate inheritance candidates
-	candidates = GameState.generate_inheritance_candidates()
+	candidates = _generate_localized_candidates()
 	_render_candidates()
 
 
 func _get_recent_flags_text() -> String:
-	var flag_labels: Dictionary = {
-		"mayor_basement_seen": "村長の地下",
-		"well_peeked": "井戸の声",
-		"seal_broken": "封印解除",
-		"tome_read": "古の書物",
-		"bishop_encountered": "司教との対面",
-		"bishop_defeated": "司教撃破",
-		"terminal_hacked": "端末ハック",
-		"diary_read": "N-06の日記",
-		"core_log_read": "コアログ",
-		"tank_examined": "培養槽調査",
-		"shelter_message_read": "シェルターの警告",
-		"system_dialogue": "システムとの対話",
-		"prophet_encountered": "預言者との対面",
-		"prophet_defeated": "預言者撃破",
-		"residue_truth_revealed": "Residueの真実"
-	}
+	var flag_keys: Array = [
+		"mayor_basement_seen", "well_peeked", "seal_broken", "tome_read",
+		"bishop_encountered", "bishop_defeated", "terminal_hacked", "diary_read",
+		"core_log_read", "tank_examined", "shelter_message_read", "system_dialogue",
+		"prophet_encountered", "prophet_defeated", "residue_truth_revealed"
+	]
 	
 	var acquired: Array = []
-	for flag: String in flag_labels.keys():
+	for flag: String in flag_keys:
 		if GameState.has_memory_flag(flag):
-			acquired.append(flag_labels[flag])
+			acquired.append(LocaleManager.get_memory_flag_label(flag))
 	
 	if acquired.size() > 5:
-		return ", ".join(acquired.slice(0, 5)) + " 他%d" % (acquired.size() - 5)
+		var remaining: int = acquired.size() - 5
+		var others_text: String = " +%d" % remaining
+		return ", ".join(acquired.slice(0, 5)) + others_text
 	
 	return ", ".join(acquired)
+
+
+func _generate_localized_candidates() -> Array:
+	var raw_candidates: Array = GameState.generate_inheritance_candidates()
+	var localized: Array = []
+	
+	for candidate: Dictionary in raw_candidates:
+		var localized_candidate := candidate.duplicate()
+		var candidate_type: String = candidate.get("type", "")
+		var value: Variant = candidate.get("value", 0)
+		
+		match candidate_type:
+			"soul_bonus":
+				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_soul_bonus", {"amount": value})
+				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_soul_bonus_desc", {"amount": value})
+			"hp_bonus":
+				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_hp_bonus", {"amount": value})
+				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_hp_bonus_desc", {"amount": value})
+			"gold_start":
+				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_gold_start", {"amount": value})
+				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_gold_start_desc", {"amount": value})
+			"tag_boost":
+				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_tag_boost", {"tag": value})
+				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_tag_boost_desc", {"tag": value})
+			"memory_hint":
+				localized_candidate["label"] = LocaleManager.tr("ui.inheritance_memory_hint")
+				localized_candidate["description"] = LocaleManager.tr("ui.inheritance_memory_hint_desc")
+		
+		localized.append(localized_candidate)
+	
+	return localized
 
 
 func _render_candidates() -> void:
@@ -128,7 +169,7 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	
 	var title := Label.new()
 	title.add_theme_font_size_override("font_size", 18)
-	title.text = "【%s】" % candidate.get("label", "継承")
+	title.text = "【%s】" % candidate.get("label", LocaleManager.tr("ui.inheritance_header"))
 	vbox.add_child(title)
 	
 	var desc := Label.new()
@@ -137,7 +178,7 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	vbox.add_child(desc)
 	
 	var button := Button.new()
-	button.text = "選択"
+	button.text = LocaleManager.tr("ui.select")
 	button.custom_minimum_size = Vector2(100, 40)
 	button.pressed.connect(_on_candidate_selected.bind(candidate))
 	hbox.add_child(button)

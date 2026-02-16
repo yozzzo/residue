@@ -3,13 +3,21 @@
     {
       "world_id": "medieval",
       "name": "Medieval",
+      "name_ja": "中世",
+      "name_en": "Medieval",
       "blurb": "Stone village and sealed catacombs",
+      "blurb_ja": "石造りの村と封印された地下聖堂",
+      "blurb_en": "Stone village and sealed catacombs",
       "tags": ["world:medieval", "tone:grim"]
     },
     {
       "world_id": "future",
       "name": "Future",
+      "name_ja": "未来",
+      "name_en": "Future",
       "blurb": "Rusting sectors and machine prayers",
+      "blurb_ja": "錆びたセクターと機械の祈り",
+      "blurb_en": "Rusting sectors and machine prayers",
       "tags": ["world:future", "tone:cold"]
     }
   ]

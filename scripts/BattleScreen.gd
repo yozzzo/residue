@@ -37,7 +37,21 @@ func _ready() -> void:
 	defend_btn.pressed.connect(_on_defend)
 	flee_btn.pressed.connect(_on_flee)
 	_apply_theme()
+	_update_button_texts()
 	_setup_battle()
+	
+	LocaleManager.locale_changed.connect(_on_locale_changed)
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_update_button_texts()
+	_update_display()
+
+
+func _update_button_texts() -> void:
+	attack_btn.text = LocaleManager.tr("ui.battle_attack")
+	defend_btn.text = LocaleManager.tr("ui.battle_defend")
+	flee_btn.text = LocaleManager.tr("ui.battle_flee")
 
 
 func _apply_theme() -> void:
@@ -58,21 +72,24 @@ func set_enemy(p_enemy_id: String) -> void:
 func _setup_battle() -> void:
 	enemy_data = GameState.get_enemy_by_id(enemy_id)
 	if enemy_data.is_empty():
-		_log("敵データが見つかりません: %s" % enemy_id)
+		_log(LocaleManager.tr("ui.node_missing") + ": %s" % enemy_id)
 		return
 	
 	enemy_max_hp = int(enemy_data.get("hp", 50))
 	enemy_hp = enemy_max_hp
 	
-	enemy_name_label.text = enemy_data.get("name", "Unknown Enemy")
-	enemy_desc.text = enemy_data.get("description", "")
+	var enemy_name: String = LocaleManager.tr_data(enemy_data, "name")
+	var enemy_description: String = LocaleManager.tr_data(enemy_data, "description")
+	
+	enemy_name_label.text = enemy_name
+	enemy_desc.text = enemy_description
 	
 	# Phase 3: Show job in header
 	var job: Dictionary = GameState.get_job_by_id(GameState.current_job)
-	var job_name: String = job.get("name", "放浪者")
-	header.text = "戦闘 — %s [%s]" % [enemy_data.get("name", ""), job_name]
+	var job_name: String = LocaleManager.tr_data(job, "name")
+	header.text = LocaleManager.tr("ui.battle_header", {"enemy": enemy_name, "job": job_name})
 	
-	_log("「%s」が現れた！" % enemy_data.get("name", "敵"))
+	_log(LocaleManager.tr("ui.battle_enemy_appears", {"name": enemy_name}))
 	
 	# Phase 3: Show job ability hint
 	_show_job_ability_hint()
@@ -86,14 +103,13 @@ func _show_job_ability_hint() -> void:
 	if ability.is_empty():
 		return
 	
-	var ability_name: String = ability.get("name", "")
 	match GameState.current_job:
 		"wanderer":
-			_log("[特殊] 逃走の達人 - 逃走成功率上昇")
+			_log(LocaleManager.tr("ui.battle_ability_escape"))
 		"knight":
-			_log("[特殊] 盾の壁 - 防御時70%軽減")
+			_log(LocaleManager.tr("ui.battle_ability_shield"))
 		"cyborg":
-			_log("[特殊] オーバークロック - 攻撃ボタン長押しで発動")
+			_log(LocaleManager.tr("ui.battle_ability_overclock"))
 			# Add overclock button
 			_add_overclock_button()
 
@@ -101,7 +117,7 @@ func _show_job_ability_hint() -> void:
 func _add_overclock_button() -> void:
 	var overclock_btn := Button.new()
 	overclock_btn.name = "OverclockButton"
-	overclock_btn.text = "オーバークロック"
+	overclock_btn.text = LocaleManager.tr("ui.battle_overclock")
 	overclock_btn.custom_minimum_size = Vector2(120, 44)
 	overclock_btn.pressed.connect(_on_overclock)
 	commands_box.add_child(overclock_btn)
@@ -111,7 +127,7 @@ func _update_display() -> void:
 	# Enemy HP bar
 	enemy_hp_bar.max_value = enemy_max_hp
 	enemy_hp_bar.value = enemy_hp
-	enemy_hp_label.text = "HP: %d / %d" % [enemy_hp, enemy_max_hp]
+	enemy_hp_label.text = LocaleManager.tr("ui.battle_enemy_hp", {"current": enemy_hp, "max": enemy_max_hp})
 	
 	# Update enemy HP bar color
 	var enemy_hp_percent: float = float(enemy_hp) / float(enemy_max_hp)
@@ -128,17 +144,17 @@ func _update_display() -> void:
 	var atk_text: String = ""
 	var def_text: String = ""
 	if GameState.run_attack_bonus > 0:
-		atk_text = " (攻+%d)" % GameState.run_attack_bonus
+		atk_text = LocaleManager.tr("ui.battle_atk_bonus", {"bonus": GameState.run_attack_bonus})
 	if GameState.run_defense_bonus > 0:
-		def_text = " (防+%d)" % GameState.run_defense_bonus
+		def_text = LocaleManager.tr("ui.battle_def_bonus", {"bonus": GameState.run_defense_bonus})
 	
-	player_status.text = "HP %d/%d%s%s | Gold: %d" % [
-		GameState.run_hp,
-		GameState.run_max_hp,
-		atk_text,
-		def_text,
-		GameState.run_gold
-	]
+	player_status.text = LocaleManager.tr("ui.battle_player_status", {
+		"hp": GameState.run_hp,
+		"maxhp": GameState.run_max_hp,
+		"atk": atk_text,
+		"def": def_text,
+		"gold": GameState.run_gold
+	})
 	
 	var log_text: String = ""
 	var start_idx: int = maxi(0, log_messages.size() - 6)
@@ -206,17 +222,17 @@ func _on_attack() -> void:
 	# Phase 3: Cyborg overclock doubles attack
 	if overclock_active:
 		attack_bonus = attack_bonus * 2 + base_attack
-		_log("[color=#80ffff][オーバークロック発動！][/color]")
+		_log(LocaleManager.tr("ui.battle_overclock_active"))
 		overclock_turns -= 1
 		if overclock_turns <= 0:
 			overclock_active = false
-			_log("[オーバークロック終了]")
+			_log(LocaleManager.tr("ui.battle_overclock_end"))
 	
 	var total_attack: int = base_attack + attack_bonus
 	var enemy_def: int = int(enemy_data.get("defense", 0))
 	var damage_to_enemy: int = maxi(1, total_attack - enemy_def)
 	enemy_hp -= damage_to_enemy
-	_log("→ 攻撃！ [color=#ffaa60]%d[/color] ダメージ" % damage_to_enemy)
+	_log(LocaleManager.tr("ui.battle_attack_log", {"damage": damage_to_enemy}))
 	
 	# Spawn damage popup on enemy
 	_spawn_damage_popup(damage_to_enemy, false)
@@ -232,14 +248,14 @@ func _on_defend() -> void:
 	if battle_over:
 		return
 	player_defending = true
-	_log("→ 防御の構え")
+	_log(LocaleManager.tr("ui.battle_defend_log"))
 	
 	# Phase 3: Decrement overclock turns even when defending
 	if overclock_active:
 		overclock_turns -= 1
 		if overclock_turns <= 0:
 			overclock_active = false
-			_log("[オーバークロック終了]")
+			_log(LocaleManager.tr("ui.battle_overclock_end"))
 	
 	_enemy_turn()
 
@@ -250,7 +266,7 @@ func _on_overclock() -> void:
 	
 	overclock_active = true
 	overclock_turns = 3
-	_log("→ [color=#80ffff]オーバークロック起動！ 3ターン攻撃力2倍[/color]")
+	_log(LocaleManager.tr("ui.battle_overclock_log"))
 	_update_display()
 
 
@@ -268,13 +284,13 @@ func _on_flee() -> void:
 		flee_chance += 0.25
 	
 	if randf() < flee_chance:
-		_log("→ [color=#80ff80]逃走成功！[/color]")
+		_log(LocaleManager.tr("ui.battle_flee_success"))
 		battle_over = true
 		_update_display()
 		await get_tree().create_timer(1.0).timeout
 		battle_ended.emit("flee")
 	else:
-		_log("→ [color=#ff8080]逃げられない！[/color]")
+		_log(LocaleManager.tr("ui.battle_flee_fail"))
 		_enemy_turn()
 
 
@@ -282,6 +298,7 @@ func _enemy_turn() -> void:
 	if battle_over:
 		return
 	
+	var enemy_name: String = LocaleManager.tr_data(enemy_data, "name")
 	var enemy_attack: int = int(enemy_data.get("attack", 10))
 	var damage: int = enemy_attack + randi() % 5
 	
@@ -294,9 +311,9 @@ func _enemy_turn() -> void:
 		if GameState.current_job == "knight":
 			reduction = 0.7
 		damage = int(damage * (1.0 - reduction))
-		_log("← %s の攻撃！ 防御で [color=#ffa060]%d[/color] ダメージに軽減" % [enemy_data.get("name", "敵"), damage])
+		_log(LocaleManager.tr("ui.battle_enemy_attack_blocked", {"name": enemy_name, "damage": damage}))
 	else:
-		_log("← %s の攻撃！ [color=#ff6060]%d[/color] ダメージ" % [enemy_data.get("name", "敵"), damage])
+		_log(LocaleManager.tr("ui.battle_enemy_attack", {"name": enemy_name, "damage": damage}))
 	
 	GameState.take_damage(damage)
 	
@@ -314,20 +331,20 @@ func _on_victory() -> void:
 	battle_over = true
 	enemy_hp = 0
 	_log("")
-	_log("[color=#60ff60]✦ 勝利！ ✦[/color]")
+	_log(LocaleManager.tr("ui.battle_victory"))
 	
 	# Apply rewards
 	var rewards: Dictionary = enemy_data.get("rewards", {})
 	var gold: int = int(rewards.get("gold", 0))
 	if gold > 0:
 		GameState.add_gold(gold)
-		_log("  → %d Gold 獲得" % gold)
+		_log(LocaleManager.tr("ui.battle_gold_gain", {"amount": gold}))
 	
 	var tags: Array = rewards.get("tags", [])
 	for tag: Variant in tags:
 		GameState.add_run_tag(str(tag))
 		GameState.add_trait_tag(str(tag))
-		_log("  → タグ獲得: %s" % tag)
+		_log(LocaleManager.tr("ui.battle_tag_gain", {"tag": tag}))
 	
 	GameState.record_kill()
 	
@@ -335,9 +352,11 @@ func _on_victory() -> void:
 	var acquired_items: Array = GameState.check_and_acquire_cross_link_items()
 	for item: Variant in acquired_items:
 		if item is Dictionary:
+			var item_name: String = LocaleManager.tr_data(item, "name")
+			var item_desc: String = LocaleManager.tr_data(item, "description")
 			_log("")
-			_log("[color=gold]✦ %s を獲得！ ✦[/color]" % item.get("name", "アイテム"))
-			_log("[i]%s[/i]" % item.get("description", ""))
+			_log("[color=gold]%s[/color]" % LocaleManager.tr("ui.battle_item_gain", {"name": item_name}))
+			_log("[i]%s[/i]" % item_desc)
 	
 	_update_display()
 	
@@ -348,8 +367,8 @@ func _on_victory() -> void:
 func _on_defeat() -> void:
 	battle_over = true
 	_log("")
-	_log("[color=#ff6060]✦ 敗北… ✦[/color]")
-	_log("闘いに敗れ、闇が視界を覆う。")
+	_log(LocaleManager.tr("ui.battle_defeat"))
+	_log(LocaleManager.tr("ui.battle_defeat_desc"))
 	_update_display()
 	
 	await get_tree().create_timer(2.0).timeout

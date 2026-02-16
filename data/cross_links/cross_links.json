@@ -2,13 +2,19 @@
   "cross_links": [
     {
       "link_id": "quantum_circuit_link",
-      "name": "量子回路の因果",
+      "name": "Quantum Circuit Link",
+      "name_ja": "量子回路の因果",
+      "name_en": "Quantum Circuit Causality",
       "source_world": "medieval",
       "target_world": "future",
       "item": {
         "item_id": "quantum_circuit",
-        "name": "量子回路",
-        "description": "中世の封印された司教が守っていた、時代を超えた遺物。",
+        "name": "Quantum Circuit",
+        "name_ja": "量子回路",
+        "name_en": "Quantum Circuit",
+        "description": "A relic transcending time, guarded by the sealed bishop of the medieval era.",
+        "description_ja": "中世の封印された司教が守っていた、時代を超えた遺物。",
+        "description_en": "A relic transcending time, guarded by the sealed bishop of the medieval era.",
         "obtain_condition": {
           "requires_flag": "bishop_defeated"
         },
@@ -28,13 +34,19 @@
     },
     {
       "link_id": "ancient_cipher_link",
-      "name": "古代暗号の因果",
+      "name": "Ancient Cipher Link",
+      "name_ja": "古代暗号の因果",
+      "name_en": "Ancient Cipher Causality",
       "source_world": "future",
       "target_world": "medieval",
       "item": {
         "item_id": "ancient_cipher",
-        "name": "古代暗号",
-        "description": "未来世界のデータ保管庫で発見された、中世の修道院に由来する暗号文書。",
+        "name": "Ancient Cipher",
+        "name_ja": "古代暗号",
+        "name_en": "Ancient Cipher",
+        "description": "An encrypted document originating from the medieval monastery, discovered in the future world's data archive.",
+        "description_ja": "未来世界のデータ保管庫で発見された、中世の修道院に由来する暗号文書。",
+        "description_en": "An encrypted document originating from the medieval monastery, discovered in the future world's data archive.",
         "obtain_condition": {
           "requires_flag": "core_log_read"
         },

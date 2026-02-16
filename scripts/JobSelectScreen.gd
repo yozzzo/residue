@@ -19,18 +19,29 @@ func _ready() -> void:
 	confirm_button.pressed.connect(_on_confirm_pressed)
 	confirm_button.disabled = true
 	_setup_screen()
+	
+	LocaleManager.locale_changed.connect(_on_locale_changed)
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_setup_screen()
 
 
 func _setup_screen() -> void:
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
-	header.text = "ジョブ選択"
-	world_info.text = "世界: %s" % world.get("name", GameState.selected_world_id)
+	var world_name: String = LocaleManager.tr_data(world, "name")
+	
+	header.text = LocaleManager.tr("ui.job_select")
+	world_info.text = LocaleManager.tr("ui.world_label", {"name": world_name})
+	back_button.text = LocaleManager.tr("ui.back")
+	confirm_button.text = LocaleManager.tr("ui.confirm")
+	
 	_update_soul_label()
 	_populate_job_list()
 
 
 func _update_soul_label() -> void:
-	soul_label.text = "所持魂価値: %d" % GameState.soul_points
+	soul_label.text = LocaleManager.tr("ui.soul_label", {"amount": GameState.soul_points})
 
 
 func _populate_job_list() -> void:
@@ -50,8 +61,8 @@ func _populate_job_list() -> void:
 
 func _create_job_card(job: Dictionary) -> Control:
 	var job_id: String = job.get("job_id", "")
-	var job_name: String = job.get("name", "Unknown")
-	var description: String = job.get("description", "")
+	var job_name: String = LocaleManager.tr_data(job, "name")
+	var description: String = LocaleManager.tr_data(job, "description")
 	var origin: Variant = job.get("origin_world")
 	var is_unlocked: bool = GameState.is_job_unlocked(job_id)
 	var can_unlock: bool = GameState.can_unlock_job(job_id)
@@ -82,9 +93,13 @@ func _create_job_card(job: Dictionary) -> Control:
 	if origin != null and origin is String:
 		var is_foreign: bool = GameState.is_foreign_job(job_id, GameState.selected_world_id)
 		if is_foreign:
-			origin_text = " [他世界: %s]" % origin
+			var origin_world: Dictionary = GameState.get_world_by_id(origin)
+			var origin_name: String = LocaleManager.tr_data(origin_world, "name")
+			origin_text = " [%s: %s]" % [LocaleManager.tr("ui.other_world_mark"), origin_name]
 		else:
-			origin_text = " [%s]" % origin
+			var origin_world: Dictionary = GameState.get_world_by_id(origin)
+			var origin_name: String = LocaleManager.tr_data(origin_world, "name")
+			origin_text = " [%s]" % origin_name
 	name_label.text = "【%s】%s" % [job_name, origin_text]
 	if not is_unlocked:
 		name_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
@@ -110,8 +125,9 @@ func _create_job_card(job: Dictionary) -> Control:
 	# Special ability
 	var special_ability: Dictionary = job.get("special_ability", {})
 	if not special_ability.is_empty():
+		var ability_name: String = LocaleManager.tr_data(special_ability, "name")
 		var ability_label := Label.new()
-		ability_label.text = "特殊能力: %s" % special_ability.get("name", "")
+		ability_label.text = LocaleManager.tr("ui.special_ability", {"name": ability_name})
 		ability_label.add_theme_font_size_override("font_size", 14)
 		ability_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.6))
 		info_vbox.add_child(ability_label)
@@ -123,7 +139,7 @@ func _create_job_card(job: Dictionary) -> Control:
 	
 	if is_unlocked:
 		var select_btn := Button.new()
-		select_btn.text = "選択"
+		select_btn.text = LocaleManager.tr("ui.select")
 		select_btn.custom_minimum_size = Vector2(100, 40)
 		select_btn.pressed.connect(_on_job_select_pressed.bind(job_id, select_btn))
 		button_vbox.add_child(select_btn)
@@ -131,7 +147,7 @@ func _create_job_card(job: Dictionary) -> Control:
 		
 		# Highlight if currently selected
 		if job_id == selected_job_id or (selected_job_id.is_empty() and job_id == GameState.current_job):
-			select_btn.text = "✓ 選択中"
+			select_btn.text = LocaleManager.tr("ui.selected")
 			selected_job_id = job_id
 			confirm_button.disabled = false
 	else:
@@ -139,12 +155,12 @@ func _create_job_card(job: Dictionary) -> Control:
 		var cost: int = int(unlock_conditions.get("soul_points", 0))
 		
 		var cost_label := Label.new()
-		cost_label.text = "解放: %d魂" % cost
+		cost_label.text = LocaleManager.tr("ui.unlock_cost", {"cost": cost})
 		cost_label.add_theme_color_override("font_color", Color(0.8, 0.6, 0.2))
 		button_vbox.add_child(cost_label)
 		
 		var unlock_btn := Button.new()
-		unlock_btn.text = "解放"
+		unlock_btn.text = LocaleManager.tr("ui.unlock")
 		unlock_btn.custom_minimum_size = Vector2(100, 40)
 		unlock_btn.disabled = not can_unlock
 		unlock_btn.pressed.connect(_on_job_unlock_pressed.bind(job_id))
@@ -157,13 +173,16 @@ func _format_stat_modifiers(modifiers: Dictionary) -> String:
 	var parts: Array = []
 	if modifiers.has("hp_bonus") and int(modifiers["hp_bonus"]) != 0:
 		var hp: int = int(modifiers["hp_bonus"])
-		parts.append("HP%s%d" % ["+" if hp > 0 else "", hp])
+		var label: String = LocaleManager.get_stat_label("hp_bonus")
+		parts.append("%s%s%d" % [label, "+" if hp > 0 else "", hp])
 	if modifiers.has("attack_bonus") and int(modifiers["attack_bonus"]) != 0:
 		var atk: int = int(modifiers["attack_bonus"])
-		parts.append("攻撃%s%d" % ["+" if atk > 0 else "", atk])
+		var label: String = LocaleManager.get_stat_label("attack_bonus")
+		parts.append("%s%s%d" % [label, "+" if atk > 0 else "", atk])
 	if modifiers.has("defense_bonus") and int(modifiers["defense_bonus"]) != 0:
 		var def: int = int(modifiers["defense_bonus"])
-		parts.append("防御%s%d" % ["+" if def > 0 else "", def])
+		var label: String = LocaleManager.get_stat_label("defense_bonus")
+		parts.append("%s%s%d" % [label, "+" if def > 0 else "", def])
 	return ", ".join(parts)
 
 
@@ -171,11 +190,11 @@ func _on_job_select_pressed(job_id: String, button: Button) -> void:
 	# Deselect previous
 	for jid: String in job_buttons.keys():
 		var btn: Button = job_buttons[jid]
-		btn.text = "選択"
+		btn.text = LocaleManager.tr("ui.select")
 	
 	# Select new
 	selected_job_id = job_id
-	button.text = "✓ 選択中"
+	button.text = LocaleManager.tr("ui.selected")
 	confirm_button.disabled = false
 
 
@@ -190,11 +209,11 @@ func _on_job_unlock_pressed(job_id: String) -> void:
 
 func _show_unlock_notification(job_id: String) -> void:
 	var job: Dictionary = GameState.get_job_by_id(job_id)
-	var job_name: String = job.get("name", job_id)
+	var job_name: String = LocaleManager.tr_data(job, "name")
 	
 	# Simple notification overlay
 	var notification := Label.new()
-	notification.text = "✦ %s 解放！ ✦" % job_name
+	notification.text = LocaleManager.tr("ui.unlocked_notification", {"name": job_name})
 	notification.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	notification.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	notification.add_theme_font_size_override("font_size", 28)

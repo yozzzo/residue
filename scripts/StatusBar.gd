@@ -16,6 +16,12 @@ func _ready() -> void:
 	layer = 10  # Above normal UI, below transitions
 	_create_ui()
 	hide_bar()  # Hidden by default
+	
+	LocaleManager.locale_changed.connect(_on_locale_changed)
+
+
+func _on_locale_changed(_locale: String) -> void:
+	update_status()
 
 
 func _create_ui() -> void:
@@ -53,7 +59,7 @@ func _create_ui() -> void:
 	job_label = Label.new()
 	job_label.name = "JobLabel"
 	job_label.add_theme_font_size_override("font_size", 14)
-	job_label.text = "【放浪者】"
+	job_label.text = "【---】"
 	hbox.add_child(job_label)
 	
 	# HP section
@@ -143,18 +149,22 @@ func update_status() -> void:
 	
 	# Job
 	var job: Dictionary = GameState.get_job_by_id(GameState.current_job)
-	var job_name: String = job.get("name", "放浪者")
+	var job_name: String = LocaleManager.tr_data(job, "name")
+	if job_name.is_empty():
+		job_name = job.get("name", "---")
 	var foreign_mark: String = " ✧" if GameState.run_is_foreign_job else ""
 	job_label.text = "【%s%s】" % [job_name, foreign_mark]
 	
 	# Location
 	var node: Dictionary = GameState.get_node_by_id(GameState.selected_world_id, GameState.run_current_node_id)
-	var node_name: String = node.get("name", "---")
-	location_label.text = "📍 %s" % node_name
+	var node_name: String = LocaleManager.tr_data(node, "name")
+	if node_name.is_empty():
+		node_name = node.get("name", "---")
+	location_label.text = LocaleManager.tr("ui.location", {"name": node_name})
 
 
 func update_location(node_name: String) -> void:
-	location_label.text = "📍 %s" % node_name
+	location_label.text = LocaleManager.tr("ui.location", {"name": node_name})
 
 
 func show_bar() -> void:

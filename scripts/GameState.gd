@@ -33,6 +33,9 @@ var current_job: String = "wanderer"  # Selected job for current/next run
 var cross_link_items: Array = []  # List of acquired cross-link item_ids
 var cross_link_completed: Array = []  # List of completed link_ids
 
+# Phase 4: Locale setting (persistent)
+var saved_locale: String = "ja"
+
 # Player run state (reset each run)
 var run_hp: int = 100
 var run_max_hp: int = 100
@@ -632,6 +635,17 @@ func select_world(world_id: String) -> void:
 	save_persistent_state()
 
 
+func set_locale(locale: String) -> void:
+	saved_locale = locale
+	LocaleManager.set_locale(locale)
+	save_persistent_state()
+
+
+func _apply_saved_locale() -> void:
+	if LocaleManager != null:
+		LocaleManager.set_locale(saved_locale)
+
+
 func load_persistent_state() -> void:
 	var payload: Dictionary = _save_service.load_state()
 	if payload.is_empty():
@@ -662,6 +676,12 @@ func load_persistent_state() -> void:
 		cross_link_items = payload["cross_link_items"]
 	if payload.has("cross_link_completed") and payload["cross_link_completed"] is Array:
 		cross_link_completed = payload["cross_link_completed"]
+	
+	# Phase 4: Load locale setting and apply
+	if payload.has("saved_locale"):
+		saved_locale = str(payload["saved_locale"])
+		# Apply locale after LocaleManager is ready
+		call_deferred("_apply_saved_locale")
 
 
 func save_persistent_state() -> void:
@@ -680,7 +700,9 @@ func save_persistent_state() -> void:
 		"current_job": current_job,
 		# Phase 3: Save cross-link state
 		"cross_link_items": cross_link_items,
-		"cross_link_completed": cross_link_completed
+		"cross_link_completed": cross_link_completed,
+		# Phase 4: Save locale setting
+		"saved_locale": saved_locale
 	}
 	_save_service.save_state(payload)
 

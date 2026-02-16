@@ -2,7 +2,9 @@
   "jobs": [
     {
       "job_id": "wanderer",
-      "name": "放浪者",
+      "name": "Wanderer",
+      "name_ja": "放浪者",
+      "name_en": "Wanderer",
       "origin_world": null,
       "job_tags": ["traveler", "survivor"],
       "unlock_conditions": {
@@ -15,14 +17,22 @@
       },
       "special_ability": {
         "ability_id": "escape_artist",
-        "name": "逃走の達人",
-        "description": "逃走成功率が上昇"
+        "name": "Escape Artist",
+        "name_ja": "逃走の達人",
+        "name_en": "Escape Artist",
+        "description": "Increased flee chance",
+        "description_ja": "逃走成功率が上昇",
+        "description_en": "Increased flee chance"
       },
-      "description": "どこにも属さない旅人。何度死んでも彷徨い続ける。"
+      "description": "A traveler belonging to no place. Wanders endlessly, even through death.",
+      "description_ja": "どこにも属さない旅人。何度死んでも彷徨い続ける。",
+      "description_en": "A traveler belonging to no place. Wanders endlessly, even through death."
     },
     {
       "job_id": "scholar",
-      "name": "学者",
+      "name": "Scholar",
+      "name_ja": "学者",
+      "name_en": "Scholar",
       "origin_world": null,
       "job_tags": ["curious", "thorough", "knowledge_seeker"],
       "unlock_conditions": {
@@ -35,14 +45,22 @@
       },
       "special_ability": {
         "ability_id": "deep_insight",
-        "name": "深層洞察",
-        "description": "発見による魂価値ボーナス+50%"
+        "name": "Deep Insight",
+        "name_ja": "深層洞察",
+        "name_en": "Deep Insight",
+        "description": "+50% soul value from discoveries",
+        "description_ja": "発見による魂価値ボーナス+50%",
+        "description_en": "+50% soul value from discoveries"
       },
-      "description": "真実を追い求める者。弱き身体に強き探究心を宿す。"
+      "description": "A seeker of truth. Frail body harbors a relentless mind.",
+      "description_ja": "真実を追い求める者。弱き身体に強き探究心を宿す。",
+      "description_en": "A seeker of truth. Frail body harbors a relentless mind."
     },
     {
       "job_id": "knight",
-      "name": "騎士",
+      "name": "Knight",
+      "name_ja": "騎士",
+      "name_en": "Knight",
       "origin_world": "medieval",
       "job_tags": ["bold", "fearless", "defender"],
       "unlock_conditions": {
@@ -55,14 +73,22 @@
       },
       "special_ability": {
         "ability_id": "shield_wall",
-        "name": "盾の壁",
-        "description": "防御時、ダメージを70%軽減"
+        "name": "Shield Wall",
+        "name_ja": "盾の壁",
+        "name_en": "Shield Wall",
+        "description": "70% damage reduction when defending",
+        "description_ja": "防御時、ダメージを70%軽減",
+        "description_en": "70% damage reduction when defending"
       },
-      "description": "かつて村を守った誓いの戦士。その名誉は死んでも消えない。"
+      "description": "A sworn warrior who once protected the village. Honor persists beyond death.",
+      "description_ja": "かつて村を守った誓いの戦士。その名誉は死んでも消えない。",
+      "description_en": "A sworn warrior who once protected the village. Honor persists beyond death."
     },
     {
       "job_id": "cyborg",
-      "name": "機械兵",
+      "name": "Cyborg",
+      "name_ja": "機械兵",
+      "name_en": "Cyborg",
       "origin_world": "future",
       "job_tags": ["cold", "efficient", "machine"],
       "unlock_conditions": {
@@ -75,10 +101,16 @@
       },
       "special_ability": {
         "ability_id": "overclock",
-        "name": "オーバークロック",
-        "description": "攻撃力が一時的に2倍になる"
+        "name": "Overclock",
+        "name_ja": "オーバークロック",
+        "name_en": "Overclock",
+        "description": "Temporarily doubles attack power",
+        "description_ja": "攻撃力が一時的に2倍になる",
+        "description_en": "Temporarily doubles attack power"
       },
-      "description": "機械に融合した兵士。人間の記憶は失われても、戦闘本能は残る。"
+      "description": "A soldier fused with machine. Human memory is lost, but combat instinct remains.",
+      "description_ja": "機械に融合した兵士。人間の記憶は失われても、戦闘本能は残る。",
+      "description_en": "A soldier fused with machine. Human memory is lost, but combat instinct remains."
     }
   ]
 }
