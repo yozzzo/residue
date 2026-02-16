@@ -1,0 +1,56 @@
+{
+  "cross_links": [
+    {
+      "link_id": "quantum_circuit_link",
+      "name": "量子回路の因果",
+      "source_world": "medieval",
+      "target_world": "future",
+      "item": {
+        "item_id": "quantum_circuit",
+        "name": "量子回路",
+        "description": "中世の封印された司教が守っていた、時代を超えた遺物。",
+        "obtain_condition": {
+          "requires_flag": "bishop_defeated"
+        },
+        "obtain_event_id": "m_e_boss"
+      },
+      "delivery": {
+        "target_npc": "data_keeper",
+        "target_event_id": "f_cross_quantum_delivery",
+        "target_node_id": "f_n05"
+      },
+      "rewards": {
+        "truth_stage_bonus": 1,
+        "sets_flag": "cross_link_quantum_established",
+        "unlocks_job": null,
+        "special_event_id": "f_cross_quantum_revelation"
+      }
+    },
+    {
+      "link_id": "ancient_cipher_link",
+      "name": "古代暗号の因果",
+      "source_world": "future",
+      "target_world": "medieval",
+      "item": {
+        "item_id": "ancient_cipher",
+        "name": "古代暗号",
+        "description": "未来世界のデータ保管庫で発見された、中世の修道院に由来する暗号文書。",
+        "obtain_condition": {
+          "requires_flag": "core_log_read"
+        },
+        "obtain_event_id": "f_e04"
+      },
+      "delivery": {
+        "target_npc": "cursed_monk_spirit",
+        "target_event_id": "m_cross_cipher_delivery",
+        "target_node_id": "m_n08"
+      },
+      "rewards": {
+        "truth_stage_bonus": 1,
+        "sets_flag": "cross_link_cipher_established",
+        "unlocks_job": null,
+        "special_event_id": "m_cross_cipher_revelation"
+      }
+    }
+  ]
+}

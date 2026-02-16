@@ -2,6 +2,7 @@ extends Control
 
 const TITLE_SCENE := preload("res://scenes/TitleScreen.tscn")
 const WORLD_SELECT_SCENE := preload("res://scenes/WorldSelect.tscn")
+const JOB_SELECT_SCENE := preload("res://scenes/JobSelectScreen.tscn")
 const RUN_SCENE := preload("res://scenes/RunScreen.tscn")
 const BATTLE_SCENE := preload("res://scenes/BattleScreen.tscn")
 const INHERITANCE_SCENE := preload("res://scenes/InheritanceScreen.tscn")
@@ -24,6 +25,12 @@ func _show_world_select() -> void:
 	_swap_screen(WORLD_SELECT_SCENE.instantiate())
 	current_screen.back_requested.connect(_on_back_to_title)
 	current_screen.world_selected.connect(_on_world_selected)
+
+
+func _show_job_select() -> void:
+	_swap_screen(JOB_SELECT_SCENE.instantiate())
+	current_screen.back_requested.connect(_on_back_to_world_select)
+	current_screen.job_selected.connect(_on_job_selected)
 
 
 func _show_run() -> void:
@@ -72,8 +79,18 @@ func _on_back_to_title() -> void:
 	_show_title()
 
 
+func _on_back_to_world_select() -> void:
+	_show_world_select()
+
+
 func _on_world_selected(world_id: String) -> void:
 	GameState.select_world(world_id)
+	# Phase 3: Go to job select instead of directly to run
+	_show_job_select()
+
+
+func _on_job_selected(job_id: String) -> void:
+	# Job is already selected in GameState by JobSelectScreen
 	_show_run()
 
 

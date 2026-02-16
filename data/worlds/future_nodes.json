@@ -13,7 +13,7 @@
         "right": null,
         "back": null
       },
-      "event_ids": ["f_e01"]
+      "event_ids": ["f_e01", "f_foreign_knight_01"]
     },
     {
       "node_id": "f_n02",
@@ -66,7 +66,7 @@
         "right": null,
         "back": "f_n03"
       },
-      "event_ids": ["f_e04"]
+      "event_ids": ["f_e04", "f_cross_quantum_delivery", "f_cross_quantum_revelation"]
     },
     {
       "node_id": "f_n06",
@@ -107,7 +107,7 @@
         "right": null,
         "back": "f_n05"
       },
-      "event_ids": ["f_e05"]
+      "event_ids": ["f_e05", "f_foreign_knight_02"]
     },
     {
       "node_id": "f_n09",
@@ -147,7 +147,7 @@
         "right": null,
         "back": "f_n09"
       },
-      "event_ids": ["f_e07"]
+      "event_ids": ["f_e07", "f_foreign_knight_03"]
     },
     {
       "node_id": "f_n12",

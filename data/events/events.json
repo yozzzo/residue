@@ -13,6 +13,10 @@
           {
             "conditions": {"requires_flag": "mayor_basement_seen"},
             "text": "\n\n石畳の下、あの地下室に繋がる道があるはずだ。"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "cyborg"},
+            "text": "\n\n機械の身体が違和感を訴える。この世界には、お前の部品の原料がない。"
           }
         ],
         "choices": [
@@ -32,6 +36,10 @@
           {
             "conditions": {"requires_truth_stage": 2},
             "text": "\n\n老人の顔に見覚えがある。何度も見た。何度も死んだ。"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "cyborg"},
+            "text": "\n\n老人が後ずさる。「なんだその身体は……悪魔の業か」"
           }
         ],
         "choices": [
@@ -81,6 +89,10 @@
           {
             "conditions": {"requires_tag": "merciful", "tag_threshold": 5},
             "text": "\n\nその姿に、かつての人間を見る。救いはあるのか。"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "cyborg"},
+            "text": "\n\n虚ろな目がお前の機械部品を見つめる。かつて人だったもの同士、通じ合うものがあるのか。"
           }
         ],
         "choices": [
@@ -178,6 +190,10 @@
           {
             "conditions": {"min_loop": 7, "requires_flag": "mayor_basement_seen"},
             "text": "\n\n「お前は消したと思っている。この世界は忘れない。残るんだ。Residue として」"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "cyborg"},
+            "text": "\n\n「異質な肉体を纏って来たか……未来の残滓が、過去の残滓に会いに来るとは」"
           }
         ],
         "choices": [
@@ -197,6 +213,55 @@
           {"label": "「だから何度でも戻ってくる」", "score": 5, "tags": ["defiant", "fearless"], "discovery": true},
           {"label": "「忘れさせてくれ」", "score": 3, "tags": ["merciful", "empathetic"]}
         ]
+      },
+      {
+        "event_id": "m_cross_cipher_delivery",
+        "type": "dialogue",
+        "text": "修道士の霊が現れる。石化した身体から抜け出した、透明な輪郭。「……それは、我々が失った暗号だ。未来から持ち帰ったのか？」",
+        "conditions": {"requires_cross_link_item": "ancient_cipher"},
+        "reaction_slots": [
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n「お前は何度もこの暗号を見ている。だが、初めて持ち帰った」"
+          }
+        ],
+        "choices": [
+          {"label": "暗号を渡す", "score": 5, "tags": ["merciful", "curious"], "discovery": true, "sets_flag": "cross_cipher_delivered"},
+          {"label": "渡さない", "score": 1, "tags": ["greedy", "cautious"]}
+        ]
+      },
+      {
+        "event_id": "m_cross_cipher_revelation",
+        "type": "dialogue",
+        "text": "暗号を解読した霊が語る。「これは……司教が未来へ送った警告だ。『Residueを止めろ』。だが未来は聞かなかった。お前を作り続けた」",
+        "conditions": {"requires_flag": "cross_cipher_delivered"},
+        "sets_flag": "cross_link_cipher_truth",
+        "choices": [
+          {"label": "「俺を止める方法は？」", "score": 3, "tags": ["curious", "defiant"], "discovery": true},
+          {"label": "「止める必要があるのか」", "score": 3, "tags": ["pragmatic", "empathetic"]}
+        ]
+      },
+      {
+        "event_id": "m_foreign_cyborg_01",
+        "type": "dialogue",
+        "text": "村人たちが遠巻きにお前を見ている。「あれは……人か？」「悪魔の作り物だ」機械の身体は、この時代には異物でしかない。",
+        "conditions": {"requires_foreign_job": true, "requires_job": "cyborg"},
+        "choices": [
+          {"label": "気にしない", "score": 1, "tags": ["cold", "pragmatic"]},
+          {"label": "「俺も人間だ」と言う", "score": 2, "tags": ["empathetic", "defiant"]},
+          {"label": "威嚇する", "score": 1, "tags": ["cruel", "bold"]}
+        ]
+      },
+      {
+        "event_id": "m_foreign_cyborg_02",
+        "type": "dialogue",
+        "text": "礼拝堂の残響がお前の機械部品に干渉する。エラーログが点滅する。「不明なエネルギー場を検出。分析不能」——この世界の呪いは、未来の技術でも解析できない。",
+        "conditions": {"requires_foreign_job": true, "requires_job": "cyborg"},
+        "choices": [
+          {"label": "データを記録する", "score": 2, "tags": ["thorough", "curious"], "discovery": true},
+          {"label": "システムを再起動する", "score": 1, "tags": ["pragmatic"]},
+          {"label": "無視して進む", "score": 1, "tags": ["reckless"]}
+        ]
       }
     ],
     "future": [
@@ -212,6 +277,10 @@
           {
             "conditions": {"requires_flag": "core_log_read"},
             "text": "\n\n消去ログに、お前の侵入記録がある。47回。"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "knight"},
+            "text": "\n\n鎧の重さが、金属の床に響く。この世界には、お前のような存在は記録されていない。"
           }
         ],
         "choices": [
@@ -231,6 +300,10 @@
           {
             "conditions": {"requires_truth_stage": 1},
             "text": "\n\n「残存記憶：断片的。人格継続性：未確認」システムが診断を続ける。"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "knight"},
+            "text": "\n\nターミナルがエラーを吐く。「生体認証失敗。不明な有機体。中世期の金属装備を検出」"
           }
         ],
         "choices": [
@@ -355,6 +428,10 @@
           {
             "conditions": {"min_loop": 7, "requires_flag": "core_log_read"},
             "text": "\n\n「お前は消したと思っている。記録を。記憶を。だが、行動は消えない。残るんだ。Residue として」"
+          },
+          {
+            "conditions": {"requires_foreign_job": true, "requires_job": "knight"},
+            "text": "\n\n「過去の鎧を纏った残滓か……中世の因子が、未来の実験に干渉するとは」"
           }
         ],
         "choices": [
@@ -373,6 +450,66 @@
         "choices": [
           {"label": "「なら48回目こそ変える」", "score": 5, "tags": ["defiant", "fearless"], "discovery": true},
           {"label": "「同じでいい。それが俺だ」", "score": 3, "tags": ["pragmatic", "empathetic"]}
+        ]
+      },
+      {
+        "event_id": "f_cross_quantum_delivery",
+        "type": "dialogue",
+        "text": "データ保管庫の奥に、古い端末が眠っている。スクリーンに文字が浮かぶ。「量子回路を検出。中世期の封印技術との互換性：あり」——これを渡す相手がいる。",
+        "conditions": {"requires_cross_link_item": "quantum_circuit"},
+        "reaction_slots": [
+          {
+            "conditions": {"requires_truth_stage": 2},
+            "text": "\n\n端末が追加情報を表示する。「この回路は、司教が作った。未来を予見して」"
+          }
+        ],
+        "choices": [
+          {"label": "回路を端末に接続する", "score": 5, "tags": ["curious", "bold"], "discovery": true, "sets_flag": "cross_quantum_delivered"},
+          {"label": "接続しない", "score": 1, "tags": ["cautious"]}
+        ]
+      },
+      {
+        "event_id": "f_cross_quantum_revelation",
+        "type": "dialogue",
+        "text": "回路が起動する。中世の司教の記録が再生される。「この回路を見つけたお前へ。私は未来を見た。Residueプロジェクトを。お前たちを。止める方法は、ある」",
+        "conditions": {"requires_flag": "cross_quantum_delivered"},
+        "sets_flag": "cross_link_quantum_truth",
+        "choices": [
+          {"label": "「止める方法とは？」", "score": 3, "tags": ["curious", "defiant"], "discovery": true},
+          {"label": "「なぜ止める必要がある」", "score": 3, "tags": ["pragmatic", "empathetic"]}
+        ]
+      },
+      {
+        "event_id": "f_foreign_knight_01",
+        "type": "dialogue",
+        "text": "セキュリティスキャナがお前を検出する。「警告：未登録の金属装甲を検出。時代区分：中世。汚染リスク：不明」監視ドローンが集まってくる。",
+        "conditions": {"requires_foreign_job": true, "requires_job": "knight"},
+        "choices": [
+          {"label": "ドローンを破壊する", "score": 1, "tags": ["bold", "reckless"]},
+          {"label": "鎧を脱ぐ", "score": 2, "tags": ["pragmatic", "cautious"]},
+          {"label": "無視して進む", "score": 1, "tags": ["defiant"]}
+        ]
+      },
+      {
+        "event_id": "f_foreign_knight_02",
+        "type": "dialogue",
+        "text": "培養槽の前で、システムが語りかける。「騎士の誓い——データベースに記録がある。中世の概念。『守るべきもののために死ぬ』。お前は、何を守っている？」",
+        "conditions": {"requires_foreign_job": true, "requires_job": "knight"},
+        "choices": [
+          {"label": "「真実を」", "score": 2, "tags": ["defiant", "curious"]},
+          {"label": "「自分自身を」", "score": 2, "tags": ["pragmatic"]},
+          {"label": "「もう何も」", "score": 1, "tags": ["nihilistic", "empathetic"]}
+        ]
+      },
+      {
+        "event_id": "f_foreign_knight_03",
+        "type": "explore",
+        "text": "コアへの通路で、お前の鎧が反応する。金属が共鳴し、微かな声が聞こえる。「この場所を……覚えている」——鎧に宿った記憶が、未来の施設を認識している。",
+        "conditions": {"requires_foreign_job": true, "requires_job": "knight"},
+        "choices": [
+          {"label": "記憶を辿る", "score": 3, "tags": ["curious", "thorough"], "discovery": true},
+          {"label": "記憶を無視する", "score": 1, "tags": ["pragmatic"]},
+          {"label": "鎧を脱ぎ捨てる", "score": 2, "tags": ["defiant", "reckless"]}
         ]
       }
     ]

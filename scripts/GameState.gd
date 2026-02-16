@@ -3,6 +3,8 @@ extends Node
 const WORLDS_PATH := "res://data/worlds/worlds.json"
 const EVENTS_PATH := "res://data/events/events.json"
 const ENEMIES_PATH := "res://data/enemies/enemies.json"
+const JOBS_PATH := "res://data/jobs/jobs.json"
+const CROSS_LINKS_PATH := "res://data/cross_links/cross_links.json"
 const SAVE_SERVICE := preload("res://scripts/SaveService.gd")
 
 # Meta state (persistent across runs)
@@ -23,9 +25,19 @@ var world_truth_stages: Dictionary = {}  # world_id -> int (0-3)
 # Phase 2: Inheritance bonuses for next run
 var pending_inheritance: Dictionary = {}  # bonus_type -> value
 
+# Phase 3: Job System (persistent) - GDD 7.1
+var unlocked_jobs: Array = ["wanderer"]  # List of unlocked job_ids
+var current_job: String = "wanderer"  # Selected job for current/next run
+
+# Phase 3: Cross-World Links (persistent) - GDD 6
+var cross_link_items: Array = []  # List of acquired cross-link item_ids
+var cross_link_completed: Array = []  # List of completed link_ids
+
 # Player run state (reset each run)
 var run_hp: int = 100
 var run_max_hp: int = 100
+var run_attack_bonus: int = 0  # Phase 3: From job
+var run_defense_bonus: int = 0  # Phase 3: From job
 var run_gold: int = 0
 var run_current_node_id: String = ""
 var run_tags: Array = []
@@ -33,12 +45,15 @@ var run_kills: int = 0
 var run_discoveries: int = 0
 var run_nodes_visited: int = 0
 var run_is_clear: bool = false
+var run_is_foreign_job: bool = false  # Phase 3: Using job from different world
 
 # Data caches
 var worlds: Array = []
 var events_by_world: Dictionary = {}
 var enemies: Dictionary = {}
 var node_maps: Dictionary = {}
+var jobs: Dictionary = {}  # Phase 3: job_id -> job_data
+var cross_links: Array = []  # Phase 3: List of cross-link definitions
 var _save_service := SAVE_SERVICE.new()
 
 
@@ -52,6 +67,8 @@ func load_content() -> void:
 	events_by_world = _load_json_dictionary(EVENTS_PATH, "events_by_world")
 	enemies = _load_enemies()
 	_load_node_maps()
+	_load_jobs()
+	_load_cross_links()
 
 
 func _load_enemies() -> Dictionary:
@@ -76,6 +93,20 @@ func _load_node_maps() -> void:
 			node_maps[world_id] = data
 		else:
 			node_maps[world_id] = {"nodes": [], "start_node": ""}
+
+
+func _load_jobs() -> void:
+	var data: Variant = _read_json(JOBS_PATH)
+	if data is Dictionary and data.has("jobs") and data["jobs"] is Array:
+		for job: Variant in data["jobs"]:
+			if job is Dictionary and job.has("job_id"):
+				jobs[job["job_id"]] = job
+
+
+func _load_cross_links() -> void:
+	var data: Variant = _read_json(CROSS_LINKS_PATH)
+	if data is Dictionary and data.has("cross_links") and data["cross_links"] is Array:
+		cross_links = data["cross_links"]
 
 
 func get_worlds() -> Array:
@@ -123,10 +154,159 @@ func get_start_node_id(world_id: String) -> String:
 	return map.get("start_node", "")
 
 
+# Phase 3: Job System Functions
+func get_all_jobs() -> Array:
+	return jobs.values()
+
+
+func get_job_by_id(job_id: String) -> Dictionary:
+	return jobs.get(job_id, {})
+
+
+func get_unlocked_jobs() -> Array:
+	var result: Array = []
+	for job_id: String in unlocked_jobs:
+		var job: Dictionary = get_job_by_id(job_id)
+		if not job.is_empty():
+			result.append(job)
+	return result
+
+
+func is_job_unlocked(job_id: String) -> bool:
+	return unlocked_jobs.has(job_id)
+
+
+func can_unlock_job(job_id: String) -> bool:
+	if is_job_unlocked(job_id):
+		return false
+	var job: Dictionary = get_job_by_id(job_id)
+	if job.is_empty():
+		return false
+	var conditions: Dictionary = job.get("unlock_conditions", {})
+	if conditions.has("soul_points"):
+		if soul_points < int(conditions["soul_points"]):
+			return false
+	if conditions.has("memory_flag"):
+		if not has_memory_flag(str(conditions["memory_flag"])):
+			return false
+	return true
+
+
+func unlock_job(job_id: String) -> bool:
+	if not can_unlock_job(job_id):
+		return false
+	var job: Dictionary = get_job_by_id(job_id)
+	var conditions: Dictionary = job.get("unlock_conditions", {})
+	if conditions.has("soul_points"):
+		var cost: int = int(conditions["soul_points"])
+		soul_points -= cost
+	unlocked_jobs.append(job_id)
+	save_persistent_state()
+	return true
+
+
+func select_job(job_id: String) -> void:
+	if is_job_unlocked(job_id):
+		current_job = job_id
+		save_persistent_state()
+
+
+func is_foreign_job(job_id: String, world_id: String) -> bool:
+	var job: Dictionary = get_job_by_id(job_id)
+	if job.is_empty():
+		return false
+	var origin: Variant = job.get("origin_world")
+	if origin == null:
+		return false  # Common jobs are never foreign
+	return str(origin) != world_id
+
+
+# Phase 3: Cross-Link Functions
+func get_cross_links() -> Array:
+	return cross_links
+
+
+func get_cross_link_by_id(link_id: String) -> Dictionary:
+	for link: Variant in cross_links:
+		if link is Dictionary and link.get("link_id", "") == link_id:
+			return link
+	return {}
+
+
+func has_cross_link_item(item_id: String) -> bool:
+	return cross_link_items.has(item_id)
+
+
+func acquire_cross_link_item(item_id: String) -> void:
+	if not cross_link_items.has(item_id):
+		cross_link_items.append(item_id)
+		save_persistent_state()
+
+
+func is_cross_link_completed(link_id: String) -> bool:
+	return cross_link_completed.has(link_id)
+
+
+func complete_cross_link(link_id: String) -> Dictionary:
+	if cross_link_completed.has(link_id):
+		return {}
+	
+	var link: Dictionary = get_cross_link_by_id(link_id)
+	if link.is_empty():
+		return {}
+	
+	cross_link_completed.append(link_id)
+	
+	# Apply rewards
+	var rewards: Dictionary = link.get("rewards", {})
+	
+	# Truth stage bonus
+	if rewards.has("truth_stage_bonus"):
+		var bonus: int = int(rewards["truth_stage_bonus"])
+		var target_world: String = link.get("target_world", selected_world_id)
+		var current_stage: int = world_truth_stages.get(target_world, 0)
+		world_truth_stages[target_world] = current_stage + bonus
+	
+	# Set flag
+	if rewards.has("sets_flag"):
+		set_memory_flag(str(rewards["sets_flag"]))
+	
+	# Mark cross_link_established for truth stage progression
+	set_memory_flag("cross_link_established")
+	
+	# Unlock job if specified
+	if rewards.has("unlocks_job") and rewards["unlocks_job"] != null:
+		var job_to_unlock: String = str(rewards["unlocks_job"])
+		if not is_job_unlocked(job_to_unlock):
+			unlocked_jobs.append(job_to_unlock)
+	
+	save_persistent_state()
+	return rewards
+
+
+func check_and_acquire_cross_link_items() -> Array:
+	var acquired: Array = []
+	for link: Variant in cross_links:
+		if link is not Dictionary:
+			continue
+		var item: Dictionary = link.get("item", {})
+		var item_id: String = item.get("item_id", "")
+		if item_id.is_empty() or has_cross_link_item(item_id):
+			continue
+		
+		var obtain_condition: Dictionary = item.get("obtain_condition", {})
+		if check_event_conditions(obtain_condition):
+			acquire_cross_link_item(item_id)
+			acquired.append(item)
+	return acquired
+
+
 # Run lifecycle
 func start_new_run(world_id: String) -> void:
 	selected_world_id = world_id
 	run_max_hp = 100
+	run_attack_bonus = 0
+	run_defense_bonus = 0
 	run_hp = run_max_hp
 	run_gold = 0
 	run_current_node_id = get_start_node_id(world_id)
@@ -136,10 +316,37 @@ func start_new_run(world_id: String) -> void:
 	run_nodes_visited = 0
 	run_is_clear = false
 	
+	# Phase 3: Check if using foreign job
+	run_is_foreign_job = is_foreign_job(current_job, world_id)
+	if run_is_foreign_job:
+		set_memory_flag("using_foreign_job")
+		set_memory_flag("foreign_job_" + current_job)
+	
+	# Phase 3: Apply job stat modifiers
+	_apply_job_modifiers()
+	
 	# Apply pending inheritance bonuses
 	_apply_inheritance_bonuses()
 	
 	save_persistent_state()
+
+
+func _apply_job_modifiers() -> void:
+	var job: Dictionary = get_job_by_id(current_job)
+	if job.is_empty():
+		return
+	
+	var modifiers: Dictionary = job.get("stat_modifiers", {})
+	
+	if modifiers.has("hp_bonus"):
+		run_max_hp += int(modifiers["hp_bonus"])
+		run_hp = run_max_hp
+	
+	if modifiers.has("attack_bonus"):
+		run_attack_bonus += int(modifiers["attack_bonus"])
+	
+	if modifiers.has("defense_bonus"):
+		run_defense_bonus += int(modifiers["defense_bonus"])
 
 
 func _apply_inheritance_bonuses() -> void:
@@ -166,6 +373,9 @@ func apply_end_of_run(is_clear: bool = false) -> void:
 	last_run_score = calculate_soul_gain()
 	soul_points += max(0, last_run_score)
 	loop_count += 1
+	
+	# Phase 3: Check for cross-link item acquisition
+	check_and_acquire_cross_link_items()
 	
 	# Phase 2: Update truth stage based on loop count and flags
 	_update_truth_stage()
@@ -201,6 +411,10 @@ func calculate_soul_gain() -> int:
 	var kill_score := run_kills * 3
 	var discovery_score := run_discoveries * 5
 	var clear_bonus := 10 if run_is_clear else 0
+	
+	# Phase 3: Scholar job bonus for discoveries
+	if current_job == "scholar":
+		discovery_score = int(discovery_score * 1.5)
 	
 	# Apply soul_bonus from inheritance if any
 	var soul_bonus := 0
@@ -293,6 +507,23 @@ func check_event_conditions(conditions: Dictionary) -> bool:
 	if conditions.has("excludes_flag"):
 		var flag: String = str(conditions["excludes_flag"])
 		if has_memory_flag(flag):
+			return false
+	
+	# Phase 3: Check requires_foreign_job
+	if conditions.has("requires_foreign_job"):
+		if not run_is_foreign_job:
+			return false
+	
+	# Phase 3: Check requires_job
+	if conditions.has("requires_job"):
+		var required_job: String = str(conditions["requires_job"])
+		if current_job != required_job:
+			return false
+	
+	# Phase 3: Check requires_cross_link_item
+	if conditions.has("requires_cross_link_item"):
+		var item_id: String = str(conditions["requires_cross_link_item"])
+		if not has_cross_link_item(item_id):
 			return false
 	
 	return true
@@ -419,6 +650,18 @@ func load_persistent_state() -> void:
 		world_truth_stages = payload["world_truth_stages"]
 	if payload.has("pending_inheritance") and payload["pending_inheritance"] is Dictionary:
 		pending_inheritance = payload["pending_inheritance"]
+	
+	# Phase 3: Load job system state
+	if payload.has("unlocked_jobs") and payload["unlocked_jobs"] is Array:
+		unlocked_jobs = payload["unlocked_jobs"]
+	if payload.has("current_job"):
+		current_job = str(payload["current_job"])
+	
+	# Phase 3: Load cross-link state
+	if payload.has("cross_link_items") and payload["cross_link_items"] is Array:
+		cross_link_items = payload["cross_link_items"]
+	if payload.has("cross_link_completed") and payload["cross_link_completed"] is Array:
+		cross_link_completed = payload["cross_link_completed"]
 
 
 func save_persistent_state() -> void:
@@ -431,7 +674,13 @@ func save_persistent_state() -> void:
 		"trait_tags": trait_tags,
 		"memory_flags": memory_flags,
 		"world_truth_stages": world_truth_stages,
-		"pending_inheritance": pending_inheritance
+		"pending_inheritance": pending_inheritance,
+		# Phase 3: Save job system state
+		"unlocked_jobs": unlocked_jobs,
+		"current_job": current_job,
+		# Phase 3: Save cross-link state
+		"cross_link_items": cross_link_items,
+		"cross_link_completed": cross_link_completed
 	}
 	_save_service.save_state(payload)
 

@@ -1,0 +1,84 @@
+{
+  "jobs": [
+    {
+      "job_id": "wanderer",
+      "name": "放浪者",
+      "origin_world": null,
+      "job_tags": ["traveler", "survivor"],
+      "unlock_conditions": {
+        "soul_points": 0
+      },
+      "stat_modifiers": {
+        "hp_bonus": 0,
+        "attack_bonus": 0,
+        "defense_bonus": 0
+      },
+      "special_ability": {
+        "ability_id": "escape_artist",
+        "name": "逃走の達人",
+        "description": "逃走成功率が上昇"
+      },
+      "description": "どこにも属さない旅人。何度死んでも彷徨い続ける。"
+    },
+    {
+      "job_id": "scholar",
+      "name": "学者",
+      "origin_world": null,
+      "job_tags": ["curious", "thorough", "knowledge_seeker"],
+      "unlock_conditions": {
+        "soul_points": 50
+      },
+      "stat_modifiers": {
+        "hp_bonus": -10,
+        "attack_bonus": 0,
+        "defense_bonus": 0
+      },
+      "special_ability": {
+        "ability_id": "deep_insight",
+        "name": "深層洞察",
+        "description": "発見による魂価値ボーナス+50%"
+      },
+      "description": "真実を追い求める者。弱き身体に強き探究心を宿す。"
+    },
+    {
+      "job_id": "knight",
+      "name": "騎士",
+      "origin_world": "medieval",
+      "job_tags": ["bold", "fearless", "defender"],
+      "unlock_conditions": {
+        "soul_points": 100
+      },
+      "stat_modifiers": {
+        "hp_bonus": 20,
+        "attack_bonus": 3,
+        "defense_bonus": 2
+      },
+      "special_ability": {
+        "ability_id": "shield_wall",
+        "name": "盾の壁",
+        "description": "防御時、ダメージを70%軽減"
+      },
+      "description": "かつて村を守った誓いの戦士。その名誉は死んでも消えない。"
+    },
+    {
+      "job_id": "cyborg",
+      "name": "機械兵",
+      "origin_world": "future",
+      "job_tags": ["cold", "efficient", "machine"],
+      "unlock_conditions": {
+        "soul_points": 100
+      },
+      "stat_modifiers": {
+        "hp_bonus": 10,
+        "attack_bonus": 5,
+        "defense_bonus": 0
+      },
+      "special_ability": {
+        "ability_id": "overclock",
+        "name": "オーバークロック",
+        "description": "攻撃力が一時的に2倍になる"
+      },
+      "description": "機械に融合した兵士。人間の記憶は失われても、戦闘本能は残る。"
+    }
+  ]
+}

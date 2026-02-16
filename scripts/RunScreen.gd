@@ -43,7 +43,21 @@ func _load_node(node_id: String) -> void:
 	
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
 	var truth_stage: int = GameState.get_truth_stage()
-	header.text = "Run - %s | Loop %d | 真実段階 %d" % [world.get("name", "???"), GameState.loop_count, truth_stage]
+	
+	# Phase 3: Show job info in header
+	var job: Dictionary = GameState.get_job_by_id(GameState.current_job)
+	var job_name: String = job.get("name", "放浪者")
+	var foreign_indicator: String = ""
+	if GameState.run_is_foreign_job:
+		foreign_indicator = " [他世界]"
+	
+	header.text = "Run - %s | %s%s | Loop %d | 真実段階 %d" % [
+		world.get("name", "???"),
+		job_name,
+		foreign_indicator,
+		GameState.loop_count,
+		truth_stage
+	]
 	location_label.text = "📍 %s" % current_node.get("name", "Unknown Location")
 	
 	_process_node()
@@ -127,7 +141,7 @@ func _render_navigation_only() -> void:
 	
 	if node_type == "boss" and _has_boss_enemy():
 		# Boss node without event means boss defeated
-		body_text.text = "[i]%s[/i]\n\n静寂。終わりの気配。この世界の核心に辿り着いた。" % desc
+		body_text.text = "[i]%s[/i]\n\n静寂。終わりの気配。この世界の核心に辿り着いた。"  % desc
 	else:
 		body_text.text = "[i]%s[/i]\n\nどこへ向かう？" % desc
 	
@@ -195,6 +209,8 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	var sets_flag: Variant = choice.get("sets_flag")
 	if sets_flag != null and sets_flag is String and not sets_flag.is_empty():
 		GameState.set_memory_flag(sets_flag)
+		# Phase 3: Check for cross-link delivery completion
+		_check_cross_link_delivery(sets_flag)
 	
 	# Phase 2: Set memory flag from event (after completing it)
 	var event_sets_flag: Variant = current_event.get("sets_flag")
@@ -215,6 +231,45 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	# Move to next event or navigation
 	event_index += 1
 	_process_node()
+
+
+func _check_cross_link_delivery(flag: String) -> void:
+	# Check if this flag completes a cross-link
+	var cross_links: Array = GameState.get_cross_links()
+	
+	for link: Variant in cross_links:
+		if link is not Dictionary:
+			continue
+		
+		var link_id: String = link.get("link_id", "")
+		if GameState.is_cross_link_completed(link_id):
+			continue
+		
+		# Check if the delivery flag matches
+		var delivery: Dictionary = link.get("delivery", {})
+		var delivery_event_id: String = delivery.get("target_event_id", "")
+		
+		# Match flag pattern: cross_X_delivered
+		if flag == "cross_quantum_delivered" and link_id == "quantum_circuit_link":
+			_complete_cross_link_with_notification(link_id)
+		elif flag == "cross_cipher_delivered" and link_id == "ancient_cipher_link":
+			_complete_cross_link_with_notification(link_id)
+
+
+func _complete_cross_link_with_notification(link_id: String) -> void:
+	var rewards: Dictionary = GameState.complete_cross_link(link_id)
+	if rewards.is_empty():
+		return
+	
+	var link: Dictionary = GameState.get_cross_link_by_id(link_id)
+	var link_name: String = link.get("name", "因果リンク")
+	
+	# Show notification in body text (will be cleared on next event)
+	# The revelation event will follow naturally from the event queue
+	print("[Cross-Link] %s completed! Truth stage bonus: %d" % [
+		link_name,
+		rewards.get("truth_stage_bonus", 0)
+	])
 
 
 func _on_flee_choice() -> void:
@@ -295,11 +350,25 @@ func _update_status() -> void:
 	if dominant_traits.size() > 0:
 		traits_text = " | 傾向: " + ", ".join(dominant_traits)
 	
-	status_label.text = "HP: %d/%d | Gold: %d | 深度: %d | 討伐: %d%s" % [
+	# Phase 3: Show cross-link items if any
+	var items_text: String = ""
+	if GameState.cross_link_items.size() > 0:
+		var item_names: Array = []
+		for item_id: String in GameState.cross_link_items:
+			if item_id == "quantum_circuit":
+				item_names.append("量子回路")
+			elif item_id == "ancient_cipher":
+				item_names.append("古代暗号")
+			else:
+				item_names.append(item_id)
+		items_text = " | 所持: " + ", ".join(item_names)
+	
+	status_label.text = "HP: %d/%d | Gold: %d | 深度: %d | 討伐: %d%s%s" % [
 		GameState.run_hp,
 		GameState.run_max_hp,
 		GameState.run_gold,
 		GameState.run_nodes_visited,
 		GameState.run_kills,
-		traits_text
+		traits_text,
+		items_text
 	]

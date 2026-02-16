@@ -1,0 +1,78 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/JobSelectScreen.gd" id="1_jobselect"]
+
+[node name="JobSelectScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jobselect")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.06, 0.09, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 48
+
+[node name="RootVBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="Label" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "ジョブ選択"
+
+[node name="WorldInfo" type="Label" parent="Margin/RootVBox"]
+layout_mode = 2
+text = "世界: "
+
+[node name="SoulLabel" type="Label" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+text = "所持魂価値: 0"
+
+[node name="Separator" type="HSeparator" parent="Margin/RootVBox"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="JobList" type="VBoxContainer" parent="Margin/RootVBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Footer" type="HBoxContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackButton" type="Button" parent="Margin/RootVBox/Footer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "戻る"
+
+[node name="Spacer" type="Control" parent="Margin/RootVBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ConfirmButton" type="Button" parent="Margin/RootVBox/Footer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "開始"

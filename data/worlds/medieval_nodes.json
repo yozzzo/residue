@@ -13,7 +13,7 @@
         "right": null,
         "back": null
       },
-      "event_ids": ["m_e01"]
+      "event_ids": ["m_e01", "m_foreign_cyborg_01"]
     },
     {
       "node_id": "m_n02",
@@ -39,7 +39,7 @@
         "right": "m_n06",
         "back": "m_n02"
       },
-      "event_ids": ["m_e03"]
+      "event_ids": ["m_e03", "m_foreign_cyborg_02"]
     },
     {
       "node_id": "m_n04",
@@ -106,7 +106,7 @@
         "right": null,
         "back": "m_n05"
       },
-      "event_ids": [],
+      "event_ids": ["m_cross_cipher_delivery", "m_cross_cipher_revelation"],
       "enemy_ids": ["m_cursed_monk"]
     },
     {
