@@ -6,13 +6,21 @@ signal inheritance_selected
 @onready var description_label: RichTextLabel = $Margin/Root/Description
 @onready var candidates_box: VBoxContainer = $Margin/Root/Candidates
 @onready var skip_button: Button = $Margin/Root/Footer/SkipButton
+@onready var background: ColorRect = $Background
 
 var candidates: Array = []
 
 
 func _ready() -> void:
 	skip_button.pressed.connect(_on_skip_pressed)
+	_apply_theme()
 	_setup_screen()
+
+
+func _apply_theme() -> void:
+	# Use default theme for inheritance (neutral/ethereal)
+	ThemeManager.set_world("default")
+	background.color = Color(0.06, 0.06, 0.1)  # Slightly different for ethereal feel
 
 
 func _setup_screen() -> void:
@@ -21,7 +29,7 @@ func _setup_screen() -> void:
 	var is_clear: bool = GameState.run_is_clear
 	var soul_gain: int = GameState.last_run_score
 	
-	var desc_text: String = """[b]周回%d 終了[/b]
+	var desc_text: String = """[center][b]周回%d 終了[/b][/center]
 
 獲得魂価値: [color=gold]%d[/color]
 累計魂価値: [color=gold]%d[/color]
@@ -29,7 +37,7 @@ func _setup_screen() -> void:
 """ % [GameState.loop_count - 1, soul_gain, GameState.soul_points]
 	
 	if is_clear:
-		desc_text += "[color=green]✦ クリア達成 ✦[/color]\n\n"
+		desc_text += "[center][color=green]✦ クリア達成 ✦[/color][/center]\n\n"
 	
 	desc_text += "次の周回に持ち越す継承を選んでください。"
 	
@@ -92,7 +100,15 @@ func _render_candidates() -> void:
 
 func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 80)
+	panel.custom_minimum_size = Vector2(0, 90)
+	
+	# Style the panel
+	var stylebox := StyleBoxFlat.new()
+	stylebox.bg_color = Color(0.1, 0.1, 0.15, 0.9)
+	stylebox.set_corner_radius_all(6)
+	stylebox.set_border_width_all(1)
+	stylebox.border_color = Color(0.3, 0.3, 0.4)
+	panel.add_theme_stylebox_override("panel", stylebox)
 	
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 16)
@@ -101,9 +117,14 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	margin.add_theme_constant_override("margin_bottom", 12)
 	panel.add_child(margin)
 	
+	var hbox := HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 16)
+	margin.add_child(hbox)
+	
 	var vbox := VBoxContainer.new()
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.add_theme_constant_override("separation", 4)
-	margin.add_child(vbox)
+	hbox.add_child(vbox)
 	
 	var title := Label.new()
 	title.add_theme_font_size_override("font_size", 18)
@@ -117,9 +138,9 @@ func _create_candidate_card(candidate: Dictionary, index: int) -> Control:
 	
 	var button := Button.new()
 	button.text = "選択"
-	button.custom_minimum_size = Vector2(100, 32)
+	button.custom_minimum_size = Vector2(100, 40)
 	button.pressed.connect(_on_candidate_selected.bind(candidate))
-	vbox.add_child(button)
+	hbox.add_child(button)
 	
 	return panel
 

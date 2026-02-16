@@ -1,0 +1,46 @@
+{
+  "se": {
+    "decision": [
+      "res://assets/audio/se/decision_01.ogg"
+    ],
+    "failure": [
+      "res://assets/audio/se/failure_01.ogg"
+    ],
+    "discovery": [
+      "res://assets/audio/se/discovery_01.ogg"
+    ],
+    "anomaly": [
+      "res://assets/audio/se/anomaly_01.ogg"
+    ],
+    "battle_hit": [
+      "res://assets/audio/se/battle_hit_01.ogg"
+    ],
+    "battle_victory": [
+      "res://assets/audio/se/battle_victory_01.ogg"
+    ],
+    "battle_defeat": [
+      "res://assets/audio/se/battle_defeat_01.ogg"
+    ],
+    "typewriter_tick": [
+      "res://assets/audio/se/typewriter_tick.ogg"
+    ],
+    "unlock": [
+      "res://assets/audio/se/unlock_01.ogg"
+    ],
+    "transition": [
+      "res://assets/audio/se/transition_01.ogg"
+    ]
+  },
+  "bgm": {
+    "title": "res://assets/audio/bgm/title.ogg",
+    "medieval_normal": "res://assets/audio/bgm/medieval_normal.ogg",
+    "medieval_alert": "res://assets/audio/bgm/medieval_alert.ogg",
+    "medieval_anomaly": "res://assets/audio/bgm/medieval_anomaly.ogg",
+    "future_normal": "res://assets/audio/bgm/future_normal.ogg",
+    "future_alert": "res://assets/audio/bgm/future_alert.ogg",
+    "future_anomaly": "res://assets/audio/bgm/future_anomaly.ogg",
+    "battle": "res://assets/audio/bgm/battle.ogg",
+    "boss": "res://assets/audio/bgm/boss.ogg",
+    "inheritance": "res://assets/audio/bgm/inheritance.ogg"
+  }
+}

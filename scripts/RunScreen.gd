@@ -2,14 +2,17 @@ extends Control
 
 signal run_ended(soul_gain: int, is_clear: bool)
 signal battle_requested(enemy_id: String)
+signal status_updated
 
 @onready var header: Label = $Margin/Root/Header
 @onready var location_label: Label = $Margin/Root/LocationPanel/LocationName
+@onready var direction_label: Label = $Margin/Root/LocationPanel/DirectionInfo
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
 @onready var choices_box: VBoxContainer = $Margin/Root/Choices
 @onready var navigation_box: HBoxContainer = $Margin/Root/Navigation
 @onready var status_label: Label = $Margin/Root/Bottom/StatusLabel
 @onready var exit_button: Button = $Margin/Root/Bottom/ExitRunButton
+@onready var background: ColorRect = $Background
 
 var current_node: Dictionary = {}
 var current_event: Dictionary = {}
@@ -17,10 +20,53 @@ var event_index: int = 0
 var pending_battle_enemy: String = ""
 var node_event_queue: Array = []
 
+# Phase 4: Typewriter effect
+var typewriter: TypewriterEffect
+var text_speed: TypewriterEffect.Speed = TypewriterEffect.Speed.NORMAL
+var waiting_for_text: bool = false
+
 
 func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_run)
+	_setup_typewriter()
+	_apply_theme()
 	_start_run()
+
+
+func _setup_typewriter() -> void:
+	typewriter = TypewriterEffect.new()
+	typewriter.setup(body_text)
+	add_child(typewriter)
+	typewriter.text_completed.connect(_on_text_completed)
+
+
+func _apply_theme() -> void:
+	# Apply world-specific colors
+	background.color = ThemeManager.get_background_color()
+	
+	# Connect to theme changes
+	if not ThemeManager.theme_changed.is_connected(_on_theme_changed):
+		ThemeManager.theme_changed.connect(_on_theme_changed)
+
+
+func _on_theme_changed(_world_id: String) -> void:
+	background.color = ThemeManager.get_background_color()
+
+
+func _input(event: InputEvent) -> void:
+	# Skip text with any key/click while typewriter is playing
+	if waiting_for_text and event is InputEventMouseButton and event.pressed:
+		typewriter.skip()
+	elif waiting_for_text and event is InputEventKey and event.pressed:
+		typewriter.skip()
+
+
+func _on_text_completed() -> void:
+	waiting_for_text = false
+	# Enable choice buttons
+	for child: Node in choices_box.get_children():
+		if child is Button:
+			child.disabled = false
 
 
 func _start_run() -> void:
@@ -58,9 +104,30 @@ func _load_node(node_id: String) -> void:
 		GameState.loop_count,
 		truth_stage
 	]
-	location_label.text = "📍 %s" % current_node.get("name", "Unknown Location")
 	
+	_update_location_display()
+	status_updated.emit()
 	_process_node()
+
+
+func _update_location_display() -> void:
+	var node_name: String = current_node.get("name", "Unknown Location")
+	location_label.text = "📍 %s" % node_name
+	
+	# Show available directions
+	var edges: Dictionary = current_node.get("edges", {})
+	var directions: Array = []
+	if edges.has("forward") and not str(edges["forward"]).is_empty():
+		directions.append("↑前")
+	if edges.has("left") and not str(edges["left"]).is_empty():
+		directions.append("←左")
+	if edges.has("right") and not str(edges["right"]).is_empty():
+		directions.append("→右")
+	if edges.has("back") and not str(edges["back"]).is_empty():
+		directions.append("↓戻")
+	
+	if direction_label != null:
+		direction_label.text = "進路: " + " ".join(directions) if directions.size() > 0 else "行き止まり"
 
 
 func _build_event_queue() -> Array:
@@ -104,23 +171,50 @@ func _render_event() -> void:
 	var reaction_slots: Array = current_event.get("reaction_slots", [])
 	var reaction_text: String = _get_matching_reaction(reaction_slots)
 	
+	# Phase 4: Apply BBCode effects for atmosphere
+	var formatted_text: String
 	if reaction_text.is_empty():
-		body_text.text = "[i]%s[/i]\n\n%s" % [desc, event_text]
+		formatted_text = "[i]%s[/i]\n\n%s" % [desc, _apply_atmosphere_effects(event_text)]
 	else:
-		body_text.text = "[i]%s[/i]\n\n%s%s" % [desc, event_text, reaction_text]
+		formatted_text = "[i]%s[/i]\n\n%s%s" % [desc, _apply_atmosphere_effects(event_text), reaction_text]
+	
+	# Phase 4: Use typewriter effect
+	waiting_for_text = true
+	typewriter.display_text(formatted_text, text_speed)
 	
 	# Phase 2: Filter choices by conditions
 	var all_choices: Array = current_event.get("choices", [])
 	var filtered_choices: Array = GameState.filter_choices(all_choices)
 	
-	# Render filtered choices
+	# Render filtered choices (disabled until text completes)
 	for choice: Variant in filtered_choices:
 		var button := Button.new()
 		button.text = choice.get("label", "選択")
 		button.pressed.connect(_on_choice_selected.bind(choice))
+		button.disabled = true  # Enabled after typewriter completes
 		choices_box.add_child(button)
 	
 	_update_status()
+
+
+func _apply_atmosphere_effects(text: String) -> String:
+	## Apply BBCode effects based on truth stage and event type
+	var truth_stage: int = GameState.get_truth_stage()
+	
+	# High truth stage: Add subtle shake/wave to certain keywords
+	if truth_stage >= 2:
+		# Replace specific keywords with effects
+		text = text.replace("異変", "[shake rate=10 level=3]異変[/shake]")
+		text = text.replace("真実", "[wave amp=20 freq=3]真実[/wave]")
+		text = text.replace("残痕", "[shake rate=15 level=5][color=#a060a0]残痕[/color][/shake]")
+		text = text.replace("Residue", "[shake rate=20 level=8][color=#9050a0]Residue[/color][/shake]")
+	
+	# Apply color based on event type
+	var event_type: String = current_event.get("type", "explore")
+	if event_type == "anomaly" or current_event.get("is_anomaly", false):
+		text = "[color=#a080c0]%s[/color]" % text
+	
+	return text
 
 
 func _get_matching_reaction(reaction_slots: Array) -> String:
@@ -139,11 +233,14 @@ func _render_navigation_only() -> void:
 	var desc: String = current_node.get("description", "")
 	var node_type: String = current_node.get("node_type", "explore")
 	
+	var nav_text: String
 	if node_type == "boss" and _has_boss_enemy():
 		# Boss node without event means boss defeated
-		body_text.text = "[i]%s[/i]\n\n静寂。終わりの気配。この世界の核心に辿り着いた。"  % desc
+		nav_text = "[i]%s[/i]\n\n静寂。終わりの気配。この世界の核心に辿り着いた。" % desc
 	else:
-		body_text.text = "[i]%s[/i]\n\nどこへ向かう？" % desc
+		nav_text = "[i]%s[/i]\n\nどこへ向かう？" % desc
+	
+	typewriter.display_text(nav_text, TypewriterEffect.Speed.FAST)
 	
 	_render_navigation_buttons()
 	_update_status()
@@ -230,6 +327,7 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	
 	# Move to next event or navigation
 	event_index += 1
+	status_updated.emit()
 	_process_node()
 
 
@@ -309,6 +407,8 @@ func on_battle_result(result: String) -> void:
 		"flee":
 			# Return to previous node
 			_on_flee_choice()
+	
+	status_updated.emit()
 
 
 func _on_run_clear() -> void:
@@ -328,7 +428,7 @@ func _on_exit_run() -> void:
 
 func _show_fallback_event() -> void:
 	_clear_ui()
-	body_text.text = "[b]このノードは存在しません。[/b]\n\nワールドデータを確認してください。"
+	typewriter.display_text("[b]このノードは存在しません。[/b]\n\nワールドデータを確認してください。", TypewriterEffect.Speed.INSTANT)
 	
 	var back_btn := Button.new()
 	back_btn.text = "周回を終了"
@@ -372,3 +472,8 @@ func _update_status() -> void:
 		traits_text,
 		items_text
 	]
+
+
+## Set text display speed (for settings menu)
+func set_text_speed(speed: TypewriterEffect.Speed) -> void:
+	text_speed = speed

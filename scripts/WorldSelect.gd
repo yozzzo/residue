@@ -7,6 +7,7 @@ signal world_selected(world_id: String)
 @onready var back_button: Button = $Margin/RootVBox/Footer/BackButton
 @onready var meta_label: Label = $Margin/RootVBox/Footer/MetaLabel
 @onready var traits_label: Label = $Margin/RootVBox/TraitsPanel/TraitsLabel
+@onready var background: ColorRect = $Background
 
 
 func _ready() -> void:
@@ -14,6 +15,13 @@ func _ready() -> void:
 	_populate_world_buttons()
 	_update_meta_text()
 	_update_traits_display()
+	_apply_theme()
+
+
+func _apply_theme() -> void:
+	# Use default theme for world select (neutral)
+	ThemeManager.set_world("default")
+	background.color = ThemeManager.get_background_color()
 
 
 func _populate_world_buttons() -> void:
@@ -32,7 +40,12 @@ func _populate_world_buttons() -> void:
 		if truth_stage > 0:
 			truth_text = " [真実段階 %d]" % truth_stage
 		
-		button.text = "%s: %s%s" % [world_name, blurb, truth_text]
+		# Add visual indicator based on world type
+		var world_icon: String = "🏰" if world_id == "medieval" else "🔮" if world_id == "future" else "⚡"
+		
+		button.text = "%s %s: %s%s" % [world_icon, world_name, blurb, truth_text]
+		button.custom_minimum_size = Vector2(0, 52)
+		button.add_theme_font_size_override("font_size", 18)
 		button.pressed.connect(_on_world_button_pressed.bind(world_id))
 		world_buttons.add_child(button)
 

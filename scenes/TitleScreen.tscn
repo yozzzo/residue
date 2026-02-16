@@ -27,27 +27,40 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -120.0
-offset_right = 260.0
-offset_bottom = 120.0
+offset_left = -300.0
+offset_top = -150.0
+offset_right = 300.0
+offset_bottom = 150.0
 alignment = 1
-theme_override_constants/separation = 18
+theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="VBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 72
 text = "RESIDUE"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.6, 0.55, 0.5, 1)
 text = "A Roguelike of Inherited Traces"
 horizontal_alignment = 1
 
-[node name="StartButton" type="Button" parent="VBox"]
+[node name="Spacer" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+
+[node name="StartButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 20
 text = "Start"
 
 [node name="QuitButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(200, 48)
 layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 20
 text = "Quit"

@@ -22,7 +22,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 32
+theme_override_constants/margin_top = 56
 theme_override_constants/margin_right = 48
 theme_override_constants/margin_bottom = 32
 
@@ -37,12 +37,19 @@ text = "戦闘"
 
 [node name="EnemyPanel" type="VBoxContainer" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
 [node name="EnemyName" type="Label" parent="Margin/Root/EnemyPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "敵の名前"
+
+[node name="EnemyHPBar" type="ProgressBar" parent="Margin/Root/EnemyPanel"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
 
 [node name="EnemyHP" type="Label" parent="Margin/Root/EnemyPanel"]
 layout_mode = 2
@@ -71,30 +78,60 @@ scroll_following = true
 [node name="HSeparator2" type="HSeparator" parent="Margin/Root"]
 layout_mode = 2
 
-[node name="PlayerStatus" type="Label" parent="Margin/Root"]
+[node name="PlayerPanel" type="PanelContainer" parent="Margin/Root"]
 layout_mode = 2
+
+[node name="PlayerHBox" type="HBoxContainer" parent="Margin/Root/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PlayerLabel" type="Label" parent="Margin/Root/PlayerPanel/PlayerHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "あなた:"
+
+[node name="PlayerHPBar" type="ProgressBar" parent="Margin/Root/PlayerPanel/PlayerHBox"]
+custom_minimum_size = Vector2(150, 24)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="PlayerStatus" type="Label" parent="Margin/Root/PlayerPanel/PlayerHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
-theme_override_font_sizes/font_size = 18
-text = "あなた: HP 100 / 100 | Gold: 0"
+theme_override_font_sizes/font_size = 16
+text = "HP 100 / 100 | Gold: 0"
 
 [node name="Commands" type="HBoxContainer" parent="Margin/Root"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="AttackButton" type="Button" parent="Margin/Root/Commands"]
-custom_minimum_size = Vector2(100, 44)
+custom_minimum_size = Vector2(100, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "攻撃"
 
 [node name="DefendButton" type="Button" parent="Margin/Root/Commands"]
-custom_minimum_size = Vector2(100, 44)
+custom_minimum_size = Vector2(100, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "防御"
 
 [node name="FleeButton" type="Button" parent="Margin/Root/Commands"]
-custom_minimum_size = Vector2(100, 44)
+custom_minimum_size = Vector2(100, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
 text = "逃走"
+
+[node name="PopupContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
