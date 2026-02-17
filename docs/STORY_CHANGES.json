@@ -1,0 +1,590 @@
+{
+  "_meta": {
+    "description": "Residue ストーリー改善のためのJSON変更案",
+    "date": "2026-02-17",
+    "priority": "高=即時適用推奨、中=次フェーズ、低=将来"
+  },
+
+  "events_modifications": {
+    "_comment": "既存イベントへの変更",
+
+    "m_e02_add_choice": {
+      "priority": "中",
+      "target": "events.json > medieval > m_e02",
+      "action": "add_choice",
+      "choice": {
+        "label": "「あんたは誰だ？」と聞き返す",
+        "score": 2,
+        "tags": ["curious", "empathetic"],
+        "sets_flag": "aldus_name_asked"
+      }
+    },
+
+    "m_e03_add_flag": {
+      "priority": "高",
+      "target": "events.json > medieval > m_e03",
+      "action": "modify_choice",
+      "choice_label": "紋章を調べる",
+      "add_fields": {
+        "sets_flag": "emblem_examined"
+      }
+    },
+
+    "m_e04_add_mercy_choice": {
+      "priority": "高",
+      "target": "events.json > medieval > m_e04",
+      "action": "add_choice",
+      "choice": {
+        "label": "話しかける",
+        "score": 3,
+        "tags": ["merciful", "empathetic"],
+        "conditions": {
+          "requires_tag": "merciful",
+          "tag_threshold": 3
+        },
+        "sets_flag": "hollow_guard_spoken",
+        "discovery": true
+      }
+    },
+
+    "m_e04_add_mercy_reaction": {
+      "priority": "高",
+      "target": "events.json > medieval > m_e04",
+      "action": "add_reaction_slot",
+      "reaction_slot": {
+        "conditions": {
+          "requires_flag": "hollow_guard_spoken"
+        },
+        "text": "\n\n衛兵の眼窩に一瞬、光が戻る。「……地下に……あの子が……」そして再び虚ろに還った。"
+      }
+    },
+
+    "m_e05_fix_speaker": {
+      "priority": "高",
+      "target": "events.json > medieval > m_e05",
+      "action": "modify_field",
+      "field": "speaker",
+      "old_value": "elder",
+      "new_value": "unknown"
+    },
+
+    "m_e07_seal_reinforced_flag": {
+      "priority": "高",
+      "target": "events.json > medieval > m_e07",
+      "action": "modify_choice",
+      "choice_label": "封印を強化する",
+      "add_fields": {
+        "sets_flag": "seal_reinforced",
+        "discovery": true
+      }
+    },
+
+    "m_e08_burn_flag": {
+      "priority": "中",
+      "target": "events.json > medieval > m_e08",
+      "action": "modify_choice",
+      "choice_label": "書物を燃やす",
+      "add_fields": {
+        "sets_flag": "tome_burned"
+      }
+    },
+
+    "m_e_residue_reveal_fix_speaker": {
+      "priority": "高",
+      "target": "events.json > medieval > m_e_residue_reveal",
+      "action": "modify_field",
+      "field": "speaker",
+      "old_value": "elder",
+      "new_value": "bishop"
+    },
+
+    "f_e05_add_mourn_choice": {
+      "priority": "高",
+      "target": "events.json > future > f_e05",
+      "action": "add_choice",
+      "choice": {
+        "label": "N-06に黙祷する",
+        "score": 2,
+        "tags": ["merciful", "empathetic"],
+        "sets_flag": "n06_mourned",
+        "discovery": true
+      }
+    },
+
+    "f_e06_fix_speaker": {
+      "priority": "高",
+      "target": "events.json > future > f_e06",
+      "action": "modify_field",
+      "field": "speaker",
+      "old_value": "warrior",
+      "new_value": "unknown"
+    }
+  },
+
+  "events_additions": {
+    "_comment": "新規イベント",
+
+    "m_e02c": {
+      "priority": "中",
+      "description": "村長アルダスの娘エリスについて",
+      "event": {
+        "event_id": "m_e02c",
+        "type": "dialogue",
+        "text": "老人——アルダスは暖炉の前に座る。「娘がいた。エリスという。井戸に身を投げた……いや、投げたのではない。呼ばれたんだ」",
+        "conditions": {
+          "requires_flag": "aldus_name_asked"
+        },
+        "sets_flag": "eris_story_heard",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "min_loop": 5
+            },
+            "text": "\n\nアルダスの目に涙はない。枯れたのだろう。何度も同じ話をして。"
+          },
+          {
+            "conditions": {
+              "requires_flag": "n06_mourned"
+            },
+            "text": "\n\nN-06の顔が、ふと頭をよぎる。誰かを弔う行為に、世界の境目はないのか。"
+          }
+        ],
+        "choices": [
+          {
+            "label": "「呼ばれた？誰に？」",
+            "score": 3,
+            "tags": ["curious", "empathetic"],
+            "discovery": true,
+            "sets_flag": "eris_caller_asked"
+          },
+          {
+            "label": "「……すまない」",
+            "score": 2,
+            "tags": ["merciful", "empathetic"]
+          },
+          {
+            "label": "黙って聞く",
+            "score": 1,
+            "tags": ["cautious", "obedient"]
+          }
+        ],
+        "speaker": "elder"
+      },
+      "placement": {
+        "node_id": "m_n02",
+        "add_to_event_ids": true
+      }
+    },
+
+    "m_e02d": {
+      "priority": "中",
+      "description": "村長アルダス自身がResidueであることの判明",
+      "event": {
+        "event_id": "m_e02d",
+        "type": "dialogue",
+        "text": "アルダスが震える手で扉を閉める。「わしはな……お前が初めてじゃない。いや、わし自身が……何度目かわからん」\n彼の手の甲に、培養槽の識別番号が刻まれている。「N-01」。",
+        "conditions": {
+          "min_loop": 7,
+          "requires_flag": "eris_story_heard",
+          "requires_truth_stage": 2
+        },
+        "sets_flag": "aldus_is_residue",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_flag": "tank_examined"
+            },
+            "text": "\n\n培養槽で見た識別番号。N-01。最初の被験体は——この老人だった。"
+          }
+        ],
+        "choices": [
+          {
+            "label": "「あんたもResidueか」",
+            "score": 5,
+            "tags": ["defiant", "empathetic"],
+            "discovery": true
+          },
+          {
+            "label": "「N-01……」",
+            "score": 4,
+            "tags": ["curious", "thorough"],
+            "discovery": true,
+            "conditions": {
+              "requires_flag": "tank_examined"
+            }
+          },
+          {
+            "label": "手を握る",
+            "score": 3,
+            "tags": ["merciful", "empathetic"]
+          }
+        ],
+        "speaker": "elder"
+      },
+      "placement": {
+        "node_id": "m_n02",
+        "add_to_event_ids": true
+      }
+    },
+
+    "m_e03b": {
+      "priority": "中",
+      "description": "礼拝堂の紋章がResidueプロジェクトのロゴだった",
+      "event": {
+        "event_id": "m_e03b",
+        "type": "explore",
+        "text": "紋章をよく見る。二重の円環と、中心の欠け。どこかで見た——未来の施設で。廃棄セクターの隔壁に刻まれていた紋章と、同じだ。\n中世の礼拝堂に、未来の印がある。",
+        "conditions": {
+          "requires_flag": "emblem_examined",
+          "requires_truth_stage": 1
+        },
+        "sets_flag": "emblem_cross_recognized",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_foreign_job": true,
+              "requires_job": "cyborg"
+            },
+            "text": "\n\n機械の目が紋章をスキャンする。「プロジェクト・Residue 認証マーク。登録日：不明。エラー：時系列矛盾」"
+          }
+        ],
+        "choices": [
+          {
+            "label": "紋章を記録する",
+            "score": 3,
+            "tags": ["curious", "thorough"],
+            "discovery": true
+          },
+          {
+            "label": "紋章を削る",
+            "score": 2,
+            "tags": ["defiant", "reckless"],
+            "sets_flag": "emblem_destroyed"
+          }
+        ]
+      },
+      "placement": {
+        "node_id": "m_n03",
+        "add_to_event_ids": true
+      }
+    },
+
+    "m_e05b": {
+      "priority": "高",
+      "description": "井戸の声の正体——過去の自分の死体",
+      "event": {
+        "event_id": "m_e05b",
+        "type": "explore",
+        "text": "井戸の底に降りる。水は干上がり、代わりに——骨がある。お前と同じ装備の。同じ傷の。\n声が囁く。「やっと降りてきたか。何度覗いても降りなかったのに」\nそれはお前だ。前の周回の、お前の残骸。",
+        "conditions": {
+          "requires_flag": "well_peeked",
+          "min_loop": 5
+        },
+        "sets_flag": "well_truth_seen",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_flag": "residue_truth_revealed"
+            },
+            "text": "\n\n「Residue——お前も俺も、同じものだ。消し残り同士、仲良くしようぜ」"
+          }
+        ],
+        "choices": [
+          {
+            "label": "骨を拾い上げる",
+            "score": 3,
+            "tags": ["bold", "empathetic"],
+            "discovery": true,
+            "sets_flag": "past_self_bone"
+          },
+          {
+            "label": "「お前は俺じゃない」",
+            "score": 2,
+            "tags": ["defiant"]
+          },
+          {
+            "label": "急いで這い上がる",
+            "score": 1,
+            "tags": ["cautious"],
+            "flee": true
+          }
+        ],
+        "speaker": "self"
+      },
+      "placement": {
+        "node_id": "m_n05",
+        "add_to_event_ids": true
+      }
+    },
+
+    "m_e07b": {
+      "priority": "中",
+      "description": "二つの声の正体——司教とコア預言者",
+      "event": {
+        "event_id": "m_e07b",
+        "type": "dialogue",
+        "text": "封印が解けた空間に、二つの残響が絡み合っている。\n「私は封じた」「私は観た」\n「過去から」「未来から」\n「同じ場所に、同じ罪を」\n司教とコア預言者——時間の両端に立つ二人は、同じ紋章の下で繋がっていた。",
+        "conditions": {
+          "requires_flag": "seal_broken",
+          "min_loop": 5,
+          "requires_truth_stage": 1
+        },
+        "sets_flag": "two_voices_truth",
+        "choices": [
+          {
+            "label": "「同じ罪とは？」",
+            "score": 3,
+            "tags": ["curious", "defiant"],
+            "discovery": true
+          },
+          {
+            "label": "「お前たちはResidue計画の創始者か」",
+            "score": 4,
+            "tags": ["curious", "thorough"],
+            "discovery": true,
+            "conditions": {
+              "requires_flag": "emblem_cross_recognized"
+            }
+          },
+          {
+            "label": "耳を塞ぐ",
+            "score": 1,
+            "tags": ["cautious", "obedient"]
+          }
+        ],
+        "speaker": "unknown"
+      },
+      "placement": {
+        "node_id": "m_n10",
+        "add_to_event_ids": true
+      }
+    },
+
+    "m_e08b": {
+      "priority": "中",
+      "description": "書物を燃やした次の周回——灰から残る真実",
+      "event": {
+        "event_id": "m_e08b",
+        "type": "explore",
+        "text": "蝋燭の前に灰が積もっている。前回お前が燃やした書物の灰。だがその中に、燃え残った一片がある。\n「——Residueは消えない。燃やしても。砕いても。忘れても——」\n灰の中に文字が浮かぶ。火すら消せなかった言葉。",
+        "conditions": {
+          "requires_flag": "tome_burned"
+        },
+        "sets_flag": "ash_truth_seen",
+        "choices": [
+          {
+            "label": "灰を集める",
+            "score": 3,
+            "tags": ["curious", "thorough"],
+            "discovery": true
+          },
+          {
+            "label": "もう一度燃やす",
+            "score": 2,
+            "tags": ["defiant", "reckless"]
+          }
+        ]
+      },
+      "placement": {
+        "node_id": "m_n11",
+        "add_to_event_ids": true
+      }
+    },
+
+    "f_e03b": {
+      "priority": "中",
+      "description": "N-06（カイ）の暗号化メッセージ",
+      "event": {
+        "event_id": "f_e03b",
+        "type": "explore",
+        "text": "日記の最後に暗号化された記録がある。ハッキングスキルで解読すると——\n\n「俺の名前はカイだ。N-06という番号じゃない。カイだ。\n預言者を倒す方法を見つけた。だが代償は——次のモデルを起動すること。\nつまり、俺が死ぬこと。\n俺は選ばなかった。だからお前が生まれた。N-07。\n お前が読んでいるなら、俺の臆病もResidueとして残ったということだ」",
+        "conditions": {
+          "requires_flag": "diary_read",
+          "requires_flag_2": "terminal_hacked"
+        },
+        "sets_flag": "kai_message_decoded",
+        "choices": [
+          {
+            "label": "「カイ……お前は臆病じゃない」",
+            "score": 3,
+            "tags": ["empathetic", "merciful"],
+            "discovery": true
+          },
+          {
+            "label": "倒す方法を記録する",
+            "score": 3,
+            "tags": ["pragmatic", "thorough"],
+            "discovery": true,
+            "sets_flag": "prophet_weakness_known"
+          },
+          {
+            "label": "データを閉じる",
+            "score": 1,
+            "tags": ["cautious"]
+          }
+        ]
+      },
+      "placement": {
+        "node_id": "f_n04",
+        "add_to_event_ids": true
+      }
+    },
+
+    "f_e05b": {
+      "priority": "低",
+      "description": "培養槽でエリスのデータを発見（クロスリンク）",
+      "event": {
+        "event_id": "f_e05b",
+        "type": "explore",
+        "text": "培養槽の管理システムに古いデータが残っている。「被験体 E-00。名前：エリス。取得元：中世世界。\n状態：不安定。意識の転写に失敗。\n備考：本被験体の失敗がResidueプロジェクトの契機となった」\n\n——全ての始まりは、一人の少女だった。",
+        "conditions": {
+          "requires_flag": "eris_story_heard",
+          "requires_flag_2": "tank_examined"
+        },
+        "sets_flag": "eris_origin_discovered",
+        "choices": [
+          {
+            "label": "エリスのデータを保存する",
+            "score": 4,
+            "tags": ["curious", "empathetic"],
+            "discovery": true
+          },
+          {
+            "label": "データを消去してやる",
+            "score": 3,
+            "tags": ["merciful", "defiant"],
+            "sets_flag": "eris_data_deleted"
+          },
+          {
+            "label": "「アルダスに……伝えなければ」",
+            "score": 3,
+            "tags": ["empathetic", "bold"],
+            "discovery": true,
+            "sets_flag": "eris_news_for_aldus"
+          }
+        ]
+      },
+      "placement": {
+        "node_id": "f_n08",
+        "add_to_event_ids": true
+      }
+    },
+
+    "f_e_boss_kai_assist": {
+      "priority": "中",
+      "description": "カイの方法を知っている場合のボス戦特殊展開",
+      "event": {
+        "event_id": "f_e_boss_kai_assist",
+        "type": "battle",
+        "text": "コア預言者が笑う。「また来たか、N-07」\nだが今回は違う。カイが遺した方法——預言者の観測パターンを逆手に取る。\n「お前……それはN-06の……」預言者の声に、初めて動揺が混じる。",
+        "conditions": {
+          "requires_flag": "prophet_weakness_known"
+        },
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_flag": "n06_mourned"
+            },
+            "text": "\n\n「カイの意志を継ぐ」——弔った記憶が、戦う理由になる。"
+          }
+        ],
+        "choices": [
+          {
+            "label": "「カイが見つけた方法だ」",
+            "score": 0,
+            "start_battle": "f_boss_core_prophet",
+            "tags": ["defiant", "fearless"],
+            "battle_modifier": {
+              "enemy_attack_reduction": 5,
+              "description": "カイの知識により預言者の攻撃パターンを予測"
+            }
+          },
+          {
+            "label": "「N-06の臆病が、お前を倒す」",
+            "score": 0,
+            "start_battle": "f_boss_core_prophet",
+            "tags": ["empathetic", "defiant"],
+            "battle_modifier": {
+              "enemy_attack_reduction": 5,
+              "description": "カイの知識により預言者の攻撃パターンを予測"
+            }
+          }
+        ]
+      },
+      "placement": {
+        "node_id": "f_n12",
+        "add_to_event_ids": true,
+        "insert_before": "f_e_boss"
+      }
+    }
+  },
+
+  "locales_additions": {
+    "ja": {
+      "memory_flags": {
+        "aldus_name_asked": "アルダスの名",
+        "eris_story_heard": "エリスの話",
+        "eris_caller_asked": "エリスを呼んだ者",
+        "aldus_is_residue": "アルダスの正体",
+        "emblem_examined": "紋章調査",
+        "emblem_cross_recognized": "紋章の一致",
+        "emblem_destroyed": "紋章破壊",
+        "hollow_guard_spoken": "衛兵との対話",
+        "well_truth_seen": "井戸の真実",
+        "past_self_bone": "過去の自分の骨",
+        "seal_reinforced": "封印強化",
+        "two_voices_truth": "二つの声の正体",
+        "tome_burned": "書物を燃やした",
+        "ash_truth_seen": "灰の中の真実",
+        "kai_message_decoded": "カイのメッセージ",
+        "prophet_weakness_known": "預言者の弱点",
+        "n06_mourned": "N-06への黙祷",
+        "eris_origin_discovered": "エリスの起源",
+        "eris_data_deleted": "エリスのデータ消去",
+        "eris_news_for_aldus": "アルダスへの知らせ"
+      },
+      "npcs": {
+        "aldus": "アルダス（村長）",
+        "kai": "カイ（N-06）",
+        "eris": "エリス（E-00）"
+      }
+    }
+  },
+
+  "cross_links_additions": {
+    "eris_memory_link": {
+      "priority": "低",
+      "link": {
+        "link_id": "eris_memory_link",
+        "name": "Eris Memory Link",
+        "name_ja": "エリスの記憶の因果",
+        "name_en": "Eris Memory Causality",
+        "source_world": "medieval",
+        "target_world": "future",
+        "item": {
+          "item_id": "eris_locket",
+          "name": "Eris's Locket",
+          "name_ja": "エリスのロケット",
+          "name_en": "Eris's Locket",
+          "description": "A locket belonging to the village elder's daughter. Contains a faded portrait.",
+          "description_ja": "村長の娘のロケット。褪せた肖像画が入っている。",
+          "obtain_condition": {
+            "requires_flag": "eris_story_heard"
+          },
+          "obtain_event_id": "m_e02c"
+        },
+        "delivery": {
+          "target_npc": "cultivation_system",
+          "target_event_id": "f_e05b",
+          "target_node_id": "f_n08"
+        },
+        "rewards": {
+          "truth_stage_bonus": 1,
+          "sets_flag": "cross_link_eris_established",
+          "unlocks_job": null,
+          "special_event_id": "f_e05b"
+        }
+      }
+    }
+  }
+}

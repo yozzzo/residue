@@ -97,6 +97,15 @@
             "tags": [
               "cautious"
             ]
+          },
+          {
+            "label": "「あんたは誰だ？」と聞き返す",
+            "score": 2,
+            "tags": [
+              "curious",
+              "empathetic"
+            ],
+            "sets_flag": "aldus_name_asked"
           }
         ],
         "speaker": "elder"
@@ -141,6 +150,109 @@
         "speaker": "elder"
       },
       {
+        "event_id": "m_e02c",
+        "type": "dialogue",
+        "text": "老人——アルダスは暖炉の前に座る。「娘がいた。エリスという。井戸に身を投げた……いや、投げたのではない。呼ばれたんだ」",
+        "conditions": {
+          "requires_flag": "aldus_name_asked"
+        },
+        "sets_flag": "eris_story_heard",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "min_loop": 5
+            },
+            "text": "\n\nアルダスの目に涙はない。枯れたのだろう。何度も同じ話をして。"
+          },
+          {
+            "conditions": {
+              "requires_flag": "n06_mourned"
+            },
+            "text": "\n\nN-06の顔が、ふと頭をよぎる。誰かを弔う行為に、世界の境目はないのか。"
+          }
+        ],
+        "choices": [
+          {
+            "label": "「呼ばれた？誰に？」",
+            "score": 3,
+            "tags": [
+              "curious",
+              "empathetic"
+            ],
+            "discovery": true,
+            "sets_flag": "eris_caller_asked"
+          },
+          {
+            "label": "「……すまない」",
+            "score": 2,
+            "tags": [
+              "merciful",
+              "empathetic"
+            ]
+          },
+          {
+            "label": "黙って聞く",
+            "score": 1,
+            "tags": [
+              "cautious",
+              "obedient"
+            ]
+          }
+        ],
+        "speaker": "elder"
+      },
+      {
+        "event_id": "m_e02d",
+        "type": "dialogue",
+        "text": "アルダスが震える手で扉を閉める。「わしはな……お前が初めてじゃない。いや、わし自身が……何度目かわからん」\n彼の手の甲に、培養槽の識別番号が刻まれている。「N-01」。",
+        "conditions": {
+          "min_loop": 7,
+          "requires_flag": "eris_story_heard",
+          "requires_truth_stage": 2
+        },
+        "sets_flag": "aldus_is_residue",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_flag": "tank_examined"
+            },
+            "text": "\n\n培養槽で見た識別番号。N-01。最初の被験体は——この老人だった。"
+          }
+        ],
+        "choices": [
+          {
+            "label": "「あんたもResidueか」",
+            "score": 5,
+            "tags": [
+              "defiant",
+              "empathetic"
+            ],
+            "discovery": true
+          },
+          {
+            "label": "「N-01……」",
+            "score": 4,
+            "tags": [
+              "curious",
+              "thorough"
+            ],
+            "discovery": true,
+            "conditions": {
+              "requires_flag": "tank_examined"
+            }
+          },
+          {
+            "label": "手を握る",
+            "score": 3,
+            "tags": [
+              "merciful",
+              "empathetic"
+            ]
+          }
+        ],
+        "speaker": "elder"
+      },
+      {
         "event_id": "m_e03",
         "type": "explore",
         "text": "崩れた礼拝堂。祭壇には古い血痕。壁の聖画は削り取られ、代わりに何かの紋章が刻まれている。",
@@ -160,7 +272,8 @@
               "curious",
               "thorough"
             ],
-            "discovery": true
+            "discovery": true,
+            "sets_flag": "emblem_examined"
           },
           {
             "label": "祭壇に祈る",
@@ -176,6 +289,45 @@
             "tags": [
               "hasty"
             ]
+          }
+        ]
+      },
+      {
+        "event_id": "m_e03b",
+        "type": "explore",
+        "text": "紋章をよく見る。二重の円環と、中心の欠け。どこかで見た——未来の施設で。廃棄セクターの隔壁に刻まれていた紋章と、同じだ。\n中世の礼拝堂に、未来の印がある。",
+        "conditions": {
+          "requires_flag": "emblem_examined",
+          "requires_truth_stage": 1
+        },
+        "sets_flag": "emblem_cross_recognized",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_foreign_job": true,
+              "requires_job": "cyborg"
+            },
+            "text": "\n\n機械の目が紋章をスキャンする。「プロジェクト・Residue 認証マーク。登録日：不明。エラー：時系列矛盾」"
+          }
+        ],
+        "choices": [
+          {
+            "label": "紋章を記録する",
+            "score": 3,
+            "tags": [
+              "curious",
+              "thorough"
+            ],
+            "discovery": true
+          },
+          {
+            "label": "紋章を削る",
+            "score": 2,
+            "tags": [
+              "defiant",
+              "reckless"
+            ],
+            "sets_flag": "emblem_destroyed"
           }
         ]
       },
@@ -215,6 +367,42 @@
             "tags": [
               "cautious"
             ]
+          },
+          {
+            "label": "話しかける",
+            "score": 3,
+            "tags": [
+              "merciful",
+              "empathetic"
+            ],
+            "conditions": {
+              "requires_tag": "merciful",
+              "tag_threshold": 3
+            },
+            "sets_flag": "hollow_guard_spoken",
+            "discovery": true
+          }
+        ],
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_tag": "merciful",
+              "tag_threshold": 5
+            },
+            "text": "\n\nその姿に、かつての人間を見る。救いはあるのか。"
+          },
+          {
+            "conditions": {
+              "requires_foreign_job": true,
+              "requires_job": "cyborg"
+            },
+            "text": "\n\n虚ろな目がお前の機械部品を見つめる。かつて人だったもの同士、通じ合うものがあるのか。"
+          },
+          {
+            "conditions": {
+              "requires_flag": "hollow_guard_spoken"
+            },
+            "text": "\n\n衛兵の眼窩に一瞬、光が戻る。「……地下に……あの子が……」そして再び虚ろに還った。"
           }
         ]
       },
@@ -257,7 +445,53 @@
             ]
           }
         ],
-        "speaker": "elder"
+        "speaker": "unknown"
+      },
+      {
+        "event_id": "m_e05b",
+        "type": "explore",
+        "text": "井戸の底に降りる。水は干上がり、代わりに——骨がある。お前と同じ装備の。同じ傷の。\n声が囁く。「やっと降りてきたか。何度覗いても降りなかったのに」\nそれはお前だ。前の周回の、お前の残骸。",
+        "conditions": {
+          "requires_flag": "well_peeked",
+          "min_loop": 5
+        },
+        "sets_flag": "well_truth_seen",
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_flag": "residue_truth_revealed"
+            },
+            "text": "\n\n「Residue——お前も俺も、同じものだ。消し残り同士、仲良くしようぜ」"
+          }
+        ],
+        "choices": [
+          {
+            "label": "骨を拾い上げる",
+            "score": 3,
+            "tags": [
+              "bold",
+              "empathetic"
+            ],
+            "discovery": true,
+            "sets_flag": "past_self_bone"
+          },
+          {
+            "label": "「お前は俺じゃない」",
+            "score": 2,
+            "tags": [
+              "defiant"
+            ]
+          },
+          {
+            "label": "急いで這い上がる",
+            "score": 1,
+            "tags": [
+              "cautious"
+            ],
+            "flee": true
+          }
+        ],
+        "speaker": "self"
       },
       {
         "event_id": "m_e06",
@@ -328,7 +562,9 @@
             "tags": [
               "obedient",
               "cautious"
-            ]
+            ],
+            "sets_flag": "seal_reinforced",
+            "discovery": true
           },
           {
             "label": "何もしない",
@@ -339,6 +575,49 @@
           }
         ],
         "speaker": "elder"
+      },
+      {
+        "event_id": "m_e07b",
+        "type": "dialogue",
+        "text": "封印が解けた空間に、二つの残響が絡み合っている。\n「私は封じた」「私は観た」\n「過去から」「未来から」\n「同じ場所に、同じ罪を」\n司教とコア預言者——時間の両端に立つ二人は、同じ紋章の下で繋がっていた。",
+        "conditions": {
+          "requires_flag": "seal_broken",
+          "min_loop": 5,
+          "requires_truth_stage": 1
+        },
+        "sets_flag": "two_voices_truth",
+        "choices": [
+          {
+            "label": "「同じ罪とは？」",
+            "score": 3,
+            "tags": [
+              "curious",
+              "defiant"
+            ],
+            "discovery": true
+          },
+          {
+            "label": "「お前たちはResidue計画の創始者か」",
+            "score": 4,
+            "tags": [
+              "curious",
+              "thorough"
+            ],
+            "discovery": true,
+            "conditions": {
+              "requires_flag": "emblem_cross_recognized"
+            }
+          },
+          {
+            "label": "耳を塞ぐ",
+            "score": 1,
+            "tags": [
+              "cautious",
+              "obedient"
+            ]
+          }
+        ],
+        "speaker": "unknown"
       },
       {
         "event_id": "m_e08",
@@ -375,7 +654,8 @@
             "tags": [
               "defiant",
               "reckless"
-            ]
+            ],
+            "sets_flag": "tome_burned"
           },
           {
             "label": "そのまま進む",
@@ -383,6 +663,34 @@
             "tags": [
               "hasty",
               "pragmatic"
+            ]
+          }
+        ]
+      },
+      {
+        "event_id": "m_e08b",
+        "type": "explore",
+        "text": "蝋燭の前に灰が積もっている。前回お前が燃やした書物の灰。だがその中に、燃え残った一片がある。\n「——Residueは消えない。燃やしても。砕いても。忘れても——」\n灰の中に文字が浮かぶ。火すら消せなかった言葉。",
+        "conditions": {
+          "requires_flag": "tome_burned"
+        },
+        "sets_flag": "ash_truth_seen",
+        "choices": [
+          {
+            "label": "灰を集める",
+            "score": 3,
+            "tags": [
+              "curious",
+              "thorough"
+            ],
+            "discovery": true
+          },
+          {
+            "label": "もう一度燃やす",
+            "score": 2,
+            "tags": [
+              "defiant",
+              "reckless"
             ]
           }
         ]
@@ -477,7 +785,7 @@
             ]
           }
         ],
-        "speaker": "elder"
+        "speaker": "bishop"
       },
       {
         "event_id": "m_cross_cipher_delivery",
@@ -766,6 +1074,44 @@
         ]
       },
       {
+        "event_id": "f_e03b",
+        "type": "explore",
+        "text": "日記の最後に暗号化された記録がある。ハッキングスキルで解読すると——\n\n「俺の名前はカイだ。N-06という番号じゃない。カイだ。\n預言者を倒す方法を見つけた。だが代償は——次のモデルを起動すること。\nつまり、俺が死ぬこと。\n俺は選ばなかった。だからお前が生まれた。N-07。\n お前が読んでいるなら、俺の臆病もResidueとして残ったということだ」",
+        "conditions": {
+          "requires_flag": "diary_read",
+          "requires_flag_2": "terminal_hacked"
+        },
+        "sets_flag": "kai_message_decoded",
+        "choices": [
+          {
+            "label": "「カイ……お前は臆病じゃない」",
+            "score": 3,
+            "tags": [
+              "empathetic",
+              "merciful"
+            ],
+            "discovery": true
+          },
+          {
+            "label": "倒す方法を記録する",
+            "score": 3,
+            "tags": [
+              "pragmatic",
+              "thorough"
+            ],
+            "discovery": true,
+            "sets_flag": "prophet_weakness_known"
+          },
+          {
+            "label": "データを閉じる",
+            "score": 1,
+            "tags": [
+              "cautious"
+            ]
+          }
+        ]
+      },
+      {
         "event_id": "f_e04",
         "type": "dialogue",
         "text": "データ保管庫。削除されたログが次々と復元される。全てお前の記録——何十回もの侵入、何十回もの死。同じ場所で、同じように。",
@@ -857,6 +1203,16 @@
               "cautious",
               "pragmatic"
             ]
+          },
+          {
+            "label": "N-06に黙祷する",
+            "score": 2,
+            "tags": [
+              "merciful",
+              "empathetic"
+            ],
+            "sets_flag": "n06_mourned",
+            "discovery": true
           }
         ]
       },
@@ -909,7 +1265,7 @@
             ]
           }
         ],
-        "speaker": "warrior"
+        "speaker": "unknown"
       },
       {
         "event_id": "f_e07",
@@ -948,6 +1304,50 @@
             ],
             "discovery": true,
             "sets_flag": "system_dialogue"
+          }
+        ]
+      },
+      {
+        "event_id": "f_e_boss_kai_assist",
+        "type": "battle",
+        "text": "コア預言者が笑う。「また来たか、N-07」\nだが今回は違う。カイが遺した方法——預言者の観測パターンを逆手に取る。\n「お前……それはN-06の……」預言者の声に、初めて動揺が混じる。",
+        "conditions": {
+          "requires_flag": "prophet_weakness_known"
+        },
+        "reaction_slots": [
+          {
+            "conditions": {
+              "requires_flag": "n06_mourned"
+            },
+            "text": "\n\n「カイの意志を継ぐ」——弔った記憶が、戦う理由になる。"
+          }
+        ],
+        "choices": [
+          {
+            "label": "「カイが見つけた方法だ」",
+            "score": 0,
+            "start_battle": "f_boss_core_prophet",
+            "tags": [
+              "defiant",
+              "fearless"
+            ],
+            "battle_modifier": {
+              "enemy_attack_reduction": 5,
+              "description": "カイの知識により預言者の攻撃パターンを予測"
+            }
+          },
+          {
+            "label": "「N-06の臆病が、お前を倒す」",
+            "score": 0,
+            "start_battle": "f_boss_core_prophet",
+            "tags": [
+              "empathetic",
+              "defiant"
+            ],
+            "battle_modifier": {
+              "enemy_attack_reduction": 5,
+              "description": "カイの知識により預言者の攻撃パターンを予測"
+            }
           }
         ]
       },

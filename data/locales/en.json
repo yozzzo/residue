@@ -123,7 +123,32 @@
     "system_dialogue": "System Dialogue",
     "prophet_encountered": "The Prophet",
     "prophet_defeated": "Prophet Slain",
-    "residue_truth_revealed": "The Truth of Residue"
+    "residue_truth_revealed": "The Truth of Residue",
+    "aldus_name_asked": "Aldus's Name",
+    "eris_story_heard": "Eris's Story",
+    "eris_caller_asked": "Who Called Eris",
+    "aldus_is_residue": "Aldus's True Nature",
+    "emblem_examined": "Emblem Examined",
+    "emblem_cross_recognized": "Emblem Match",
+    "emblem_destroyed": "Emblem Destroyed",
+    "hollow_guard_spoken": "Spoke to the Guard",
+    "well_truth_seen": "Truth in the Well",
+    "past_self_bone": "Bones of Past Self",
+    "seal_reinforced": "Seal Reinforced",
+    "two_voices_truth": "The Two Voices",
+    "tome_burned": "Tome Burned",
+    "ash_truth_seen": "Truth in the Ashes",
+    "kai_message_decoded": "Kai's Message",
+    "prophet_weakness_known": "Prophet's Weakness",
+    "n06_mourned": "Mourned N-06",
+    "eris_origin_discovered": "Eris's Origin",
+    "eris_data_deleted": "Eris's Data Deleted",
+    "eris_news_for_aldus": "News for Aldus"
+  },
+  "npcs": {
+    "aldus": "Aldus (Village Elder)",
+    "kai": "Kai (N-06)",
+    "eris": "Eris (E-00)"
   },
   "items": {
     "quantum_circuit": "Quantum Circuit",

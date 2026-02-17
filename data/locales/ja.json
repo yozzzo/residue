@@ -116,7 +116,32 @@
     "system_dialogue": "システムとの対話",
     "prophet_encountered": "預言者との対面",
     "prophet_defeated": "預言者撃破",
-    "residue_truth_revealed": "Residueの真実"
+    "residue_truth_revealed": "Residueの真実",
+    "aldus_name_asked": "アルダスの名",
+    "eris_story_heard": "エリスの話",
+    "eris_caller_asked": "エリスを呼んだ者",
+    "aldus_is_residue": "アルダスの正体",
+    "emblem_examined": "紋章調査",
+    "emblem_cross_recognized": "紋章の一致",
+    "emblem_destroyed": "紋章破壊",
+    "hollow_guard_spoken": "衛兵との対話",
+    "well_truth_seen": "井戸の真実",
+    "past_self_bone": "過去の自分の骨",
+    "seal_reinforced": "封印強化",
+    "two_voices_truth": "二つの声の正体",
+    "tome_burned": "書物を燃やした",
+    "ash_truth_seen": "灰の中の真実",
+    "kai_message_decoded": "カイのメッセージ",
+    "prophet_weakness_known": "預言者の弱点",
+    "n06_mourned": "N-06への黙祷",
+    "eris_origin_discovered": "エリスの起源",
+    "eris_data_deleted": "エリスのデータ消去",
+    "eris_news_for_aldus": "アルダスへの知らせ"
+  },
+  "npcs": {
+    "aldus": "アルダス（村長）",
+    "kai": "カイ（N-06）",
+    "eris": "エリス（E-00）"
   },
   "items": {
     "quantum_circuit": "量子回路",
