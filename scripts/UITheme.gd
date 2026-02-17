@@ -70,30 +70,44 @@ static func create_choice_button(text: String) -> Button:
 	button.custom_minimum_size = Vector2(0, BUTTON_MIN_HEIGHT)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.add_theme_font_size_override("font_size", FONT_BUTTON)
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	
-	# Card-style appearance
-	var normal := create_button_stylebox(Color(0.15, 0.15, 0.2, 0.9))
+	# World-themed button colors
+	var base_color: Color = ThemeManager.get_button_color()
+	var hover_color: Color = ThemeManager.get_button_hover_color()
+	var accent: Color = ThemeManager.get_accent_color()
+	var text_color: Color = ThemeManager.get_text_color()
+	
+	var normal := create_button_stylebox(base_color)
 	normal.content_margin_left = CARD_PADDING
 	normal.content_margin_right = CARD_PADDING
-	normal.content_margin_top = 12
-	normal.content_margin_bottom = 12
+	normal.content_margin_top = 8
+	normal.content_margin_bottom = 8
+	normal.border_color = Color(accent, 0.3)
+	normal.set_border_width_all(1)
 	
-	var hover := create_button_stylebox(Color(0.25, 0.25, 0.35, 0.95))
+	var hover := create_button_stylebox(hover_color)
 	hover.content_margin_left = CARD_PADDING
 	hover.content_margin_right = CARD_PADDING
-	hover.content_margin_top = 12
-	hover.content_margin_bottom = 12
+	hover.content_margin_top = 8
+	hover.content_margin_bottom = 8
+	hover.border_color = Color(accent, 0.6)
+	hover.set_border_width_all(1)
 	
-	var pressed := create_button_stylebox(Color(0.12, 0.12, 0.18, 1.0))
+	var pressed := create_button_stylebox(Color(base_color, 1.0).darkened(0.15))
 	pressed.content_margin_left = CARD_PADDING
 	pressed.content_margin_right = CARD_PADDING
-	pressed.content_margin_top = 12
-	pressed.content_margin_bottom = 12
+	pressed.content_margin_top = 8
+	pressed.content_margin_bottom = 8
+	pressed.border_color = Color(accent, 0.8)
+	pressed.set_border_width_all(2)
 	
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
 	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_color_override("font_color", text_color)
+	button.add_theme_color_override("font_hover_color", accent)
+	button.add_theme_color_override("font_pressed_color", text_color)
 	
 	return button
 
@@ -106,13 +120,27 @@ static func create_nav_button(text: String) -> Button:
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.add_theme_font_size_override("font_size", FONT_BUTTON)
 	
-	var normal := create_button_stylebox(Color(0.2, 0.2, 0.3, 0.85))
-	var hover := create_button_stylebox(Color(0.3, 0.3, 0.4, 0.9))
-	var pressed := create_button_stylebox(Color(0.15, 0.15, 0.25, 1.0))
+	# World-themed nav buttons (slightly different from choice buttons)
+	var base_color: Color = ThemeManager.get_button_color().lightened(0.05)
+	var hover_color: Color = ThemeManager.get_button_hover_color()
+	var accent: Color = ThemeManager.get_accent_color()
+	var text_color: Color = ThemeManager.get_text_color()
+	
+	var normal := create_button_stylebox(base_color)
+	normal.border_color = Color(accent, 0.2)
+	normal.set_border_width_all(1)
+	var hover := create_button_stylebox(hover_color)
+	hover.border_color = Color(accent, 0.5)
+	hover.set_border_width_all(1)
+	var pressed := create_button_stylebox(Color(base_color, 1.0).darkened(0.15))
+	pressed.border_color = Color(accent, 0.7)
+	pressed.set_border_width_all(2)
 	
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
 	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_color_override("font_color", text_color)
+	button.add_theme_color_override("font_hover_color", accent)
 	
 	return button
 
