@@ -537,7 +537,7 @@ func _on_feedback() -> void:
 		"node_name": current_node.get("name", ""),
 		"event_id": current_event.get("event_id", ""),
 		"event_type": current_event.get("type", ""),
-		"event_text": current_event.get("text", "")[:100],
+		"event_text": current_event.get("text", "").substr(0, 100),
 		"loop": GameState.loop_count,
 		"truth_stage": GameState.get_truth_stage(),
 		"hp": GameState.hp,
