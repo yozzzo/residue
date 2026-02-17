@@ -13,6 +13,12 @@ signal status_updated
 @onready var status_label: Label = $Margin/Root/Bottom/StatusLabel
 @onready var exit_button: Button = $Margin/Root/Bottom/ExitRunButton
 @onready var background: ColorRect = $Background
+@onready var background_image: TextureRect = $BackgroundImage
+
+const WORLD_BACKGROUNDS := {
+	"medieval": "res://assets/generated/backgrounds/medieval_bg.png",
+	"future": "res://assets/generated/backgrounds/future_bg.png",
+}
 
 var current_node: Dictionary = {}
 var current_event: Dictionary = {}
@@ -54,8 +60,14 @@ func _setup_typewriter() -> void:
 
 
 func _apply_theme() -> void:
-	# Apply world-specific colors
-	background.color = ThemeManager.get_background_color()
+	# Apply world-specific background image
+	var world_id: String = ThemeManager.current_world
+	if WORLD_BACKGROUNDS.has(world_id) and ResourceLoader.exists(WORLD_BACKGROUNDS[world_id]):
+		background_image.texture = load(WORLD_BACKGROUNDS[world_id])
+		background.color = Color(ThemeManager.get_background_color(), 0.6)
+	else:
+		background_image.texture = null
+		background.color = ThemeManager.get_background_color()
 	
 	# Style exit button
 	var normal := UITheme.create_button_stylebox(Color(0.35, 0.2, 0.2, 0.9))

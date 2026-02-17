@@ -17,7 +17,13 @@ signal battle_ended(result: String)  # "victory", "defeat", "flee"
 @onready var defend_btn: Button = $Margin/Root/Commands/DefendButton
 @onready var flee_btn: Button = $Margin/Root/Commands/FleeButton
 @onready var background: ColorRect = $Background
+@onready var background_image: TextureRect = $BackgroundImage
 @onready var popup_container: Control = $PopupContainer
+
+const WORLD_BACKGROUNDS := {
+	"medieval": "res://assets/generated/backgrounds/medieval_bg.png",
+	"future": "res://assets/generated/backgrounds/future_bg.png",
+}
 
 var enemy_id: String = ""
 var enemy_data: Dictionary = {}
@@ -55,13 +61,21 @@ func _update_button_texts() -> void:
 
 
 func _apply_theme() -> void:
+	# Load world-specific background image
+	var world_id: String = ThemeManager.current_world
+	if WORLD_BACKGROUNDS.has(world_id) and ResourceLoader.exists(WORLD_BACKGROUNDS[world_id]):
+		background_image.texture = load(WORLD_BACKGROUNDS[world_id])
+	else:
+		background_image.texture = null
+	
 	# Battle has slightly different colors (more intense)
 	var base_color: Color = ThemeManager.get_background_color()
 	# Make it slightly more reddish for battle atmosphere
 	background.color = Color(
 		base_color.r + 0.05,
 		base_color.g * 0.8,
-		base_color.b * 0.9
+		base_color.b * 0.9,
+		0.7 if background_image.texture else 1.0
 	)
 	
 	# Style battle command buttons

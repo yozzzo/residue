@@ -1,0 +1,86 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-02-17T09:30:05.636695+09:00",
+      "date": "2026-02-17",
+      "prompt": "dark pixel-art dungeon corridor with glowing runes",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:32:04.419751+09:00",
+      "date": "2026-02-17",
+      "prompt": "Dark atmospheric title screen for a roguelike RPG called Residue. Abstract swirling souls and fragme",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:32:22.891588+09:00",
+      "date": "2026-02-17",
+      "prompt": "Dark medieval fantasy dungeon background for mobile RPG. Stone walls with faint purple magical runes",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:32:45.090138+09:00",
+      "date": "2026-02-17",
+      "prompt": "Dark cyberpunk futuristic corridor background for mobile RPG. Neon blue and cyan circuit patterns on",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:33:03.966283+09:00",
+      "date": "2026-02-17",
+      "prompt": "Game UI button asset sheet for dark medieval fantasy RPG. Set of rectangular buttons on transparent-",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:33:18.301268+09:00",
+      "date": "2026-02-17",
+      "prompt": "Game UI button asset sheet for dark cyberpunk sci-fi RPG. Set of rectangular buttons: Attack (laser ",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:34:25.017196+09:00",
+      "date": "2026-02-17",
+      "prompt": "Game UI icon set for dark roguelike RPG. Icons in grid: red heart, golden coin, blue soul orb, purpl",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:39:28.377734+09:00",
+      "date": "2026-02-17",
+      "prompt": "Dark atmospheric title screen for a roguelike RPG called Residue. Abstract swirling souls and fragme",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:39:46.473398+09:00",
+      "date": "2026-02-17",
+      "prompt": "Dark medieval fantasy dungeon background for mobile RPG. Stone walls with faint purple magical runes",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T09:40:04.583904+09:00",
+      "date": "2026-02-17",
+      "prompt": "Dark cyberpunk futuristic corridor background for mobile RPG. Neon blue and cyan circuit patterns on",
+      "num_images": 1,
+      "aspect_ratio": "16:9",
+      "cost_usd": 0.04
+    }
+  ],
+  "total_images": 10,
+  "total_cost_usd": 0.4
+}

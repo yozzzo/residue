@@ -7,7 +7,7 @@ signal quit_requested
 @onready var quit_button: Button = $SafeArea/VBox/QuitButton
 @onready var title_label: Label = $SafeArea/VBox/Title
 @onready var subtitle_label: Label = $SafeArea/VBox/Subtitle
-@onready var background: ColorRect = $Background
+@onready var background: TextureRect = $Background
 @onready var lang_button: Button = $SafeArea/VBox/LangButton
 
 var glitch_material: ShaderMaterial
