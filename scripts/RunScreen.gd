@@ -8,7 +8,7 @@ signal status_updated
 @onready var location_label: Label = $Margin/Root/LocationPanel/LocationVBox/LocationName
 @onready var direction_label: Label = $Margin/Root/LocationPanel/LocationVBox/DirectionInfo
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
-@onready var choices_box: VBoxContainer = $Margin/Root/Choices
+@onready var choices_box: GridContainer = $Margin/Root/Choices
 @onready var navigation_box: HBoxContainer = $Margin/Root/Navigation
 @onready var status_label: Label = $Margin/Root/Bottom/StatusLabel
 @onready var exit_button: Button = $Margin/Root/Bottom/ExitRunButton
@@ -248,6 +248,9 @@ func _render_event() -> void:
 	# Phase 2: Filter choices by conditions
 	var all_choices: Array = current_event.get("choices", [])
 	var filtered_choices: Array = GameState.filter_choices(all_choices)
+	
+	# Use 2 columns when 3+ choices to keep compact
+	choices_box.columns = 2 if filtered_choices.size() >= 3 else 1
 	
 	# Render filtered choices BEFORE starting typewriter (disabled until text completes)
 	for choice: Variant in filtered_choices:

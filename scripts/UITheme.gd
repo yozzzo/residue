@@ -13,7 +13,7 @@ const FONT_STATUS := 18
 const FONT_SMALL := 16
 
 # Button styling
-const BUTTON_MIN_HEIGHT := 56.0
+const BUTTON_MIN_HEIGHT := 44.0
 const BUTTON_MIN_WIDTH := 140.0
 const BUTTON_CORNER_RADIUS := 8
 const BUTTON_SPACING := 16
