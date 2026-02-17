@@ -25,6 +25,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.15, 0.1, 0.2, 0.6)
+mouse_filter = 2
 
 [node name="SilhouetteRect" type="TextureRect" parent="."]
 layout_mode = 1
@@ -44,11 +45,11 @@ mouse_filter = 2
 layout_mode = 1
 anchors_preset = 0
 offset_left = 1180.0
-offset_top = 16.0
+offset_top = 20.0
 offset_right = 1260.0
-offset_bottom = 56.0
-theme_override_font_sizes/font_size = 24
-text = "⚙️"
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 18
+text = "MENU"
 
 [node name="GearMenu" type="PanelContainer" parent="."]
 visible = false
