@@ -14,10 +14,20 @@ signal status_updated
 @onready var exit_button: Button = $Margin/Root/Bottom/ExitRunButton
 @onready var background: ColorRect = $Background
 @onready var background_image: TextureRect = $BackgroundImage
+@onready var silhouette_rect: TextureRect = $SilhouetteRect
 
 const WORLD_BACKGROUNDS := {
 	"medieval": "res://assets/generated/backgrounds/medieval_bg.png",
 	"future": "res://assets/generated/backgrounds/future_bg.png",
+}
+
+const SILHOUETTES := {
+	"elder": "res://assets/generated/silhouettes/elder.png",
+	"warrior": "res://assets/generated/silhouettes/warrior.png",
+	"scholar": "res://assets/generated/silhouettes/scholar.png",
+	"monster": "res://assets/generated/silhouettes/monster.png",
+	"cyborg": "res://assets/generated/silhouettes/cyborg.png",
+	"merchant": "res://assets/generated/silhouettes/merchant.png",
 }
 
 var current_node: Dictionary = {}
@@ -212,6 +222,9 @@ func _render_event() -> void:
 	
 	var node_type: String = current_node.get("node_type", "explore")
 	var event_type: String = current_event.get("type", "explore")
+	
+	# Show silhouette for dialogue events
+	_update_silhouette()
 	
 	# Build event text with atmosphere and reaction slots
 	var desc: String = LocaleManager.tr_data(current_node, "description")
@@ -505,6 +518,33 @@ func _clear_ui() -> void:
 		child.queue_free()
 	for child: Node in navigation_box.get_children():
 		child.queue_free()
+
+
+func _update_silhouette() -> void:
+	var event_type: String = current_event.get("type", "explore")
+	var speaker: String = current_event.get("speaker", "")
+	
+	# For battle events, show monster silhouette
+	if event_type == "battle" and speaker.is_empty():
+		speaker = "monster"
+	
+	# Show silhouette if speaker is set and image exists
+	if speaker != "" and SILHOUETTES.has(speaker):
+		var path: String = SILHOUETTES[speaker]
+		if ResourceLoader.exists(path):
+			silhouette_rect.texture = load(path)
+			silhouette_rect.visible = true
+			# Fade in
+			var tween: Tween = create_tween()
+			silhouette_rect.modulate.a = 0.0
+			tween.tween_property(silhouette_rect, "modulate:a", 0.25, 0.5)
+			return
+	
+	# Hide silhouette for non-dialogue events
+	if silhouette_rect.visible:
+		var tween: Tween = create_tween()
+		tween.tween_property(silhouette_rect, "modulate:a", 0.0, 0.3)
+		tween.tween_callback(func() -> void: silhouette_rect.visible = false)
 
 
 func _update_status() -> void:

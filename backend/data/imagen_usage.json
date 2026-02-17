@@ -79,8 +79,56 @@
       "num_images": 1,
       "aspect_ratio": "16:9",
       "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T10:02:12.904921+09:00",
+      "date": "2026-02-17",
+      "prompt": "Black silhouette of a village elder with a staff and long robes, standing pose, mysterious atmospher",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T10:02:22.681244+09:00",
+      "date": "2026-02-17",
+      "prompt": "Black silhouette of an armored warrior with a sword and shield, heroic standing pose. Simple dark fi",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T10:02:30.893042+09:00",
+      "date": "2026-02-17",
+      "prompt": "Black silhouette of a robed scholar or mage holding a book and staff, mysterious pose. Simple dark f",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T10:03:27.231382+09:00",
+      "date": "2026-02-17",
+      "prompt": "Black silhouette of a menacing fantasy monster creature, horns and claws, threatening pose. Simple d",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T10:03:39.915444+09:00",
+      "date": "2026-02-17",
+      "prompt": "Black silhouette of a futuristic cyborg or android figure with glowing circuit lines, standing pose.",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
+    },
+    {
+      "timestamp": "2026-02-17T10:03:50.903408+09:00",
+      "date": "2026-02-17",
+      "prompt": "Black silhouette of a merchant or trader carrying a large backpack and holding scales, friendly pose",
+      "num_images": 1,
+      "aspect_ratio": "9:16",
+      "cost_usd": 0.04
     }
   ],
-  "total_images": 10,
-  "total_cost_usd": 0.4
+  "total_images": 16,
+  "total_cost_usd": 0.64
 }
