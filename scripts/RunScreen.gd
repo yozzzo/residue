@@ -245,15 +245,11 @@ func _render_event() -> void:
 	else:
 		formatted_text = "[i]%s[/i]\n\n%s%s" % [desc, _apply_atmosphere_effects(event_text), reaction_text]
 	
-	# Phase 4: Use typewriter effect
-	waiting_for_text = true
-	typewriter.display_text(formatted_text, text_speed)
-	
 	# Phase 2: Filter choices by conditions
 	var all_choices: Array = current_event.get("choices", [])
 	var filtered_choices: Array = GameState.filter_choices(all_choices)
 	
-	# Render filtered choices (disabled until text completes)
+	# Render filtered choices BEFORE starting typewriter (disabled until text completes)
 	for choice: Variant in filtered_choices:
 		var choice_label: String = LocaleManager.tr_data(choice, "label")
 		if choice_label.is_empty():
@@ -262,6 +258,10 @@ func _render_event() -> void:
 		button.pressed.connect(_on_choice_selected.bind(choice))
 		button.disabled = true  # Enabled after typewriter completes
 		choices_box.add_child(button)
+	
+	# Phase 4: Use typewriter effect (must start AFTER buttons are added)
+	waiting_for_text = true
+	typewriter.display_text(formatted_text, text_speed)
 	
 	_update_status()
 
