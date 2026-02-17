@@ -108,19 +108,19 @@ func _on_theme_changed(_world_id: String) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	# Skip text with any key/click while typewriter is playing
-	if waiting_for_text and event is InputEventMouseButton and event.pressed:
+	# Skip text with any tap/click/key while typewriter is playing
+	if not waiting_for_text:
+		return
+	if event is InputEventMouseButton and event.pressed:
 		typewriter.skip()
-	elif waiting_for_text and event is InputEventKey and event.pressed:
+	elif event is InputEventScreenTouch and event.pressed:
+		typewriter.skip()
+	elif event is InputEventKey and event.pressed:
 		typewriter.skip()
 
 
 func _on_text_completed() -> void:
 	waiting_for_text = false
-	# Enable choice buttons
-	for child: Node in choices_box.get_children():
-		if child is Button:
-			child.disabled = false
 
 
 func _start_run() -> void:
@@ -259,7 +259,6 @@ func _render_event() -> void:
 			choice_label = choice.get("label", LocaleManager.t("ui.select"))
 		var button := UITheme.create_choice_button(choice_label)
 		button.pressed.connect(_on_choice_selected.bind(choice))
-		button.disabled = true  # Enabled after typewriter completes
 		choices_box.add_child(button)
 	
 	# Phase 4: Use typewriter effect (must start AFTER buttons are added)
@@ -357,6 +356,11 @@ func _render_navigation_buttons() -> void:
 
 
 func _on_choice_selected(choice: Dictionary) -> void:
+	# Skip typewriter if still playing
+	if waiting_for_text:
+		typewriter.skip()
+		waiting_for_text = false
+	
 	# Apply score
 	var score := int(choice.get("score", 0))
 	# Score is now handled by soul calculation
