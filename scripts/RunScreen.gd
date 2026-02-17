@@ -10,8 +10,12 @@ signal status_updated
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
 @onready var choices_box: GridContainer = $Margin/Root/Choices
 @onready var navigation_box: HBoxContainer = $Margin/Root/Navigation
-@onready var status_label: Label = $Margin/Root/Bottom/StatusLabel
-@onready var exit_button: Button = $Margin/Root/Bottom/ExitRunButton
+@onready var status_label: Label = $Margin/Root/StatusLabel
+@onready var gear_button: Button = $GearButton
+@onready var gear_menu: PanelContainer = $GearMenu
+@onready var feedback_btn: Button = $GearMenu/MenuVBox/FeedbackBtn
+@onready var exit_run_btn: Button = $GearMenu/MenuVBox/ExitRunBtn
+@onready var close_menu_btn: Button = $GearMenu/MenuVBox/CloseMenuBtn
 @onready var background: ColorRect = $Background
 @onready var background_image: TextureRect = $BackgroundImage
 @onready var silhouette_rect: TextureRect = $SilhouetteRect
@@ -42,8 +46,10 @@ var text_speed: TypewriterEffect.Speed = TypewriterEffect.Speed.NORMAL
 var waiting_for_text: bool = false
 
 
+signal feedback_requested(data: Dictionary)
+
 func _ready() -> void:
-	exit_button.pressed.connect(_on_exit_run)
+	_setup_gear_menu()
 	_setup_typewriter()
 	_apply_theme()
 	_update_texts()
@@ -59,7 +65,7 @@ func _on_locale_changed(_locale: String) -> void:
 
 
 func _update_texts() -> void:
-	exit_button.text = LocaleManager.t("ui.run_exit")
+	pass
 
 
 func _setup_typewriter() -> void:
@@ -79,13 +85,22 @@ func _apply_theme() -> void:
 		background_image.texture = null
 		background.color = ThemeManager.get_background_color()
 	
-	# Style exit button
-	var normal := UITheme.create_button_stylebox(Color(0.35, 0.2, 0.2, 0.9))
-	var hover := UITheme.create_button_stylebox(Color(0.45, 0.25, 0.25, 0.95))
-	var pressed := UITheme.create_button_stylebox(Color(0.3, 0.15, 0.15, 1.0))
-	exit_button.add_theme_stylebox_override("normal", normal)
-	exit_button.add_theme_stylebox_override("hover", hover)
-	exit_button.add_theme_stylebox_override("pressed", pressed)
+	# Style gear button
+	gear_button.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 0.6))
+	var gear_normal := UITheme.create_button_stylebox(Color(0.1, 0.1, 0.15, 0.5))
+	gear_button.add_theme_stylebox_override("normal", gear_normal)
+	
+	# Style gear menu
+	var menu_style := StyleBoxFlat.new()
+	menu_style.bg_color = Color(0.1, 0.1, 0.15, 0.95)
+	menu_style.set_corner_radius_all(8)
+	menu_style.set_border_width_all(1)
+	menu_style.border_color = ThemeManager.get_accent_color() * Color(1, 1, 1, 0.3)
+	menu_style.content_margin_left = 8
+	menu_style.content_margin_right = 8
+	menu_style.content_margin_top = 8
+	menu_style.content_margin_bottom = 8
+	gear_menu.add_theme_stylebox_override("panel", menu_style)
 	
 	# Style location panel
 	var location_panel: PanelContainer = $Margin/Root/LocationPanel
@@ -502,7 +517,44 @@ func _on_run_defeat() -> void:
 	run_ended.emit(GameState.last_run_score, false)
 
 
+func _setup_gear_menu() -> void:
+	gear_button.pressed.connect(_toggle_gear_menu)
+	feedback_btn.pressed.connect(_on_feedback)
+	exit_run_btn.pressed.connect(_on_exit_run)
+	close_menu_btn.pressed.connect(_toggle_gear_menu)
+
+
+func _toggle_gear_menu() -> void:
+	gear_menu.visible = not gear_menu.visible
+
+
+func _on_feedback() -> void:
+	gear_menu.visible = false
+	var data := {
+		"screen": "RunScreen",
+		"world": GameState.selected_world_id,
+		"node_id": current_node.get("node_id", ""),
+		"node_name": current_node.get("name", ""),
+		"event_id": current_event.get("event_id", ""),
+		"event_type": current_event.get("type", ""),
+		"event_text": current_event.get("text", "")[:100],
+		"loop": GameState.loop_count,
+		"truth_stage": GameState.get_truth_stage(),
+		"hp": GameState.hp,
+		"max_hp": GameState.max_hp,
+		"gold": GameState.gold,
+		"job": GameState.current_job,
+		"depth": GameState.run_depth,
+		"kills": GameState.run_kills,
+		"flags": GameState.memory_flags.keys(),
+		"traits": GameState.get_dominant_traits(5),
+		"cross_items": GameState.cross_link_items,
+	}
+	feedback_requested.emit(data)
+
+
 func _on_exit_run() -> void:
+	gear_menu.visible = false
 	GameState.apply_end_of_run(false)
 	run_ended.emit(GameState.last_run_score, false)
 

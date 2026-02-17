@@ -66,6 +66,7 @@ func _show_run() -> void:
 	run_screen_instance.run_ended.connect(_on_run_ended)
 	run_screen_instance.battle_requested.connect(_on_battle_requested)
 	run_screen_instance.status_updated.connect(_on_status_updated)
+	run_screen_instance.feedback_requested.connect(_on_feedback_requested)
 	
 	# Show status bar during runs
 	status_bar.show_bar()
@@ -181,3 +182,34 @@ func _on_battle_ended(result: String) -> void:
 
 func _on_status_updated() -> void:
 	status_bar.update_status()
+
+
+func _on_feedback_requested(data: Dictionary) -> void:
+	# Save feedback to user://feedback/ directory
+	var dir := DirAccess.open("user://")
+	if not dir.dir_exists("feedback"):
+		dir.make_dir("feedback")
+	
+	var timestamp: String = Time.get_datetime_string_from_system().replace(":", "-")
+	var path: String = "user://feedback/fb_%s.json" % timestamp
+	
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file != null:
+		file.store_string(JSON.stringify(data, "\t"))
+		file.close()
+		print("Feedback saved: %s" % path)
+	
+	# Show brief confirmation overlay
+	var label := Label.new()
+	label.text = "📝 フィードバック保存しました"
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5))
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.anchors_preset = Control.PRESET_CENTER_BOTTOM
+	label.position.y -= 60
+	add_child(label)
+	
+	var tween: Tween = create_tween()
+	tween.tween_interval(1.5)
+	tween.tween_property(label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(label.queue_free)
