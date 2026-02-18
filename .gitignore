@@ -22,3 +22,4 @@ libgodot.a
 
 # Credentials
 backend/credentials/
+backend/api/node_modules/
