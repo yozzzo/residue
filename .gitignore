@@ -11,3 +11,14 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+build/
+*.xcarchive/
+*.ipa
+
+# Large binaries
+libgodot.a
+
+# Credentials
+backend/credentials/
