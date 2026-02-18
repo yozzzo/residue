@@ -77,6 +77,7 @@ var enemies: Dictionary = {}
 var node_maps: Dictionary = {}
 var jobs: Dictionary = {}  # Phase 3: job_id -> job_data
 var cross_links: Array = []  # Phase 3: List of cross-link definitions
+var content_is_empty: bool = false  # True if both local and API data are empty
 var _save_service := SAVE_SERVICE.new()
 
 
@@ -98,10 +99,14 @@ func _on_api_content_loaded(data: Dictionary) -> void:
 	if data.is_empty():
 		print("[GameState] API fetch failed, using local JSON fallback")
 		content_loaded_from_api = false
+		# If local data is also empty, flag it
+		if content_is_empty:
+			push_warning("[GameState] Both API and local data are empty!")
 		return
 
 	print("[GameState] API content loaded successfully")
 	content_loaded_from_api = true
+	content_is_empty = false
 
 	# Apply worlds
 	if data.has("worlds") and data["worlds"] is Array:
@@ -137,6 +142,14 @@ func _load_content_local() -> void:
 	_load_node_maps()
 	_load_jobs()
 	_load_cross_links()
+	# Check if local data is effectively empty (skeleton JSONs)
+	var has_nodes: bool = false
+	for wid: String in node_maps.keys():
+		var map: Dictionary = node_maps[wid]
+		if map.get("nodes", []).size() > 0:
+			has_nodes = true
+			break
+	content_is_empty = (events_by_world.is_empty() and enemies.is_empty() and not has_nodes)
 
 
 func load_content() -> void:

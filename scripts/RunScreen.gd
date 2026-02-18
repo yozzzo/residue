@@ -147,11 +147,24 @@ var _last_known_truth_stage: int = 0
 
 
 func _start_run() -> void:
+	# Check for empty content (no data from API or local)
+	if GameState.content_is_empty and not GameState.content_loaded_from_api:
+		_show_data_error()
+		return
 	if not skip_start_new_run:
 		GameState.start_new_run(GameState.selected_world_id)
 	_last_known_truth_stage = GameState.get_truth_stage()
 	_loop_start_shown = false
 	_load_node(GameState.run_current_node_id)
+
+
+func _show_data_error() -> void:
+	_clear_ui()
+	var text: String = "[b]データ読み込みエラー[/b]\n\nサーバーからデータを取得できませんでした。\nネットワーク接続を確認してください。"
+	body_text.text = text
+	var back_btn := UITheme.create_choice_button("戻る")
+	back_btn.pressed.connect(_on_exit_run)
+	choices_box.add_child(back_btn)
 
 
 func _load_node(node_id: String) -> void:
@@ -220,17 +233,23 @@ func _update_location_display() -> void:
 		node_name = current_node.get("name", "Unknown Location")
 	location_label.text = LocaleManager.t("ui.location", {"name": node_name})
 	
-	# Show available directions
+	# Show available directions/exits
 	var edges: Dictionary = current_node.get("edges", {})
 	var directions: Array = []
-	if edges.has("forward") and not str(edges["forward"]).is_empty():
-		directions.append(LocaleManager.t("ui.dir_forward"))
-	if edges.has("left") and not str(edges["left"]).is_empty():
-		directions.append(LocaleManager.t("ui.dir_left"))
-	if edges.has("right") and not str(edges["right"]).is_empty():
-		directions.append(LocaleManager.t("ui.dir_right"))
-	if edges.has("back") and not str(edges["back"]).is_empty():
-		directions.append(LocaleManager.t("ui.dir_back"))
+	var direction_keys := ["forward", "left", "right", "back"]
+	
+	for key: String in edges.keys():
+		var target: Variant = edges[key]
+		if target == null or (target is String and target.is_empty()):
+			continue
+		if direction_keys.has(key):
+			match key:
+				"forward": directions.append(LocaleManager.t("ui.dir_forward"))
+				"left": directions.append(LocaleManager.t("ui.dir_left"))
+				"right": directions.append(LocaleManager.t("ui.dir_right"))
+				"back": directions.append(LocaleManager.t("ui.dir_back"))
+		else:
+			directions.append(key)
 	
 	if direction_label != null:
 		if directions.size() > 0:
@@ -525,18 +544,29 @@ func _has_boss_enemy() -> bool:
 
 func _render_navigation_buttons() -> void:
 	var edges: Dictionary = current_node.get("edges", {})
-	
-	var directions := {
+	var direction_keys := ["forward", "left", "right", "back"]
+	var direction_labels := {
 		"forward": LocaleManager.t("ui.nav_forward"),
 		"left": LocaleManager.t("ui.nav_left"),
 		"right": LocaleManager.t("ui.nav_right"),
 		"back": LocaleManager.t("ui.nav_back")
 	}
 	
-	for dir: String in directions.keys():
-		var target_node: Variant = edges.get(dir)
-		if target_node != null and target_node is String and not target_node.is_empty():
-			var btn := UITheme.create_nav_button(directions[dir])
+	for key: String in edges.keys():
+		var target_node: Variant = edges[key]
+		if target_node == null or (target_node is String and target_node.is_empty()):
+			continue
+		
+		if direction_keys.has(key):
+			# Dungeon-style directional navigation
+			var btn := UITheme.create_nav_button(direction_labels[key])
+			btn.pressed.connect(_on_navigate.bind(str(target_node)))
+			navigation_box.add_child(btn)
+		else:
+			# Named edge — use key as label (skip self-referencing edges)
+			if str(target_node) == current_node.get("node_id", ""):
+				continue
+			var btn := UITheme.create_choice_button(key)
 			btn.pressed.connect(_on_navigate.bind(str(target_node)))
 			navigation_box.add_child(btn)
 	

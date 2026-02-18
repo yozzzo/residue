@@ -63,19 +63,86 @@ func _apply_theme() -> void:
 
 func _load_village_data() -> void:
 	var world_id: String = GameState.selected_world_id
+	
+	# Try to load from API data (village_npc events in events_by_world)
+	var api_village: Dictionary = _build_village_from_api(world_id)
+	if not api_village.is_empty():
+		village_data = api_village
+		return
+	
+	# Fallback to local JSON file
 	var path: String = "res://data/village/%s_village.json" % world_id
-	if not FileAccess.file_exists(path):
-		village_data = _get_default_village_data(world_id)
-		return
-	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		village_data = _get_default_village_data(world_id)
-		return
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if parsed is Dictionary:
-		village_data = parsed
-	else:
-		village_data = _get_default_village_data(world_id)
+	if FileAccess.file_exists(path):
+		var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+		if file != null:
+			var parsed: Variant = JSON.parse_string(file.get_as_text())
+			if parsed is Dictionary:
+				village_data = parsed
+				return
+	
+	# Ultimate fallback: embedded data
+	village_data = _get_default_village_data(world_id)
+
+
+func _build_village_from_api(world_id: String) -> Dictionary:
+	## Build village data from village_npc type events loaded via API
+	var events: Array = GameState.get_events_for_world(world_id)
+	var npcs: Array = []
+	
+	for event: Variant in events:
+		if event is not Dictionary:
+			continue
+		if event.get("type", "") != "village_npc":
+			continue
+		
+		# Extract NPC metadata from effects_json (stored in "effects" after transform)
+		var meta: Dictionary = event.get("effects", {})
+		var npc_id: String = meta.get("npc_id", event.get("event_id", ""))
+		var npc_name_ja: String = meta.get("npc_name_ja", "")
+		var npc_name_en: String = meta.get("npc_name_en", "")
+		var silhouette: String = meta.get("silhouette", event.get("speaker", ""))
+		
+		# reaction_slots contain the loop-dependent dialogues
+		var reaction_slots: Array = event.get("reaction_slots", [])
+		var dialogues: Array = []
+		for slot: Variant in reaction_slots:
+			if slot is not Dictionary:
+				continue
+			dialogues.append({
+				"text_ja": slot.get("text_ja", slot.get("text", "")),
+				"text_en": slot.get("text_en", ""),
+				"conditions": slot.get("conditions", {})
+			})
+		
+		if dialogues.is_empty():
+			# Use main text as single dialogue
+			dialogues.append({
+				"text_ja": event.get("text_ja", event.get("text", "")),
+				"text_en": event.get("text_en", ""),
+				"conditions": {}
+			})
+		
+		npcs.append({
+			"id": npc_id,
+			"name_ja": npc_name_ja,
+			"name_en": npc_name_en,
+			"silhouette": silhouette,
+			"dialogues": dialogues
+		})
+	
+	if npcs.is_empty():
+		return {}
+	
+	# Build village description from world setting
+	var world: Dictionary = GameState.get_world_by_id(world_id)
+	var desc_ja: String = world.get("blurb_ja", world.get("blurb", ""))
+	var desc_en: String = world.get("blurb_en", "")
+	
+	return {
+		"description_ja": desc_ja,
+		"description_en": desc_en,
+		"npcs": npcs
+	}
 
 
 func _get_default_village_data(world_id: String) -> Dictionary:
