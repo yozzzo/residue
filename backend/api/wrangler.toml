@@ -1,0 +1,15 @@
+name = "residue-api"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "residue-db"
+database_id = "40808794-5ab4-4cea-9a04-f0eacc6dc7d7"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "residue-shared"
