@@ -14,7 +14,6 @@
     "unlock": "Unlock",
     "unlock_cost": "Unlock: {cost} Soul",
     "unlocked_notification": "✦ {name} Unlocked ✦",
-    
     "world_select": "Choose Your World",
     "job_select": "Choose Your Path",
     "world_label": "World: {name}",
@@ -26,7 +25,6 @@
     "other_world": "Foreign: {world}",
     "other_world_mark": "Foreign",
     "special_ability": "Ability: {name}",
-    
     "run_header": "{world} | {job}{foreign} | Loop {loop} | Truth {truth}",
     "foreign_indicator": " [Foreign]",
     "location": "📍 {name}",
@@ -46,7 +44,6 @@
     "run_exit": "End Run",
     "node_missing": "This place does not exist.",
     "node_missing_hint": "Check world data.",
-    
     "status_hp": "HP: {current}/{max}",
     "status_gold": "Gold: {amount}",
     "status_depth": "Depth: {depth}",
@@ -54,7 +51,6 @@
     "status_traits": "Traits: {traits}",
     "status_items": "Items: {items}",
     "status_full": "HP: {hp}/{maxhp} | Gold: {gold} | Depth: {depth} | Kills: {kills}",
-    
     "battle_header": "Battle — {enemy} [{job}]",
     "battle_enemy_appears": "{name} appears!",
     "battle_attack": "Attack",
@@ -83,8 +79,6 @@
     "battle_player_status": "HP {hp}/{maxhp}{atk}{def} | Gold: {gold}",
     "battle_atk_bonus": " (ATK+{bonus})",
     "battle_def_bonus": " (DEF+{bonus})",
-    "battle_defend_log": "→ Brace for impact",
-    
     "inheritance_header": "Inheritance",
     "inheritance_run_end": "Loop {loop} Complete",
     "inheritance_soul_gain": "Soul Gained: {amount}",
@@ -104,9 +98,16 @@
     "inheritance_tag_boost_desc": "+5 to \"{tag}\" tag next loop",
     "inheritance_memory_hint": "Memory Fragment",
     "inheritance_memory_hint_desc": "Additional hints appear next loop",
-    
     "lang_toggle": "🇺🇸",
-    "lang_toggle_alt": "🇯🇵"
+    "lang_toggle_alt": "🇯🇵",
+    "status_full_turn": "HP: {hp}/{maxhp} | Gold: {gold} | Turn: {turn}/{maxturn} | Depth: {depth} | Kills: {kills}",
+    "trap_damage": "⚠ Trap! [color=#ff6060]{damage}[/color] damage taken.",
+    "turn_limit_boss": "⚡ The world creaks. Time runs short. The path to the depths opens——",
+    "proceed_boss": "Go to the depths",
+    "random_encounter": "⚔ Something appears!",
+    "effect_heal": "[color=#60ff60]+{value} HP healed[/color]",
+    "effect_damage": "[color=#ff6060]-{value} damage[/color]",
+    "effect_gold": "[color=#ffdd60]+{value} Gold[/color]"
   },
   "memory_flags": {
     "mayor_basement_seen": "The Mayor's Cellar",

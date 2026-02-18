@@ -13,7 +13,13 @@
         "right": null,
         "back": null
       },
-      "event_ids": ["m_e01", "m_foreign_cyborg_01"]
+      "event_ids": [
+        "m_e01",
+        "m_foreign_cyborg_01"
+      ],
+      "enemy_ids": [
+        "m_crawling_shade"
+      ]
     },
     {
       "node_id": "m_n02",
@@ -26,7 +32,11 @@
         "right": null,
         "back": "m_n01"
       },
-      "event_ids": ["m_e02", "m_e02b"]
+      "event_ids": [
+        "m_e02",
+        "m_e02b"
+      ],
+      "enemy_ids": []
     },
     {
       "node_id": "m_n03",
@@ -39,7 +49,13 @@
         "right": "m_n06",
         "back": "m_n02"
       },
-      "event_ids": ["m_e03", "m_foreign_cyborg_02"]
+      "event_ids": [
+        "m_e03",
+        "m_foreign_cyborg_02"
+      ],
+      "enemy_ids": [
+        "m_hollow_guard"
+      ]
     },
     {
       "node_id": "m_n04",
@@ -52,8 +68,12 @@
         "right": null,
         "back": "m_n02"
       },
-      "event_ids": ["m_e04"],
-      "enemy_ids": ["m_hollow_guard"]
+      "event_ids": [
+        "m_e04"
+      ],
+      "enemy_ids": [
+        "m_hollow_guard"
+      ]
     },
     {
       "node_id": "m_n05",
@@ -66,7 +86,13 @@
         "right": null,
         "back": "m_n03"
       },
-      "event_ids": ["m_e05"]
+      "event_ids": [
+        "m_e05"
+      ],
+      "enemy_ids": [
+        "m_crawling_shade",
+        "m_hollow_guard"
+      ]
     },
     {
       "node_id": "m_n06",
@@ -80,7 +106,9 @@
         "back": "m_n03"
       },
       "event_ids": [],
-      "enemy_ids": ["m_crawling_shade"]
+      "enemy_ids": [
+        "m_crawling_shade"
+      ]
     },
     {
       "node_id": "m_n07",
@@ -93,7 +121,13 @@
         "right": null,
         "back": "m_n04"
       },
-      "event_ids": ["m_e06"]
+      "event_ids": [
+        "m_e06"
+      ],
+      "enemy_ids": [
+        "m_bone_collector",
+        "m_cursed_monk"
+      ]
     },
     {
       "node_id": "m_n08",
@@ -106,8 +140,13 @@
         "right": null,
         "back": "m_n05"
       },
-      "event_ids": ["m_cross_cipher_delivery", "m_cross_cipher_revelation"],
-      "enemy_ids": ["m_cursed_monk"]
+      "event_ids": [
+        "m_cross_cipher_delivery",
+        "m_cross_cipher_revelation"
+      ],
+      "enemy_ids": [
+        "m_cursed_monk"
+      ]
     },
     {
       "node_id": "m_n09",
@@ -121,7 +160,9 @@
         "back": "m_n07"
       },
       "event_ids": [],
-      "enemy_ids": ["m_bone_collector"]
+      "enemy_ids": [
+        "m_bone_collector"
+      ]
     },
     {
       "node_id": "m_n10",
@@ -134,7 +175,12 @@
         "right": "m_n09",
         "back": "m_n08"
       },
-      "event_ids": ["m_e07"]
+      "event_ids": [
+        "m_e07"
+      ],
+      "enemy_ids": [
+        "m_cursed_monk"
+      ]
     },
     {
       "node_id": "m_n11",
@@ -147,7 +193,12 @@
         "right": null,
         "back": "m_n09"
       },
-      "event_ids": ["m_e08"]
+      "event_ids": [
+        "m_e08"
+      ],
+      "enemy_ids": [
+        "m_bone_collector"
+      ]
     },
     {
       "node_id": "m_n12",
@@ -160,8 +211,13 @@
         "right": null,
         "back": "m_n11"
       },
-      "event_ids": ["m_e_boss", "m_e_residue_reveal"],
-      "enemy_ids": ["m_boss_sealed_bishop"]
+      "event_ids": [
+        "m_e_boss",
+        "m_e_residue_reveal"
+      ],
+      "enemy_ids": [
+        "m_boss_sealed_bishop"
+      ]
     }
   ]
 }

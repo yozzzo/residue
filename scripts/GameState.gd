@@ -49,6 +49,9 @@ var run_discoveries: int = 0
 var run_nodes_visited: int = 0
 var run_is_clear: bool = false
 var run_is_foreign_job: bool = false  # Phase 3: Using job from different world
+var run_turn_count: int = 0  # Phase 5: Turn counter
+
+const MAX_TURNS: int = 30
 
 # Data caches
 var worlds: Array = []
@@ -318,6 +321,7 @@ func start_new_run(world_id: String) -> void:
 	run_discoveries = 0
 	run_nodes_visited = 0
 	run_is_clear = false
+	run_turn_count = 0
 	
 	# Phase 3: Check if using foreign job
 	run_is_foreign_job = is_foreign_job(current_job, world_id)
@@ -612,6 +616,33 @@ func record_discovery() -> void:
 
 func record_node_visit() -> void:
 	run_nodes_visited += 1
+	run_turn_count += 1
+
+
+func is_turn_limit_reached() -> bool:
+	return run_turn_count >= MAX_TURNS
+
+
+func get_random_enemy_for_world(world_id: String) -> String:
+	## Return a random non-boss enemy_id for the given world prefix
+	var prefix: String = "m_" if world_id == "medieval" else "f_"
+	var candidates: Array = []
+	for eid: String in enemies.keys():
+		if eid.begins_with(prefix) and not eid.contains("boss"):
+			candidates.append(eid)
+	if candidates.is_empty():
+		return ""
+	return candidates[randi() % candidates.size()]
+
+
+func get_boss_node_id(world_id: String) -> String:
+	## Find the boss node for a world
+	var map: Dictionary = get_node_map(world_id)
+	var nodes: Array = map.get("nodes", [])
+	for node: Variant in nodes:
+		if node is Dictionary and node.get("node_type", "") == "boss":
+			return node.get("node_id", "")
+	return ""
 
 
 func take_damage(amount: int) -> void:

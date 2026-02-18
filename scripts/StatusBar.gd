@@ -8,6 +8,7 @@ class_name StatusBar
 @onready var location_label: Label
 @onready var job_label: Label
 @onready var hp_bar: ProgressBar
+@onready var turn_label: Label
 
 var visible_in_game: bool = true
 
@@ -104,6 +105,22 @@ func _create_ui() -> void:
 	gold_label.text = "0"
 	gold_section.add_child(gold_label)
 	
+	# Turn section
+	var turn_section := HBoxContainer.new()
+	turn_section.add_theme_constant_override("separation", 6)
+	hbox.add_child(turn_section)
+	
+	var turn_icon := Label.new()
+	turn_icon.text = "⏳"
+	turn_icon.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
+	turn_section.add_child(turn_icon)
+	
+	turn_label = Label.new()
+	turn_label.name = "TurnLabel"
+	turn_label.add_theme_font_size_override("font_size", UITheme.FONT_STATUS)
+	turn_label.text = "0/30"
+	turn_section.add_child(turn_label)
+	
 	# Spacer
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -141,6 +158,9 @@ func update_status() -> void:
 	
 	# Gold
 	gold_label.text = str(GameState.run_gold)
+	
+	# Turn
+	turn_label.text = "%d/%d" % [GameState.run_turn_count, GameState.MAX_TURNS]
 	
 	# Job
 	var job: Dictionary = GameState.get_job_by_id(GameState.current_job)

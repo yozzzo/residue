@@ -29,7 +29,9 @@
       "defense": 1,
       "rewards": {
         "gold": 3,
-        "tags": ["shadow_slayer"]
+        "tags": [
+          "shadow_slayer"
+        ]
       }
     },
     {
@@ -77,7 +79,10 @@
       "defense": 8,
       "rewards": {
         "gold": 50,
-        "tags": ["bishop_slayer", "truth_seeker"]
+        "tags": [
+          "bishop_slayer",
+          "truth_seeker"
+        ]
       }
     },
     {
@@ -109,7 +114,9 @@
       "defense": 0,
       "rewards": {
         "gold": 6,
-        "tags": ["glitch_touched"]
+        "tags": [
+          "glitch_touched"
+        ]
       }
     },
     {
@@ -157,7 +164,74 @@
       "defense": 10,
       "rewards": {
         "gold": 60,
-        "tags": ["prophet_witness", "machine_breaker"]
+        "tags": [
+          "prophet_witness",
+          "machine_breaker"
+        ]
+      }
+    },
+    {
+      "enemy_id": "m_restless_villager",
+      "name": "Restless Villager",
+      "name_ja": "彷徨う村人",
+      "name_en": "Restless Villager",
+      "description": "A villager who forgot how to die. Wanders endlessly.",
+      "description_ja": "死に方を忘れた村人。終わりなく彷徨う。",
+      "description_en": "A villager who forgot how to die. Wanders endlessly.",
+      "hp": 35,
+      "attack": 9,
+      "defense": 4,
+      "rewards": {
+        "gold": 7,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "m_altar_wraith",
+      "name": "Altar Wraith",
+      "name_ja": "祭壇の亡霊",
+      "name_en": "Altar Wraith",
+      "description": "A spirit bound to the ruined altar. Lashes out at the living.",
+      "description_ja": "崩れた祭壇に縛られた霊。生者を拒む。",
+      "description_en": "A spirit bound to the ruined altar. Lashes out at the living.",
+      "hp": 40,
+      "attack": 11,
+      "defense": 3,
+      "rewards": {
+        "gold": 9,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "f_corrupted_drone",
+      "name": "Corrupted Drone",
+      "name_ja": "汚染ドローン",
+      "name_en": "Corrupted Drone",
+      "description": "A maintenance drone infected with residual data. Erratic and dangerous.",
+      "description_ja": "残留データに汚染された整備ドローン。挙動が不安定。",
+      "description_en": "A maintenance drone infected with residual data. Erratic and dangerous.",
+      "hp": 30,
+      "attack": 10,
+      "defense": 4,
+      "rewards": {
+        "gold": 6,
+        "tags": []
+      }
+    },
+    {
+      "enemy_id": "f_data_phantom",
+      "name": "Data Phantom",
+      "name_ja": "データの亡霊",
+      "name_en": "Data Phantom",
+      "description": "A deleted record given form. It remembers being erased.",
+      "description_ja": "消去された記録が形を得たもの。消された記憶を持つ。",
+      "description_en": "A deleted record given form. It remembers being erased.",
+      "hp": 45,
+      "attack": 13,
+      "defense": 3,
+      "rewards": {
+        "gold": 11,
+        "tags": []
       }
     }
   ]

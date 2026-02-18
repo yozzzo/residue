@@ -33,7 +33,13 @@
             "tags": [
               "bold",
               "reckless"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 5
+            },
+            "result_text": "門の仕掛けが作動し、石片が降り注ぐ。",
+            "result_text_en": "A trap triggers—stone fragments rain down."
           },
           {
             "label": "周囲を調べる",
@@ -42,7 +48,13 @@
               "cautious",
               "thorough"
             ],
-            "discovery": true
+            "discovery": true,
+            "effect": {
+              "type": "gold",
+              "value": 15
+            },
+            "result_text": "苔の下に古い金貨を見つけた。",
+            "result_text_en": "You find old coins beneath the moss."
           }
         ]
       },
@@ -79,7 +91,9 @@
             "tags": [
               "curious",
               "defiant"
-            ]
+            ],
+            "result_text": "老人は答えない。ただ目を逸らす。",
+            "result_text_en": "The old man looks away without answering."
           },
           {
             "label": "地下について尋ねる",
@@ -89,14 +103,26 @@
               "reckless"
             ],
             "discovery": true,
-            "sets_flag": "mayor_basement_asked"
+            "sets_flag": "mayor_basement_asked",
+            "effect": {
+              "type": "damage",
+              "value": 8
+            },
+            "result_text": "地下から冷気が這い上がり、体温を奪う。",
+            "result_text_en": "Cold air crawls up from below, draining your warmth."
           },
           {
             "label": "立ち去る",
             "score": 1,
             "tags": [
               "cautious"
-            ]
+            ],
+            "effect": {
+              "type": "heal",
+              "value": 5
+            },
+            "result_text": "距離を取り、息を整える。",
+            "result_text_en": "You step back and catch your breath."
           },
           {
             "label": "「あんたは誰だ？」と聞き返す",
@@ -105,7 +131,9 @@
               "curious",
               "empathetic"
             ],
-            "sets_flag": "aldus_name_asked"
+            "sets_flag": "aldus_name_asked",
+            "result_text": "老人の表情が僅かに和らぐ。",
+            "result_text_en": "The old man's expression softens slightly."
           }
         ],
         "speaker": "elder"
@@ -273,7 +301,13 @@
               "thorough"
             ],
             "discovery": true,
-            "sets_flag": "emblem_examined"
+            "sets_flag": "emblem_examined",
+            "effect": {
+              "type": "gold",
+              "value": 10
+            },
+            "result_text": "紋章の裏から宝飾品が落ちた。",
+            "result_text_en": "A jeweled trinket falls from behind the emblem."
           },
           {
             "label": "祭壇に祈る",
@@ -281,14 +315,22 @@
             "tags": [
               "merciful",
               "obedient"
-            ]
+            ],
+            "effect": {
+              "type": "heal",
+              "value": 15
+            },
+            "result_text": "温かい光が傷を癒す。",
+            "result_text_en": "Warm light soothes your wounds."
           },
           {
             "label": "先へ進む",
             "score": 1,
             "tags": [
               "hasty"
-            ]
+            ],
+            "result_text": "振り返らずに歩き出す。",
+            "result_text_en": "You move on without looking back."
           }
         ]
       },
@@ -349,6 +391,12 @@
               "requires_job": "cyborg"
             },
             "text": "\n\n虚ろな目がお前の機械部品を見つめる。かつて人だったもの同士、通じ合うものがあるのか。"
+          },
+          {
+            "conditions": {
+              "requires_flag": "hollow_guard_spoken"
+            },
+            "text": "\n\n衛兵の眼窩に一瞬、光が戻る。「……地下に……あの子が……」そして再び虚ろに還った。"
           }
         ],
         "choices": [
@@ -382,28 +430,6 @@
             "sets_flag": "hollow_guard_spoken",
             "discovery": true
           }
-        ],
-        "reaction_slots": [
-          {
-            "conditions": {
-              "requires_tag": "merciful",
-              "tag_threshold": 5
-            },
-            "text": "\n\nその姿に、かつての人間を見る。救いはあるのか。"
-          },
-          {
-            "conditions": {
-              "requires_foreign_job": true,
-              "requires_job": "cyborg"
-            },
-            "text": "\n\n虚ろな目がお前の機械部品を見つめる。かつて人だったもの同士、通じ合うものがあるのか。"
-          },
-          {
-            "conditions": {
-              "requires_flag": "hollow_guard_spoken"
-            },
-            "text": "\n\n衛兵の眼窩に一瞬、光が戻る。「……地下に……あの子が……」そして再び虚ろに還った。"
-          }
         ]
       },
       {
@@ -434,7 +460,13 @@
               "fearless"
             ],
             "discovery": true,
-            "sets_flag": "well_peeked"
+            "sets_flag": "well_peeked",
+            "effect": {
+              "type": "damage",
+              "value": 12
+            },
+            "result_text": "覗き込んだ瞬間、何かに引き寄せられ頭を打つ。",
+            "result_text_en": "Something pulls you—you hit your head."
           },
           {
             "label": "応えない",
@@ -442,7 +474,13 @@
             "tags": [
               "cautious",
               "pragmatic"
-            ]
+            ],
+            "effect": {
+              "type": "heal",
+              "value": 5
+            },
+            "result_text": "声は消え、静けさが戻る。",
+            "result_text_en": "The voice fades. Silence returns."
           }
         ],
         "speaker": "unknown"
@@ -512,7 +550,13 @@
             "tags": [
               "bold",
               "fearless"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 10
+            },
+            "result_text": "階段で足を滑らせ、腕を擦りむく。",
+            "result_text_en": "You slip on the stairs and scrape your arm."
           },
           {
             "label": "手形を調べる",
@@ -521,7 +565,13 @@
               "thorough",
               "curious"
             ],
-            "discovery": true
+            "discovery": true,
+            "effect": {
+              "type": "gold",
+              "value": 20
+            },
+            "result_text": "手形の奥に隠された小部屋を発見。宝が眠っていた。",
+            "result_text_en": "Behind the handprints, a hidden alcove with treasure."
           }
         ]
       },
@@ -554,7 +604,13 @@
               "curious"
             ],
             "discovery": true,
-            "sets_flag": "seal_broken"
+            "sets_flag": "seal_broken",
+            "effect": {
+              "type": "damage",
+              "value": 15
+            },
+            "result_text": "封印が弾け、衝撃波が身体を貫く。",
+            "result_text_en": "The seal shatters—a shockwave pierces your body."
           },
           {
             "label": "封印を強化する",
@@ -564,14 +620,22 @@
               "cautious"
             ],
             "sets_flag": "seal_reinforced",
-            "discovery": true
+            "discovery": true,
+            "effect": {
+              "type": "heal",
+              "value": 10
+            },
+            "result_text": "紋章が光り、安堵の波が広がる。",
+            "result_text_en": "The emblem glows. A wave of relief."
           },
           {
             "label": "何もしない",
             "score": 1,
             "tags": [
               "pragmatic"
-            ]
+            ],
+            "result_text": "静かに立ち去る。",
+            "result_text_en": "You quietly leave."
           }
         ],
         "speaker": "elder"
@@ -646,7 +710,13 @@
               "thorough"
             ],
             "discovery": true,
-            "sets_flag": "tome_read"
+            "sets_flag": "tome_read",
+            "effect": {
+              "type": "gold",
+              "value": 25
+            },
+            "result_text": "書物の間に金貨が挟まっていた。",
+            "result_text_en": "Gold coins were pressed between the pages."
           },
           {
             "label": "書物を燃やす",
@@ -655,7 +725,13 @@
               "defiant",
               "reckless"
             ],
-            "sets_flag": "tome_burned"
+            "sets_flag": "tome_burned",
+            "effect": {
+              "type": "damage",
+              "value": 10
+            },
+            "result_text": "炎が異様に燃え上がり、手を焼く。",
+            "result_text_en": "The flames flare unnaturally, burning your hands."
           },
           {
             "label": "そのまま進む",
@@ -958,7 +1034,13 @@
             "tags": [
               "bold",
               "reckless"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 8
+            },
+            "result_text": "セキュリティレーザーが腕を掠める。",
+            "result_text_en": "A security laser grazes your arm."
           },
           {
             "label": "周囲のログを確認する",
@@ -967,7 +1049,13 @@
               "cautious",
               "thorough"
             ],
-            "discovery": true
+            "discovery": true,
+            "effect": {
+              "type": "gold",
+              "value": 15
+            },
+            "result_text": "ログの中に資源データの座標を発見。",
+            "result_text_en": "You find resource coordinates in the logs."
           }
         ]
       },
@@ -1004,7 +1092,9 @@
             "tags": [
               "obedient",
               "pragmatic"
-            ]
+            ],
+            "result_text": "システムがお前を受け入れる。",
+            "result_text_en": "The system accepts you."
           },
           {
             "label": "端末をハックする",
@@ -1014,14 +1104,26 @@
               "curious"
             ],
             "discovery": true,
-            "sets_flag": "terminal_hacked"
+            "sets_flag": "terminal_hacked",
+            "effect": {
+              "type": "gold",
+              "value": 20
+            },
+            "result_text": "ハック成功。機密データと共にクレジットを獲得。",
+            "result_text_en": "Hack successful. Credits and classified data obtained."
           },
           {
             "label": "無視して進む",
             "score": 1,
             "tags": [
               "hasty"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 5
+            },
+            "result_text": "セキュリティが反応し、電撃を受ける。",
+            "result_text_en": "Security responds with an electric shock."
           }
         ],
         "speaker": "cyborg"
@@ -1053,7 +1155,9 @@
               "thorough"
             ],
             "discovery": true,
-            "sets_flag": "diary_read"
+            "sets_flag": "diary_read",
+            "result_text": "N-06の記録が脳裏に焼き付く。",
+            "result_text_en": "N-06's records burn into your mind."
           },
           {
             "label": "データを消去する",
@@ -1061,7 +1165,13 @@
             "tags": [
               "cautious",
               "pragmatic"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 5
+            },
+            "result_text": "データ消去の反動で端末が爆発。",
+            "result_text_en": "The terminal explodes from the data purge."
           },
           {
             "label": "工具を回収する",
@@ -1069,7 +1179,13 @@
             "tags": [
               "greedy",
               "pragmatic"
-            ]
+            ],
+            "effect": {
+              "type": "gold",
+              "value": 25
+            },
+            "result_text": "工具の中に希少な部品を発見。",
+            "result_text_en": "You find rare parts among the tools."
           }
         ]
       },
@@ -1185,7 +1301,9 @@
               "thorough"
             ],
             "discovery": true,
-            "sets_flag": "tank_examined"
+            "sets_flag": "tank_examined",
+            "result_text": "培養槽の制御パネルにアクセスした。",
+            "result_text_en": "You access the tank's control panel."
           },
           {
             "label": "培養槽を破壊する",
@@ -1194,7 +1312,13 @@
               "defiant",
               "reckless",
               "cruel"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 12
+            },
+            "result_text": "ガラスの破片が手に刺さる。",
+            "result_text_en": "Glass shards cut into your hands."
           },
           {
             "label": "見なかったことにする",
@@ -1212,7 +1336,13 @@
               "empathetic"
             ],
             "sets_flag": "n06_mourned",
-            "discovery": true
+            "discovery": true,
+            "effect": {
+              "type": "heal",
+              "value": 10
+            },
+            "result_text": "弔いの静けさが、心を落ち着かせる。",
+            "result_text_en": "The stillness of mourning calms your heart."
           }
         ]
       },
@@ -1243,7 +1373,13 @@
               "bold",
               "defiant",
               "fearless"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 10
+            },
+            "result_text": "コアへの道は険しく、身体を削る。",
+            "result_text_en": "The path to the core is harsh on your body."
           },
           {
             "label": "メッセージを解読する",
@@ -1253,7 +1389,13 @@
               "curious"
             ],
             "discovery": true,
-            "sets_flag": "shelter_message_read"
+            "sets_flag": "shelter_message_read",
+            "effect": {
+              "type": "gold",
+              "value": 15
+            },
+            "result_text": "メッセージの暗号に隠された座標を解読。",
+            "result_text_en": "You decode coordinates hidden in the message."
           },
           {
             "label": "引き返す",
@@ -1293,7 +1435,13 @@
               "reckless",
               "fearless",
               "defiant"
-            ]
+            ],
+            "effect": {
+              "type": "damage",
+              "value": 15
+            },
+            "result_text": "警告を無視した代償。身体が軋む。",
+            "result_text_en": "The cost of ignoring warnings. Your body creaks."
           },
           {
             "label": "システムと対話する",
@@ -1303,7 +1451,13 @@
               "empathetic"
             ],
             "discovery": true,
-            "sets_flag": "system_dialogue"
+            "sets_flag": "system_dialogue",
+            "effect": {
+              "type": "heal",
+              "value": 10
+            },
+            "result_text": "システムが修復プロトコルを起動してくれた。",
+            "result_text_en": "The system activates a repair protocol for you."
           }
         ]
       },

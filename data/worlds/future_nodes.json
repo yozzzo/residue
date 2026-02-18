@@ -13,7 +13,13 @@
         "right": null,
         "back": null
       },
-      "event_ids": ["f_e01", "f_foreign_knight_01"]
+      "event_ids": [
+        "f_e01",
+        "f_foreign_knight_01"
+      ],
+      "enemy_ids": [
+        "f_drone_swarm"
+      ]
     },
     {
       "node_id": "f_n02",
@@ -26,7 +32,12 @@
         "right": null,
         "back": "f_n01"
       },
-      "event_ids": ["f_e02"]
+      "event_ids": [
+        "f_e02"
+      ],
+      "enemy_ids": [
+        "f_drone_swarm"
+      ]
     },
     {
       "node_id": "f_n03",
@@ -40,7 +51,9 @@
         "back": "f_n02"
       },
       "event_ids": [],
-      "enemy_ids": ["f_drone_swarm"]
+      "enemy_ids": [
+        "f_drone_swarm"
+      ]
     },
     {
       "node_id": "f_n04",
@@ -53,7 +66,12 @@
         "right": null,
         "back": "f_n02"
       },
-      "event_ids": ["f_e03"]
+      "event_ids": [
+        "f_e03"
+      ],
+      "enemy_ids": [
+        "f_rusted_sentinel"
+      ]
     },
     {
       "node_id": "f_n05",
@@ -66,7 +84,14 @@
         "right": null,
         "back": "f_n03"
       },
-      "event_ids": ["f_e04", "f_cross_quantum_delivery", "f_cross_quantum_revelation"]
+      "event_ids": [
+        "f_e04",
+        "f_cross_quantum_delivery",
+        "f_cross_quantum_revelation"
+      ],
+      "enemy_ids": [
+        "f_memory_glitch"
+      ]
     },
     {
       "node_id": "f_n06",
@@ -80,7 +105,9 @@
         "back": "f_n03"
       },
       "event_ids": [],
-      "enemy_ids": ["f_memory_glitch"]
+      "enemy_ids": [
+        "f_memory_glitch"
+      ]
     },
     {
       "node_id": "f_n07",
@@ -94,7 +121,9 @@
         "back": "f_n04"
       },
       "event_ids": [],
-      "enemy_ids": ["f_rusted_sentinel"]
+      "enemy_ids": [
+        "f_rusted_sentinel"
+      ]
     },
     {
       "node_id": "f_n08",
@@ -107,7 +136,14 @@
         "right": null,
         "back": "f_n05"
       },
-      "event_ids": ["f_e05", "f_foreign_knight_02"]
+      "event_ids": [
+        "f_e05",
+        "f_foreign_knight_02"
+      ],
+      "enemy_ids": [
+        "f_echo_hunter",
+        "f_memory_glitch"
+      ]
     },
     {
       "node_id": "f_n09",
@@ -120,7 +156,12 @@
         "right": null,
         "back": "f_n07"
       },
-      "event_ids": ["f_e06"]
+      "event_ids": [
+        "f_e06"
+      ],
+      "enemy_ids": [
+        "f_rusted_sentinel"
+      ]
     },
     {
       "node_id": "f_n10",
@@ -134,7 +175,9 @@
         "back": "f_n08"
       },
       "event_ids": [],
-      "enemy_ids": ["f_echo_hunter"]
+      "enemy_ids": [
+        "f_echo_hunter"
+      ]
     },
     {
       "node_id": "f_n11",
@@ -147,7 +190,13 @@
         "right": null,
         "back": "f_n09"
       },
-      "event_ids": ["f_e07", "f_foreign_knight_03"]
+      "event_ids": [
+        "f_e07",
+        "f_foreign_knight_03"
+      ],
+      "enemy_ids": [
+        "f_echo_hunter"
+      ]
     },
     {
       "node_id": "f_n12",
@@ -160,8 +209,13 @@
         "right": null,
         "back": "f_n11"
       },
-      "event_ids": ["f_e_boss", "f_e_residue_reveal"],
-      "enemy_ids": ["f_boss_core_prophet"]
+      "event_ids": [
+        "f_e_boss",
+        "f_e_residue_reveal"
+      ],
+      "enemy_ids": [
+        "f_boss_core_prophet"
+      ]
     }
   ]
 }

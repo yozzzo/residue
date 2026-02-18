@@ -39,6 +39,7 @@ var current_event: Dictionary = {}
 var event_index: int = 0
 var pending_battle_enemy: String = ""
 var node_event_queue: Array = []
+var showing_effect_result: bool = false
 
 # Phase 4: Typewriter effect
 var typewriter: TypewriterEffect
@@ -152,6 +153,29 @@ func _load_node(node_id: String) -> void:
 	GameState.run_current_node_id = node_id
 	GameState.record_node_visit()
 	event_index = 0
+	
+	# Check turn limit
+	if GameState.is_turn_limit_reached():
+		_on_turn_limit_reached()
+		return
+	
+	# Random trap damage on exploration (15% chance, 5-15 damage)
+	if randf() < 0.15 and current_node.get("node_type", "") != "boss":
+		var trap_dmg: int = randi_range(5, 15)
+		GameState.take_damage(trap_dmg)
+		_show_trap_message(trap_dmg)
+		if GameState.is_player_dead():
+			_on_run_defeat()
+			return
+	
+	# Random encounter (30% chance on non-battle, non-boss nodes)
+	var node_type: String = current_node.get("node_type", "explore")
+	if node_type != "battle" and node_type != "boss" and randf() < 0.30:
+		var random_enemy: String = GameState.get_random_enemy_for_world(GameState.selected_world_id)
+		if not random_enemy.is_empty():
+			pending_battle_enemy = random_enemy
+			battle_requested.emit(random_enemy)
+			return
 	
 	# Build event queue, filtering by conditions
 	node_event_queue = _build_event_queue()
@@ -380,6 +404,22 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	var score := int(choice.get("score", 0))
 	# Score is now handled by soul calculation
 	
+	# Phase 5: Apply effect from choice
+	var effect: Variant = choice.get("effect")
+	if effect != null and effect is Dictionary:
+		_apply_choice_effect(effect)
+		if GameState.is_player_dead():
+			_on_run_defeat()
+			return
+	
+	# Legacy: Apply direct damage field
+	var damage: Variant = choice.get("damage")
+	if damage != null:
+		GameState.take_damage(int(damage))
+		if GameState.is_player_dead():
+			_on_run_defeat()
+			return
+	
 	# Phase 2: Apply trait tags from choice
 	var tags: Variant = choice.get("tags")
 	if tags != null and tags is Array:
@@ -417,6 +457,16 @@ func _on_choice_selected(choice: Dictionary) -> void:
 		var enemy_id: String = choice["start_battle"]
 		pending_battle_enemy = enemy_id
 		battle_requested.emit(enemy_id)
+		return
+	
+	# Check if effect triggered a battle
+	if effect != null and effect is Dictionary and str(effect.get("type", "")) == "battle":
+		return  # battle_requested already emitted
+	
+	# Show result text if available, then proceed
+	var result_text: String = _get_result_text(choice)
+	if not result_text.is_empty():
+		_show_result_then_proceed(result_text)
 		return
 	
 	# Move to next event or navigation
@@ -464,6 +514,65 @@ func _complete_cross_link_with_notification(link_id: String) -> void:
 		link_name,
 		rewards.get("truth_stage_bonus", 0)
 	])
+
+
+func _get_result_text(choice: Dictionary) -> String:
+	var key: String = "result_text_ja" if LocaleManager.current_locale == "ja" else "result_text_en"
+	var text: String = choice.get(key, "")
+	if text.is_empty():
+		text = choice.get("result_text", "")
+	
+	# Append effect feedback
+	var eff: Variant = choice.get("effect")
+	if eff != null and eff is Dictionary:
+		var etype: String = str(eff.get("type", ""))
+		var val: int = int(eff.get("value", 0))
+		if etype == "heal" and val > 0:
+			text += "\n" + LocaleManager.t("ui.effect_heal", {"value": val})
+		elif etype == "damage" and val > 0:
+			text += "\n" + LocaleManager.t("ui.effect_damage", {"value": val})
+		elif etype == "gold" and val > 0:
+			text += "\n" + LocaleManager.t("ui.effect_gold", {"value": val})
+	
+	var dmg: Variant = choice.get("damage")
+	if dmg != null and int(dmg) > 0:
+		text += "\n" + LocaleManager.t("ui.effect_damage", {"value": int(dmg)})
+	
+	return text
+
+
+func _show_result_then_proceed(result_text: String) -> void:
+	_clear_ui()
+	waiting_for_text = true
+	typewriter.display_text(result_text, TypewriterEffect.Speed.FAST)
+	
+	var continue_btn := UITheme.create_choice_button(LocaleManager.t("ui.nav_forward"))
+	continue_btn.pressed.connect(func() -> void:
+		event_index += 1
+		status_updated.emit()
+		_process_node()
+	)
+	choices_box.add_child(continue_btn)
+
+
+func _apply_choice_effect(effect: Dictionary) -> void:
+	var effect_type: String = str(effect.get("type", ""))
+	match effect_type:
+		"heal":
+			var value: int = int(effect.get("value", 0))
+			GameState.heal(value)
+		"damage":
+			var value: int = int(effect.get("value", 0))
+			GameState.take_damage(value)
+		"gold":
+			var value: int = int(effect.get("value", 0))
+			GameState.add_gold(value)
+		"battle":
+			var enemy_id: String = str(effect.get("enemy_id", ""))
+			if not enemy_id.is_empty():
+				pending_battle_enemy = enemy_id
+				battle_requested.emit(enemy_id)
+	status_updated.emit()
 
 
 func _on_flee_choice() -> void:
@@ -559,6 +668,28 @@ func _on_exit_run() -> void:
 	run_ended.emit(GameState.last_run_score, false)
 
 
+func _show_trap_message(damage: int) -> void:
+	_clear_ui()
+	var text: String = LocaleManager.t("ui.trap_damage", {"damage": damage})
+	typewriter.display_text(text, TypewriterEffect.Speed.FAST)
+	status_updated.emit()
+
+
+func _on_turn_limit_reached() -> void:
+	var boss_node: String = GameState.get_boss_node_id(GameState.selected_world_id)
+	if not boss_node.is_empty() and boss_node != current_node.get("node_id", ""):
+		# Force move to boss
+		_clear_ui()
+		var text: String = LocaleManager.t("ui.turn_limit_boss")
+		typewriter.display_text(text, TypewriterEffect.Speed.NORMAL)
+		# Add button to proceed to boss
+		var btn := UITheme.create_primary_button(LocaleManager.t("ui.proceed_boss"))
+		btn.pressed.connect(_load_node.bind(boss_node))
+		choices_box.add_child(btn)
+	else:
+		_on_run_defeat()
+
+
 func _show_fallback_event() -> void:
 	_clear_ui()
 	var text: String = "[b]%s[/b]\n\n%s" % [
@@ -622,12 +753,14 @@ func _update_status() -> void:
 		items_text = " | %s" % LocaleManager.t("ui.status_items", {"items": ", ".join(item_names)})
 	
 	status_label.text = "%s%s%s" % [
-		LocaleManager.t("ui.status_full", {
+		LocaleManager.t("ui.status_full_turn", {
 			"hp": GameState.run_hp,
 			"maxhp": GameState.run_max_hp,
 			"gold": GameState.run_gold,
 			"depth": GameState.run_nodes_visited,
-			"kills": GameState.run_kills
+			"kills": GameState.run_kills,
+			"turn": GameState.run_turn_count,
+			"maxturn": GameState.MAX_TURNS
 		}),
 		traits_text,
 		items_text

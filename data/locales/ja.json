@@ -99,7 +99,15 @@
     "inheritance_memory_hint": "記憶の断片",
     "inheritance_memory_hint_desc": "次周で追加のヒントが出現",
     "lang_toggle": "🇯🇵",
-    "lang_toggle_alt": "🇺🇸"
+    "lang_toggle_alt": "🇺🇸",
+    "status_full_turn": "HP: {hp}/{maxhp} | Gold: {gold} | ターン: {turn}/{maxturn} | 深度: {depth} | 討伐: {kills}",
+    "trap_damage": "⚠ トラップ発動！ [color=#ff6060]{damage}[/color] ダメージを受けた。",
+    "turn_limit_boss": "⚡ 世界が軋む。時間の終わりが近い。最奥への道が開かれる——",
+    "proceed_boss": "最奥へ向かう",
+    "random_encounter": "⚔ 何かが現れた！",
+    "effect_heal": "[color=#60ff60]+{value} HP回復[/color]",
+    "effect_damage": "[color=#ff6060]-{value} ダメージ[/color]",
+    "effect_gold": "[color=#ffdd60]+{value} Gold[/color]"
   },
   "memory_flags": {
     "mayor_basement_seen": "村長の地下",
