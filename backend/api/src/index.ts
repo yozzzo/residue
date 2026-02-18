@@ -6,6 +6,8 @@ import { enemiesRoutes } from './routes/enemies';
 import { jobsRoutes } from './routes/jobs';
 import { runsRoutes } from './routes/runs';
 import { turnsRoutes } from './routes/turns';
+import { eventsRoutes } from './routes/events';
+import { actionsRoutes } from './routes/actions';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -24,6 +26,8 @@ app.route('/api/v1', enemiesRoutes);
 app.route('/api/v1', jobsRoutes);
 app.route('/api/v1', runsRoutes);
 app.route('/api/v1', turnsRoutes);
+app.route('/api/v1', eventsRoutes);
+app.route('/api/v1', actionsRoutes);
 
 app.notFound((c) => c.json({ error: 'Not Found' }, 404));
 

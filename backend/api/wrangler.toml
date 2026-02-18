@@ -10,6 +10,9 @@ binding = "DB"
 database_name = "residue-db"
 database_id = "40808794-5ab4-4cea-9a04-f0eacc6dc7d7"
 
+[ai]
+binding = "AI"
+
 [[r2_buckets]]
 binding = "ASSETS"
 bucket_name = "residue-shared"

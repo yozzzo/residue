@@ -250,6 +250,71 @@ func _transform_node(row: Dictionary) -> Dictionary:
 	}
 
 
+# --- Dynamic Story Generation API ---
+
+func resolve_event(world_id: String, node_id: String, player_id: String, truth_stage: int, traits: Array, flags: Array, callback: Callable) -> void:
+	var traits_str: String = ",".join(traits)
+	var flags_str: String = ",".join(flags)
+	var url: String = "%s/events/resolve?world_id=%s&node_id=%s&player_id=%s&truth_stage=%d&traits=%s&flags=%s" % [
+		API_BASE, world_id, node_id, player_id, truth_stage, traits_str, flags_str
+	]
+	var http := HTTPRequest.new()
+	http.timeout = 25.0  # LLM generation may take longer
+	add_child(http)
+	http.request_completed.connect(
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+			http.queue_free()
+			if result == HTTPRequest.RESULT_SUCCESS and code == 200:
+				var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
+				if parsed != null and parsed is Dictionary:
+					callback.call(parsed)
+					return
+			callback.call({})
+	)
+	http.request(url)
+
+
+func log_action(player_id: String, run_id: String, action_type: String, detail: Dictionary) -> void:
+	var url: String = API_BASE + "/actions/log"
+	var payload: Dictionary = {
+		"player_id": player_id,
+		"run_id": run_id,
+		"action_type": action_type,
+		"action_detail": detail,
+		"world_id": detail.get("world_id", ""),
+		"node_id": detail.get("node_id", ""),
+	}
+	var http := HTTPRequest.new()
+	http.timeout = 5.0
+	add_child(http)
+	http.request_completed.connect(
+		func(_result: int, _code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
+			http.queue_free()
+	)
+	http.request(url, [], HTTPClient.METHOD_POST, JSON.stringify(payload))
+
+
+func check_ending(player_id: String, world_id: String, flags: Array, truth_stage: int, hp_zero: bool, callback: Callable) -> void:
+	var flags_str: String = ",".join(flags)
+	var url: String = "%s/endings/check?player_id=%s&world_id=%s&flags=%s&truth_stage=%d&hp_zero=%s" % [
+		API_BASE, player_id, world_id, flags_str, truth_stage, "true" if hp_zero else "false"
+	]
+	var http := HTTPRequest.new()
+	http.timeout = 10.0
+	add_child(http)
+	http.request_completed.connect(
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+			http.queue_free()
+			if result == HTTPRequest.RESULT_SUCCESS and code == 200:
+				var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
+				if parsed != null and parsed is Dictionary:
+					callback.call(parsed)
+					return
+			callback.call({"endings": []})
+	)
+	http.request(url)
+
+
 func _parse_json_field(row: Dictionary, field: String, default_value: Variant) -> Variant:
 	var raw: Variant = row.get(field)
 	if raw == null or raw is bool:

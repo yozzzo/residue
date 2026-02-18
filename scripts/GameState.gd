@@ -11,6 +11,10 @@ const ApiClientScript := preload("res://scripts/ApiClient.gd")
 var _api_client: Node = null
 var content_loaded_from_api: bool = false
 
+# Build 18: Player ID (persistent, generated once)
+var player_id: String = ""
+var run_id: String = ""
+
 # Meta state (persistent across runs)
 var soul_points: int = 0
 var loop_count: int = 1
@@ -53,6 +57,9 @@ var seen_reactions: Dictionary = {}  # "event_id:slot_index" -> true
 # Phase 4: Locale setting (persistent)
 var saved_locale: String = "ja"
 
+# Build 18: Choice timing
+var choice_shown_at_ms: int = 0
+
 # Player run state (reset each run)
 var run_hp: int = 100
 var run_max_hp: int = 100
@@ -83,10 +90,24 @@ var _save_service := SAVE_SERVICE.new()
 
 func _ready() -> void:
 	load_persistent_state()
+	# Build 18: Generate player_id if not set
+	if player_id.is_empty():
+		player_id = _generate_uuid()
+		save_persistent_state()
 	# Load local content first as baseline (instant, synchronous)
 	_load_content_local()
 	# Then try API in background (async, will overwrite if successful)
 	_try_load_from_api()
+
+
+func _generate_uuid() -> String:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var parts: Array = []
+	for i: int in range(32):
+		parts.append("%x" % (rng.randi() % 16))
+	var hex: String = "".join(parts)
+	return "%s-%s-%s-%s-%s" % [hex.substr(0, 8), hex.substr(8, 4), hex.substr(12, 4), hex.substr(16, 4), hex.substr(20, 12)]
 
 
 func _try_load_from_api() -> void:
@@ -389,6 +410,7 @@ func check_and_acquire_cross_link_items() -> Array:
 # Run lifecycle
 func start_new_run(world_id: String) -> void:
 	selected_world_id = world_id
+	run_id = _generate_uuid()
 	run_max_hp = 100
 	run_attack_bonus = 0
 	run_defense_bonus = 0
@@ -791,6 +813,15 @@ func add_run_tag(tag: String) -> void:
 		run_tags.append(tag)
 
 
+# Build 18: Log action to API
+func log_action_to_api(action_type: String, detail: Dictionary) -> void:
+	if _api_client == null:
+		return
+	detail["world_id"] = selected_world_id
+	detail["node_id"] = run_current_node_id
+	_api_client.log_action(player_id, run_id, action_type, detail)
+
+
 func record_kill() -> void:
 	run_kills += 1
 
@@ -866,6 +897,9 @@ func load_persistent_state() -> void:
 	var payload: Dictionary = _save_service.load_state()
 	if payload.is_empty():
 		return
+	# Build 18: Load player_id
+	if payload.has("player_id") and not str(payload["player_id"]).is_empty():
+		player_id = str(payload["player_id"])
 	soul_points = int(payload.get("soul_points", soul_points))
 	loop_count = int(payload.get("loop_count", loop_count))
 	selected_world_id = str(payload.get("selected_world_id", selected_world_id))
@@ -910,6 +944,7 @@ func load_persistent_state() -> void:
 
 func save_persistent_state() -> void:
 	var payload: Dictionary = {
+		"player_id": player_id,
 		"soul_points": soul_points,
 		"loop_count": loop_count,
 		"selected_world_id": selected_world_id,

@@ -176,6 +176,7 @@ func _load_node(node_id: String) -> void:
 	GameState.run_current_node_id = node_id
 	GameState.record_node_visit()
 	event_index = 0
+	_dynamic_event_requested = false
 	
 	# Check turn limit
 	if GameState.is_turn_limit_reached():
@@ -275,14 +276,57 @@ func _build_event_queue() -> Array:
 	return queue
 
 
+var _dynamic_event_requested: bool = false
+
 func _process_node() -> void:
 	if event_index < node_event_queue.size():
 		current_event = node_event_queue[event_index]
 		_render_event()
 		return
 	
+	# Build 18: Try dynamic event generation if not yet requested
+	if not _dynamic_event_requested:
+		_dynamic_event_requested = true
+		_request_dynamic_event()
+		return
+	
 	# No more events, show navigation
 	_render_navigation_only()
+
+
+# Build 18: Request dynamic event from API
+func _request_dynamic_event() -> void:
+	if GameState._api_client == null:
+		_render_navigation_only()
+		return
+	
+	var traits: Array = GameState.get_dominant_traits(3)
+	var flags: Array = GameState.memory_flags.keys()
+	var truth_stage: int = GameState.get_truth_stage()
+	var world_id: String = GameState.selected_world_id
+	var node_id: String = current_node.get("node_id", "")
+	
+	GameState._api_client.resolve_event(
+		world_id, node_id, GameState.player_id, truth_stage, traits, flags,
+		func(result: Dictionary) -> void:
+			if result.is_empty() or not result.has("text_ja"):
+				_render_navigation_only()
+				return
+			# Transform to event format and add to queue
+			var dynamic_event: Dictionary = {
+				"event_id": result.get("gen_event_id", "dynamic"),
+				"type": "explore",
+				"text_ja": result.get("text_ja", ""),
+				"text": result.get("text_ja", ""),
+				"choices": result.get("choices", []),
+				"conditions": {},
+				"effects": {},
+				"is_dynamic": true,
+			}
+			node_event_queue.append(dynamic_event)
+			current_event = dynamic_event
+			_render_event()
+	)
 
 
 func _render_event() -> void:
@@ -351,6 +395,9 @@ func _render_event() -> void:
 	# Phase 4: Use typewriter effect (must start AFTER buttons are added)
 	waiting_for_text = true
 	typewriter.display_text(formatted_text, text_speed)
+	
+	# Build 18: Record when choices were shown for response_ms
+	GameState.choice_shown_at_ms = Time.get_ticks_msec()
 	
 	_update_status()
 
@@ -583,6 +630,15 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	if waiting_for_text:
 		typewriter.skip()
 		waiting_for_text = false
+	
+	# Build 18: Log action with response time
+	var response_ms: int = Time.get_ticks_msec() - GameState.choice_shown_at_ms
+	GameState.log_action_to_api("choice", {
+		"choice_label": choice.get("label", ""),
+		"response_ms": response_ms,
+		"node_id": current_node.get("node_id", ""),
+		"event_id": current_event.get("event_id", ""),
+	})
 	
 	# Build 16: Record choice and check for different previous choice
 	var choice_label: String = choice.get("label", "")
@@ -834,8 +890,47 @@ func on_battle_result(result: String) -> void:
 
 
 func _on_run_clear() -> void:
+	# Build 18: Check for special endings before standard clear
+	if GameState._api_client != null:
+		var flags: Array = GameState.memory_flags.keys()
+		var truth_stage: int = GameState.get_truth_stage()
+		GameState._api_client.check_ending(
+			GameState.player_id, GameState.selected_world_id, flags, truth_stage, false,
+			func(result: Dictionary) -> void:
+				var endings: Array = result.get("endings", [])
+				if endings.size() > 0:
+					_show_ending(endings[0])
+				else:
+					GameState.apply_end_of_run(true)
+					run_ended.emit(GameState.last_run_score, true)
+		)
+		return
 	GameState.apply_end_of_run(true)
 	run_ended.emit(GameState.last_run_score, true)
+
+
+func _show_ending(ending: Dictionary) -> void:
+	_clear_ui()
+	var title: String = ending.get("title_ja", "")
+	var epilogue: String = ending.get("epilogue_ja", "")
+	var layer: String = ending.get("ending_layer", "surface")
+	
+	var color: String = "#c0c0c0"
+	if layer == "hidden":
+		color = "#c0a0e0"
+	elif layer == "true":
+		color = "#e0c060"
+	
+	var text: String = "[center][color=%s][b]— %s —[/b][/color][/center]\n\n%s" % [color, title, epilogue]
+	waiting_for_text = true
+	typewriter.display_text(text, TypewriterEffect.Speed.NORMAL)
+	
+	var done_btn := UITheme.create_primary_button("終わり")
+	done_btn.pressed.connect(func() -> void:
+		GameState.apply_end_of_run(true)
+		run_ended.emit(GameState.last_run_score, true)
+	)
+	choices_box.add_child(done_btn)
 
 
 func _on_run_defeat() -> void:
