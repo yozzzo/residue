@@ -6,6 +6,10 @@ const ENEMIES_PATH := "res://data/enemies/enemies.json"
 const JOBS_PATH := "res://data/jobs/jobs.json"
 const CROSS_LINKS_PATH := "res://data/cross_links/cross_links.json"
 const SAVE_SERVICE := preload("res://scripts/SaveService.gd")
+const ApiClientScript := preload("res://scripts/ApiClient.gd")
+
+var _api_client: Node = null
+var content_loaded_from_api: bool = false
 
 # Meta state (persistent across runs)
 var soul_points: int = 0
@@ -64,17 +68,66 @@ var _save_service := SAVE_SERVICE.new()
 
 
 func _ready() -> void:
-	load_content()
 	load_persistent_state()
+	# Load local content first as baseline (instant, synchronous)
+	_load_content_local()
+	# Then try API in background (async, will overwrite if successful)
+	_try_load_from_api()
 
 
-func load_content() -> void:
+func _try_load_from_api() -> void:
+	_api_client = ApiClientScript.new()
+	add_child(_api_client)
+	_api_client.fetch_all_content(_on_api_content_loaded)
+
+
+func _on_api_content_loaded(data: Dictionary) -> void:
+	if data.is_empty():
+		print("[GameState] API fetch failed, using local JSON fallback")
+		content_loaded_from_api = false
+		return
+
+	print("[GameState] API content loaded successfully")
+	content_loaded_from_api = true
+
+	# Apply worlds
+	if data.has("worlds") and data["worlds"] is Array:
+		worlds = data["worlds"]
+
+	# Apply events
+	if data.has("events_by_world") and data["events_by_world"] is Dictionary:
+		events_by_world = data["events_by_world"]
+
+	# Apply enemies
+	if data.has("enemies") and data["enemies"] is Array:
+		enemies = {}
+		for enemy: Variant in data["enemies"]:
+			if enemy is Dictionary and enemy.has("enemy_id"):
+				enemies[enemy["enemy_id"]] = enemy
+
+	# Apply node maps
+	if data.has("node_maps") and data["node_maps"] is Dictionary:
+		node_maps = data["node_maps"]
+
+	# Apply jobs
+	if data.has("jobs") and data["jobs"] is Array:
+		jobs = {}
+		for job: Variant in data["jobs"]:
+			if job is Dictionary and job.has("job_id"):
+				jobs[job["job_id"]] = job
+
+
+func _load_content_local() -> void:
 	worlds = _load_json_array(WORLDS_PATH, "worlds")
 	events_by_world = _load_json_dictionary(EVENTS_PATH, "events_by_world")
 	enemies = _load_enemies()
 	_load_node_maps()
 	_load_jobs()
 	_load_cross_links()
+
+
+func load_content() -> void:
+	_load_content_local()
 
 
 func _load_enemies() -> Dictionary:
