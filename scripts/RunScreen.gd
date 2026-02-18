@@ -40,6 +40,7 @@ var event_index: int = 0
 var pending_battle_enemy: String = ""
 var node_event_queue: Array = []
 var showing_effect_result: bool = false
+var skip_start_new_run: bool = false  # Build 16: Set by Main when coming from village
 
 # Phase 4: Typewriter effect
 var typewriter: TypewriterEffect
@@ -139,8 +140,17 @@ func _on_text_completed() -> void:
 	waiting_for_text = false
 
 
+# Build 16: Track if loop start text has been shown
+var _loop_start_shown: bool = false
+# Build 16: Track previous truth stage for detecting changes mid-run
+var _last_known_truth_stage: int = 0
+
+
 func _start_run() -> void:
-	GameState.start_new_run(GameState.selected_world_id)
+	if not skip_start_new_run:
+		GameState.start_new_run(GameState.selected_world_id)
+	_last_known_truth_stage = GameState.get_truth_stage()
+	_loop_start_shown = false
 	_load_node(GameState.run_current_node_id)
 
 
@@ -277,12 +287,31 @@ func _render_event() -> void:
 	var reaction_slots: Array = current_event.get("reaction_slots", [])
 	var reaction_text: String = _get_matching_reaction(reaction_slots)
 	
+	# Build 16: Prefix texts
+	var prefix_parts: Array = []
+	
+	# Build 16: Loop start演出 (only on first node)
+	if not _loop_start_shown:
+		_loop_start_shown = true
+		var loop_text: String = _generate_loop_start_text()
+		if not loop_text.is_empty():
+			prefix_parts.append(loop_text)
+	
+	# Build 16: Death trace text
+	var trace_text: String = _generate_trace_text()
+	if not trace_text.is_empty():
+		prefix_parts.append(trace_text)
+	
 	# Phase 4: Apply BBCode effects for atmosphere
 	var formatted_text: String
+	var prefix: String = "\n\n".join(prefix_parts)
+	if not prefix.is_empty():
+		prefix += "\n\n"
+	
 	if reaction_text.is_empty():
-		formatted_text = "[i]%s[/i]\n\n%s" % [desc, _apply_atmosphere_effects(event_text)]
+		formatted_text = "%s[i]%s[/i]\n\n%s" % [prefix, desc, _apply_atmosphere_effects(event_text)]
 	else:
-		formatted_text = "[i]%s[/i]\n\n%s%s" % [desc, _apply_atmosphere_effects(event_text), reaction_text]
+		formatted_text = "%s[i]%s[/i]\n\n%s%s" % [prefix, desc, _apply_atmosphere_effects(event_text), reaction_text]
 	
 	# Phase 2: Filter choices by conditions
 	var all_choices: Array = current_event.get("choices", [])
@@ -307,6 +336,117 @@ func _render_event() -> void:
 	_update_status()
 
 
+# Build 16: Generate trace text for death locations
+func _generate_trace_text() -> String:
+	var node_id: String = current_node.get("node_id", "")
+	var world_id: String = GameState.selected_world_id
+	var death_count: int = GameState.get_death_count_at_node(world_id, node_id)
+	
+	if death_count == 0:
+		return ""
+	
+	var trace: String
+	if death_count >= 10:
+		trace = LocaleManager.t("ui.trace_many")
+	elif death_count >= 5:
+		trace = LocaleManager.t("ui.trace_several")
+	elif death_count >= 2:
+		trace = LocaleManager.t("ui.trace_few")
+	else:
+		trace = LocaleManager.t("ui.trace_once")
+	
+	return "[color=#6a6080]%s[/color]" % trace
+
+
+# Build 16: Generate loop start text
+func _generate_loop_start_text() -> String:
+	var parts: Array = []
+	var loop: int = GameState.loop_count
+	
+	if loop == 2:
+		parts.append(LocaleManager.t("ui.loop_start_2"))
+	elif loop >= 3:
+		parts.append(LocaleManager.t("ui.loop_start_3", {"count": loop}))
+	
+	# Inheritance feedback
+	if GameState.pending_inheritance.has("hp_bonus"):
+		parts.append(LocaleManager.t("ui.inheritance_feel_hp"))
+	if GameState.pending_inheritance.has("gold_start"):
+		parts.append(LocaleManager.t("ui.inheritance_feel_gold"))
+	
+	if parts.is_empty():
+		return ""
+	return "[color=#8888aa]%s[/color]" % "\n".join(parts)
+
+
+# Build 16: Show truth stage change演出
+func _show_truth_stage_change(old_stage: int, new_stage: int) -> void:
+	var text: String = ""
+	if old_stage == 0 and new_stage >= 1:
+		text = LocaleManager.t("ui.truth_advance_1")
+	elif old_stage == 1 and new_stage >= 2:
+		text = LocaleManager.t("ui.truth_advance_2")
+	elif old_stage == 2 and new_stage >= 3:
+		text = LocaleManager.t("ui.truth_advance_3")
+	
+	if text.is_empty():
+		return
+	
+	# Flash effect
+	var flash := ColorRect.new()
+	flash.color = Color(1, 1, 1, 0.3)
+	flash.anchors_preset = Control.PRESET_FULL_RECT
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash)
+	var tween: Tween = create_tween()
+	tween.tween_property(flash, "color:a", 0.0, 1.0)
+	tween.tween_callback(flash.queue_free)
+	
+	# Prepend truth text to body
+	body_text.text = "[center][shake rate=10 level=5][color=#c0a0e0]%s[/color][/shake][/center]\n\n%s" % [text, body_text.text]
+
+
+# Build 16: Cross-link item acquisition演出
+func _show_cross_link_item_effect(item: Dictionary) -> void:
+	var item_name: String = LocaleManager.tr_data(item, "name")
+	if item_name.is_empty():
+		item_name = item.get("name", "???")
+	
+	# Flash with other-world color
+	var flash := ColorRect.new()
+	var other_world: String = item.get("target_world", "")
+	if other_world == "medieval":
+		flash.color = Color(0.7, 0.5, 0.8, 0.3)
+	else:
+		flash.color = Color(0.3, 0.7, 0.9, 0.3)
+	flash.anchors_preset = Control.PRESET_FULL_RECT
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash)
+	var tween: Tween = create_tween()
+	tween.tween_property(flash, "color:a", 0.0, 0.8)
+	tween.tween_callback(flash.queue_free)
+	
+	# Add text
+	var effect_text: String = "\n\n[center][color=#c0a0e0]%s[/color]\n[b][wave amp=15 freq=2]%s[/wave][/b][/center]" % [
+		LocaleManager.t("ui.crosslink_item_get"),
+		item_name
+	]
+	body_text.text += effect_text
+
+
+# Build 16: Cross-link completion演出
+func _show_cross_link_complete_effect() -> void:
+	# Wave effect using tween on body_text position
+	var original_pos: Vector2 = body_text.position
+	var tween: Tween = create_tween()
+	tween.set_loops(3)
+	tween.tween_property(body_text, "position:x", original_pos.x + 4, 0.05)
+	tween.tween_property(body_text, "position:x", original_pos.x - 4, 0.1)
+	tween.tween_property(body_text, "position:x", original_pos.x, 0.05)
+	
+	body_text.text += "\n\n[center][shake rate=15 level=8][color=#e0c060]%s[/color][/shake][/center]" % LocaleManager.t("ui.crosslink_complete")
+
+
 func _apply_atmosphere_effects(text: String) -> String:
 	## Apply BBCode effects based on truth stage and event type
 	var truth_stage: int = GameState.get_truth_stage()
@@ -329,14 +469,28 @@ func _apply_atmosphere_effects(text: String) -> String:
 
 func _get_matching_reaction(reaction_slots: Array) -> String:
 	# Return the first matching reaction text (localized if available)
-	for slot: Variant in reaction_slots:
+	# Build 16: Enhanced with color styling and new reaction detection
+	var event_id: String = current_event.get("event_id", "")
+	for i: int in range(reaction_slots.size()):
+		var slot: Variant = reaction_slots[i]
 		if slot is Dictionary:
 			var conditions: Dictionary = slot.get("conditions", {})
 			if GameState.check_event_conditions(conditions):
 				var text: String = LocaleManager.tr_data(slot, "text")
 				if text.is_empty():
 					text = str(slot.get("text", ""))
-				return text
+				if text.is_empty():
+					continue
+				
+				# Build 16: Check if this reaction is new
+				var is_new: bool = not GameState.is_reaction_seen(event_id, i)
+				GameState.mark_reaction_seen(event_id, i)
+				
+				# Build 16: Style reaction text
+				var prefix: String = "\n\n——"
+				if is_new:
+					prefix = "\n\n[color=#8070a0]%s[/color]\n——" % LocaleManager.t("ui.reaction_new")
+				return "%s[color=#a080c0]%s[/color]" % [prefix, text]
 	return ""
 
 
@@ -400,6 +554,13 @@ func _on_choice_selected(choice: Dictionary) -> void:
 		typewriter.skip()
 		waiting_for_text = false
 	
+	# Build 16: Record choice and check for different previous choice
+	var choice_label: String = choice.get("label", "")
+	var event_id: String = current_event.get("event_id", "")
+	var node_id: String = current_node.get("node_id", "")
+	var prev_choice: String = GameState.get_previous_choice(node_id, event_id)
+	GameState.record_choice(node_id, event_id, choice_label)
+	
 	# Apply score
 	var score := int(choice.get("score", 0))
 	# Score is now handled by soul calculation
@@ -448,6 +609,18 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	if event_sets_flag != null and event_sets_flag is String and not event_sets_flag.is_empty():
 		GameState.set_memory_flag(event_sets_flag)
 	
+	# Build 16: Check for cross-link item acquisition after flag changes
+	var acquired_items: Array = GameState.check_and_acquire_cross_link_items()
+	for acq_item: Variant in acquired_items:
+		if acq_item is Dictionary:
+			_show_cross_link_item_effect(acq_item)
+	
+	# Build 16: Check truth stage change
+	var current_truth: int = GameState.get_truth_stage()
+	if current_truth > _last_known_truth_stage:
+		_show_truth_stage_change(_last_known_truth_stage, current_truth)
+		_last_known_truth_stage = current_truth
+	
 	# Handle special actions
 	if choice.has("flee") and choice["flee"] == true:
 		_on_flee_choice()
@@ -463,8 +636,15 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	if effect != null and effect is Dictionary and str(effect.get("type", "")) == "battle":
 		return  # battle_requested already emitted
 	
+	# Build 16: Prepend different-choice memory text
+	var diff_choice_prefix: String = ""
+	if not prev_choice.is_empty() and prev_choice != choice_label:
+		diff_choice_prefix = "[color=#6a6080]%s[/color]\n\n" % LocaleManager.t("ui.trace_different_choice")
+	
 	# Show result text if available, then proceed
 	var result_text: String = _get_result_text(choice)
+	if not diff_choice_prefix.is_empty():
+		result_text = diff_choice_prefix + result_text
 	if not result_text.is_empty():
 		_show_result_then_proceed(result_text)
 		return
@@ -508,8 +688,15 @@ func _complete_cross_link_with_notification(link_id: String) -> void:
 	if link_name.is_empty():
 		link_name = link.get("name", "Cross-Link")
 	
-	# Show notification in body text (will be cleared on next event)
-	# The revelation event will follow naturally from the event queue
+	# Build 16: Show cross-link completion演出
+	_show_cross_link_complete_effect()
+	
+	# Build 16: Check truth stage change
+	var new_truth: int = GameState.get_truth_stage()
+	if new_truth > _last_known_truth_stage:
+		_show_truth_stage_change(_last_known_truth_stage, new_truth)
+		_last_known_truth_stage = new_truth
+	
 	print("[Cross-Link] %s completed! Truth stage bonus: %d" % [
 		link_name,
 		rewards.get("truth_stage_bonus", 0)
@@ -622,6 +809,8 @@ func _on_run_clear() -> void:
 
 
 func _on_run_defeat() -> void:
+	# Build 16: Record death location
+	GameState.record_death("defeat")
 	GameState.apply_end_of_run(false)
 	run_ended.emit(GameState.last_run_score, false)
 
@@ -649,11 +838,11 @@ func _on_feedback() -> void:
 		"event_text": current_event.get("text", "").substr(0, 100),
 		"loop": GameState.loop_count,
 		"truth_stage": GameState.get_truth_stage(),
-		"hp": GameState.hp,
-		"max_hp": GameState.max_hp,
-		"gold": GameState.gold,
+		"hp": GameState.run_hp,
+		"max_hp": GameState.run_max_hp,
+		"gold": GameState.run_gold,
 		"job": GameState.current_job,
-		"depth": GameState.run_depth,
+		"depth": GameState.run_nodes_visited,
 		"kills": GameState.run_kills,
 		"flags": GameState.memory_flags.keys(),
 		"traits": GameState.get_dominant_traits(5),

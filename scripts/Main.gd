@@ -3,6 +3,7 @@ extends Control
 const TITLE_SCENE := preload("res://scenes/TitleScreen.tscn")
 const WORLD_SELECT_SCENE := preload("res://scenes/WorldSelect.tscn")
 const JOB_SELECT_SCENE := preload("res://scenes/JobSelectScreen.tscn")
+const VILLAGE_SCENE := preload("res://scenes/VillageScreen.tscn")
 const RUN_SCENE := preload("res://scenes/RunScreen.tscn")
 const BATTLE_SCENE := preload("res://scenes/BattleScreen.tscn")
 const INHERITANCE_SCENE := preload("res://scenes/InheritanceScreen.tscn")
@@ -69,6 +70,20 @@ func _show_run() -> void:
 	run_screen_instance.feedback_requested.connect(_on_feedback_requested)
 	
 	# Show status bar during runs
+	status_bar.show_bar()
+	status_bar.update_status()
+
+
+# Build 16: Show run after village (run already started)
+func _show_run_after_village() -> void:
+	run_screen_instance = RUN_SCENE.instantiate()
+	run_screen_instance.skip_start_new_run = true  # Don't call start_new_run again
+	await _swap_screen(run_screen_instance)
+	run_screen_instance.run_ended.connect(_on_run_ended)
+	run_screen_instance.battle_requested.connect(_on_battle_requested)
+	run_screen_instance.status_updated.connect(_on_status_updated)
+	run_screen_instance.feedback_requested.connect(_on_feedback_requested)
+	
 	status_bar.show_bar()
 	status_bar.update_status()
 
@@ -147,7 +162,27 @@ func _on_world_selected(world_id: String) -> void:
 
 func _on_job_selected(job_id: String) -> void:
 	# Job is already selected in GameState by JobSelectScreen
-	_show_run()
+	# Build 16: Go to village before run
+	_show_village()
+
+
+func _show_village() -> void:
+	# Apply theme for selected world
+	ThemeManager.set_world(GameState.selected_world_id)
+	
+	# Start the run first so village can show stats
+	GameState.start_new_run(GameState.selected_world_id)
+	
+	var village_screen := VILLAGE_SCENE.instantiate()
+	await _swap_screen(village_screen)
+	village_screen.depart_requested.connect(_on_village_depart)
+	
+	status_bar.show_bar()
+	status_bar.update_status()
+
+
+func _on_village_depart() -> void:
+	_show_run_after_village()
 
 
 func _on_run_ended(soul_gain: int, is_clear: bool) -> void:

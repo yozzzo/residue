@@ -37,6 +37,19 @@ var current_job: String = "wanderer"  # Selected job for current/next run
 var cross_link_items: Array = []  # List of acquired cross-link item_ids
 var cross_link_completed: Array = []  # List of completed link_ids
 
+# Build 16: Death/choice logs (persistent across runs) - GDD 4.3
+var run_death_log: Array = []  # {world_id, node_id, loop_count, job_id, cause, turn}
+var run_choice_log: Array = []  # {node_id, event_id, choice_label}
+
+# Build 16: Village shop items (per-run consumables)
+var run_items: Array = []  # [{id, name, effect_type, effect_value, uses}]
+
+# Build 16: Track previous truth_stage for detecting changes
+var _prev_truth_stage: int = 0
+
+# Build 16: Seen reactions tracking (persistent)
+var seen_reactions: Dictionary = {}  # "event_id:slot_index" -> true
+
 # Phase 4: Locale setting (persistent)
 var saved_locale: String = "ja"
 
@@ -375,6 +388,8 @@ func start_new_run(world_id: String) -> void:
 	run_nodes_visited = 0
 	run_is_clear = false
 	run_turn_count = 0
+	run_items = []
+	_prev_truth_stage = get_truth_stage(world_id)
 	
 	# Phase 3: Check if using foreign job
 	run_is_foreign_job = is_foreign_job(current_job, world_id)
@@ -426,6 +441,110 @@ func _apply_inheritance_bonuses() -> void:
 	
 	# Clear pending inheritance after applying
 	pending_inheritance = {}
+
+
+# Build 16: Record death at current location
+func record_death(cause: String = "unknown") -> void:
+	var entry: Dictionary = {
+		"world_id": selected_world_id,
+		"node_id": run_current_node_id,
+		"loop_count": loop_count,
+		"job_id": current_job,
+		"cause": cause,
+		"turn": run_turn_count
+	}
+	run_death_log.append(entry)
+	save_persistent_state()
+
+
+# Build 16: Record choice made
+func record_choice(node_id: String, event_id: String, choice_label: String) -> void:
+	var entry: Dictionary = {
+		"node_id": node_id,
+		"event_id": event_id,
+		"choice_label": choice_label
+	}
+	run_choice_log.append(entry)
+	save_persistent_state()
+
+
+# Build 16: Get death count at a specific node
+func get_death_count_at_node(world_id: String, node_id: String) -> int:
+	var count: int = 0
+	for entry: Variant in run_death_log:
+		if entry is Dictionary and entry.get("world_id", "") == world_id and entry.get("node_id", "") == node_id:
+			count += 1
+	return count
+
+
+# Build 16: Get previous choice for an event
+func get_previous_choice(node_id: String, event_id: String) -> String:
+	# Search backwards for most recent choice
+	for i: int in range(run_choice_log.size() - 1, -1, -1):
+		var entry: Variant = run_choice_log[i]
+		if entry is Dictionary and entry.get("node_id", "") == node_id and entry.get("event_id", "") == event_id:
+			return entry.get("choice_label", "")
+	return ""
+
+
+# Build 16: Check if truth stage increased during this run
+func did_truth_stage_increase() -> bool:
+	return get_truth_stage() > _prev_truth_stage
+
+
+# Build 16: Get truth stage change amount
+func get_truth_stage_change() -> int:
+	return get_truth_stage() - _prev_truth_stage
+
+
+# Build 16: Village shop - buy item
+func buy_item(item_id: String, item_name: String, effect_type: String, effect_value: int, cost: int) -> bool:
+	if run_gold < cost:
+		return false
+	run_gold -= cost
+	run_items.append({
+		"id": item_id,
+		"name": item_name,
+		"effect_type": effect_type,
+		"effect_value": effect_value,
+		"uses": 1
+	})
+	return true
+
+
+# Build 16: Use a consumable item
+func use_item(item_id: String) -> Dictionary:
+	for i: int in range(run_items.size()):
+		var item: Dictionary = run_items[i]
+		if item.get("id", "") == item_id:
+			var effect_type: String = item.get("effect_type", "")
+			var effect_value: int = int(item.get("effect_value", 0))
+			match effect_type:
+				"heal":
+					heal(effect_value)
+				"defense_buff":
+					run_defense_bonus += effect_value
+			run_items.remove_at(i)
+			return item
+	return {}
+
+
+# Build 16: Count owned items of a type
+func count_items(item_id: String) -> int:
+	var count: int = 0
+	for item: Variant in run_items:
+		if item is Dictionary and item.get("id", "") == item_id:
+			count += 1
+	return count
+
+
+func mark_reaction_seen(event_id: String, slot_index: int) -> void:
+	var key: String = "%s:%d" % [event_id, slot_index]
+	seen_reactions[key] = true
+
+func is_reaction_seen(event_id: String, slot_index: int) -> bool:
+	var key: String = "%s:%d" % [event_id, slot_index]
+	return seen_reactions.get(key, false)
 
 
 func apply_end_of_run(is_clear: bool = false) -> void:
@@ -761,6 +880,14 @@ func load_persistent_state() -> void:
 	if payload.has("cross_link_completed") and payload["cross_link_completed"] is Array:
 		cross_link_completed = payload["cross_link_completed"]
 	
+	# Build 16: Load death/choice logs and seen reactions
+	if payload.has("run_death_log") and payload["run_death_log"] is Array:
+		run_death_log = payload["run_death_log"]
+	if payload.has("run_choice_log") and payload["run_choice_log"] is Array:
+		run_choice_log = payload["run_choice_log"]
+	if payload.has("seen_reactions") and payload["seen_reactions"] is Dictionary:
+		seen_reactions = payload["seen_reactions"]
+	
 	# Phase 4: Load locale setting and apply
 	if payload.has("saved_locale"):
 		saved_locale = str(payload["saved_locale"])
@@ -786,7 +913,11 @@ func save_persistent_state() -> void:
 		"cross_link_items": cross_link_items,
 		"cross_link_completed": cross_link_completed,
 		# Phase 4: Save locale setting
-		"saved_locale": saved_locale
+		"saved_locale": saved_locale,
+		# Build 16: Save death/choice logs and seen reactions
+		"run_death_log": run_death_log,
+		"run_choice_log": run_choice_log,
+		"seen_reactions": seen_reactions
 	}
 	_save_service.save_state(payload)
 
