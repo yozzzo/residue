@@ -321,11 +321,14 @@ func _show_data_error() -> void:
 
 
 func _load_node(node_id: String) -> void:
+	print("[RunScreen] _load_node called: node_id=%s, world=%s" % [node_id, GameState.selected_world_id])
 	# Set node ID FIRST so StatusBar reads correct location
 	GameState.run_current_node_id = node_id
 	
 	current_node = GameState.get_node_by_id(GameState.selected_world_id, node_id)
+	print("[RunScreen] current_node keys: %s, name: %s" % [str(current_node.keys()), current_node.get("name", "EMPTY")])
 	if current_node.is_empty():
+		print("[RunScreen] ERROR: Node is empty! node_id=%s" % node_id)
 		_show_fallback_event()
 		return
 	
@@ -364,6 +367,7 @@ func _load_node(node_id: String) -> void:
 
 
 func _continue_load_node() -> void:
+	print("[RunScreen] _continue_load_node called, event_queue size: %d" % node_event_queue.size())
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
 	var world_name: String = LocaleManager.tr_data(world, "name")
 	var truth_stage: int = GameState.get_truth_stage()
@@ -424,25 +428,31 @@ func _build_event_queue() -> Array:
 var _dynamic_event_requested: bool = false
 
 func _process_node() -> void:
+	print("[RunScreen] _process_node: event_index=%d, queue_size=%d, dynamic_requested=%s" % [event_index, node_event_queue.size(), str(_dynamic_event_requested)])
 	if event_index < node_event_queue.size():
 		current_event = node_event_queue[event_index]
+		print("[RunScreen] Rendering event: %s" % current_event.get("event_id", "???"))
 		_render_event()
 		return
 	
 	# Build 18: Try dynamic event generation if not yet requested
 	if not _dynamic_event_requested:
 		_dynamic_event_requested = true
+		print("[RunScreen] Requesting dynamic event...")
 		_request_dynamic_event()
 		return
 	
 	# No more events, show navigation
+	print("[RunScreen] No events, showing navigation")
 	_render_navigation_only()
 
 
 # Build 18: Request dynamic event from API
 func _request_dynamic_event() -> void:
+	# Show navigation immediately so player isn't stuck
+	_render_navigation_only()
+	
 	if GameState._api_client == null:
-		_render_navigation_only()
 		return
 	
 	var traits: Array = GameState.get_dominant_traits(3)
@@ -451,12 +461,12 @@ func _request_dynamic_event() -> void:
 	var world_id: String = GameState.selected_world_id
 	var node_id: String = current_node.get("node_id", "")
 	
+	# Async: if dynamic event arrives, replace navigation with event
 	GameState._api_client.resolve_event(
 		world_id, node_id, GameState.player_id, truth_stage, traits, flags,
 		func(result: Dictionary) -> void:
 			if result.is_empty() or not result.has("text_ja"):
-				_render_navigation_only()
-				return
+				return  # Keep navigation as-is
 			# Transform to event format and add to queue
 			var dynamic_event: Dictionary = {
 				"event_id": result.get("gen_event_id", "dynamic"),
