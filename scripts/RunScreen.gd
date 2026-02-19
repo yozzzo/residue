@@ -845,6 +845,7 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	var damage: Variant = choice.get("damage")
 	if damage != null:
 		GameState.take_damage(int(damage))
+		status_updated.emit()
 		if GameState.is_player_dead():
 			_on_run_defeat()
 			return

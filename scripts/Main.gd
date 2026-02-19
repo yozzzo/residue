@@ -300,6 +300,7 @@ func _show_village() -> void:
 	var village_screen := VILLAGE_SCENE.instantiate()
 	await _swap_screen(village_screen)
 	village_screen.depart_requested.connect(_on_village_depart)
+	village_screen.status_updated.connect(_on_status_updated)
 	
 	status_bar.show_bar()
 	status_bar.update_status()
