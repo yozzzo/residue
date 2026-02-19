@@ -32,12 +32,14 @@ func _create_ui() -> void:
 	container.anchors_preset = Control.PRESET_TOP_WIDE
 	container.offset_top = UITheme.MARGIN_TOP - 8  # Position just inside safe area
 	container.offset_bottom = UITheme.MARGIN_TOP + 44  # Compact height
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(container)
 	
 	# Panel background
 	panel = PanelContainer.new()
 	panel.name = "Panel"
 	panel.anchors_preset = Control.PRESET_FULL_RECT
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(panel)
 	
 	# Apply theme color
