@@ -22,9 +22,13 @@ var transition_duration: float = 0.25
 
 var _update_label: Label = null
 var _update_progress_bar: ProgressBar = null
+var _asset_update_timeout_timer: Timer = null
+var _asset_update_done: bool = false
 
 
 func _ready() -> void:
+	# Set background color immediately to avoid black screen
+	RenderingServer.set_default_clear_color(Color(0.08, 0.08, 0.12, 1.0))
 	_setup_transition_layer()
 	_setup_status_bar()
 	_check_asset_updates()
@@ -70,13 +74,37 @@ func _check_asset_updates() -> void:
 	vbox.add_child(_update_progress_bar)
 	
 	AssetManager.update_progress.connect(_on_asset_update_progress)
-	AssetManager.check_and_update_assets(func() -> void:
-		# Remove update panel and show title
-		update_panel.queue_free()
-		_update_label = null
-		_update_progress_bar = null
-		_show_title()
+	
+	# Timeout: if asset update takes >5s, proceed with local assets
+	_asset_update_timeout_timer = Timer.new()
+	_asset_update_timeout_timer.wait_time = 5.0
+	_asset_update_timeout_timer.one_shot = true
+	_asset_update_timeout_timer.timeout.connect(func() -> void:
+		if not _asset_update_done:
+			push_warning("Main: Asset update timed out, proceeding with local assets")
+			_on_asset_update_finished(update_panel)
 	)
+	add_child(_asset_update_timeout_timer)
+	_asset_update_timeout_timer.start()
+	
+	AssetManager.check_and_update_assets(func() -> void:
+		_on_asset_update_finished(update_panel)
+	)
+
+
+func _on_asset_update_finished(update_panel: ColorRect) -> void:
+	if _asset_update_done:
+		return
+	_asset_update_done = true
+	if _asset_update_timeout_timer != null:
+		_asset_update_timeout_timer.stop()
+		_asset_update_timeout_timer.queue_free()
+		_asset_update_timeout_timer = null
+	if is_instance_valid(update_panel):
+		update_panel.queue_free()
+	_update_label = null
+	_update_progress_bar = null
+	_show_title()
 
 
 func _on_asset_update_progress(current: int, total: int) -> void:

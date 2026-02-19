@@ -28,7 +28,7 @@ func _ready() -> void:
 	_ensure_cache_dirs()
 	_load_local_manifest()
 	_http_request = HTTPRequest.new()
-	_http_request.timeout = 30
+	_http_request.timeout = 5
 	add_child(_http_request)
 
 
