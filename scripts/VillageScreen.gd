@@ -3,12 +3,10 @@ extends Control
 signal depart_requested
 signal status_updated
 
-@onready var header: Label = $Margin/Root/Header
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
 @onready var npc_buttons: VBoxContainer = $Margin/Root/NPCButtons
 @onready var shop_buttons: HBoxContainer = $Margin/Root/ShopButtons
 @onready var depart_button: Button = $Margin/Root/DepartButton
-@onready var status_label: Label = $Margin/Root/StatusLabel
 @onready var background: ColorRect = $Background
 @onready var background_image: TextureRect = $BackgroundImage
 @onready var silhouette_rect: TextureRect = $SilhouetteRect
@@ -228,7 +226,6 @@ func _show_village_main() -> void:
 	
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
 	var world_name: String = LocaleManager.tr_data(world, "name")
-	header.text = LocaleManager.t("ui.village_header", {"world": world_name})
 	depart_button.text = LocaleManager.t("ui.village_depart")
 	
 	var desc: String = LocaleManager.tr_data(village_data, "description")
@@ -409,7 +406,3 @@ func _on_depart() -> void:
 
 
 func _update_status() -> void:
-	status_label.text = "HP: %d/%d | Gold: %d | %s" % [
-		GameState.run_hp, GameState.run_max_hp, GameState.run_gold,
-		LocaleManager.t("ui.village_items", {"count": GameState.run_items.size()})
-	]
