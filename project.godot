@@ -27,6 +27,10 @@ window/stretch/aspect="expand"
 
 theme/custom="res://assets/fonts/default_theme.tres"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+
 [rendering]
 renderer/rendering_method="mobile"
 textures/canvas_textures/default_texture_filter=0
