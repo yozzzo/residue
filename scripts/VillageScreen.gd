@@ -235,9 +235,9 @@ func _show_village_main() -> void:
 	# Build 16: Inheritance effect display at village
 	var inheritance_text: String = _get_inheritance_display()
 	if not inheritance_text.is_empty():
-		body_text.text = "[color=#8888aa]%s[/color]\n\n[i]%s[/i]" % [inheritance_text, desc]
+		body_text.text = "[color=#8888aa]%s[/color]\n\n[color=#aaaaaa]%s[/color]" % [inheritance_text, desc]
 	else:
-		body_text.text = "[i]%s[/i]" % desc
+		body_text.text = "[color=#aaaaaa]%s[/color]" % desc
 	
 	_render_npc_buttons()
 	_render_shop_buttons()

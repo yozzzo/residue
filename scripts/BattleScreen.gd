@@ -431,7 +431,7 @@ func _on_victory() -> void:
 			var item_desc: String = LocaleManager.tr_data(item, "description")
 			_log("")
 			_log("[color=gold]%s[/color]" % LocaleManager.t("ui.battle_item_gain", {"name": item_name}))
-			_log("[i]%s[/i]" % item_desc)
+			_log("[color=#aaaaaa]%s[/color]" % item_desc)
 	
 	_update_display()
 	

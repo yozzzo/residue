@@ -517,9 +517,9 @@ func _render_event() -> void:
 		prefix += "\n\n"
 	
 	if reaction_text.is_empty():
-		formatted_text = "%s[i]%s[/i]\n\n%s" % [prefix, desc, _apply_atmosphere_effects(event_text)]
+		formatted_text = "%s[color=#aaaaaa]%s[/color]\n\n%s" % [prefix, desc, _apply_atmosphere_effects(event_text)]
 	else:
-		formatted_text = "%s[i]%s[/i]\n\n%s%s" % [prefix, desc, _apply_atmosphere_effects(event_text), reaction_text]
+		formatted_text = "%s[color=#aaaaaa]%s[/color]\n\n%s%s" % [prefix, desc, _apply_atmosphere_effects(event_text), reaction_text]
 	
 	# Build 19: Update background overlays
 	_update_overlays()
@@ -732,9 +732,9 @@ func _render_navigation_only() -> void:
 	var nav_text: String
 	if node_type == "boss" and _has_boss_enemy():
 		# Boss node without event means boss defeated
-		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.t("ui.nav_boss_cleared")]
+		nav_text = "[color=#aaaaaa]%s[/color]\n\n%s" % [desc, LocaleManager.t("ui.nav_boss_cleared")]
 	else:
-		nav_text = "[i]%s[/i]\n\n%s" % [desc, LocaleManager.t("ui.nav_where")]
+		nav_text = "[color=#aaaaaa]%s[/color]\n\n%s" % [desc, LocaleManager.t("ui.nav_where")]
 	
 	typewriter.display_text(nav_text, TypewriterEffect.Speed.FAST)
 	

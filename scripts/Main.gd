@@ -29,9 +29,33 @@ var _asset_update_done: bool = false
 func _ready() -> void:
 	# Set background color immediately to avoid black screen
 	RenderingServer.set_default_clear_color(Color(0.08, 0.08, 0.12, 1.0))
+	_apply_japanese_font_to_theme()
 	_setup_transition_layer()
 	_setup_status_bar()
 	_check_asset_updates()
+
+
+func _apply_japanese_font_to_theme() -> void:
+	# Ensure NotoSansJP is used for all controls including RichTextLabel italic/bold
+	var font_path := "res://assets/fonts/NotoSansJP-VariableFont.ttf"
+	if not ResourceLoader.exists(font_path):
+		return
+	var font: Font = load(font_path)
+	if font == null:
+		return
+	var theme: Theme = ThemeDB.get_project_theme()
+	if theme == null:
+		theme = Theme.new()
+	theme.set_default_font(font)
+	# RichTextLabel font variants
+	theme.set_font("normal_font", "RichTextLabel", font)
+	theme.set_font("bold_font", "RichTextLabel", font)
+	theme.set_font("italics_font", "RichTextLabel", font)
+	theme.set_font("bold_italics_font", "RichTextLabel", font)
+	theme.set_font("mono_font", "RichTextLabel", font)
+	# Label and Button
+	theme.set_font("font", "Label", font)
+	theme.set_font("font", "Button", font)
 
 
 func _check_asset_updates() -> void:
