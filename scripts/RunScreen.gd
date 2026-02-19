@@ -10,7 +10,6 @@ signal status_updated
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
 @onready var choices_box: GridContainer = $Margin/Root/Choices
 @onready var navigation_box: HBoxContainer = $Margin/Root/Navigation
-@onready var status_label: Label = $Margin/Root/StatusLabel
 @onready var gear_button: Button = $GearButton
 @onready var gear_menu: PanelContainer = $GearMenu
 @onready var feedback_btn: Button = $GearMenu/MenuVBox/FeedbackBtn
@@ -323,12 +322,14 @@ func _show_data_error() -> void:
 
 
 func _load_node(node_id: String) -> void:
+	# Set node ID FIRST so StatusBar reads correct location
+	GameState.run_current_node_id = node_id
+	
 	current_node = GameState.get_node_by_id(GameState.selected_world_id, node_id)
 	if current_node.is_empty():
 		_show_fallback_event()
 		return
 	
-	GameState.run_current_node_id = node_id
 	GameState.record_node_visit()
 	event_index = 0
 	_dynamic_event_requested = false
@@ -342,10 +343,12 @@ func _load_node(node_id: String) -> void:
 	if randf() < 0.15 and current_node.get("node_type", "") != "boss":
 		var trap_dmg: int = randi_range(5, 15)
 		GameState.take_damage(trap_dmg)
-		_show_trap_message(trap_dmg)
+		status_updated.emit()
 		if GameState.is_player_dead():
 			_on_run_defeat()
 			return
+		_show_trap_message(trap_dmg)
+		return  # Wait for player to tap continue before proceeding
 	
 	# Random encounter (30% chance on non-battle, non-boss nodes)
 	var node_type: String = current_node.get("node_type", "explore")
@@ -358,7 +361,10 @@ func _load_node(node_id: String) -> void:
 	
 	# Build event queue, filtering by conditions
 	node_event_queue = _build_event_queue()
-	
+	_continue_load_node()
+
+
+func _continue_load_node() -> void:
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
 	var world_name: String = LocaleManager.tr_data(world, "name")
 	var truth_stage: int = GameState.get_truth_stage()
@@ -1174,8 +1180,17 @@ func _on_exit_run() -> void:
 func _show_trap_message(damage: int) -> void:
 	_clear_ui()
 	var text: String = LocaleManager.t("ui.trap_damage", {"damage": damage})
+	waiting_for_text = true
 	typewriter.display_text(text, TypewriterEffect.Speed.FAST)
-	status_updated.emit()
+	
+	# Add continue button so player sees trap damage before proceeding
+	var continue_btn := UITheme.create_choice_button(LocaleManager.t("ui.nav_forward"))
+	continue_btn.pressed.connect(func() -> void:
+		# Now build event queue and proceed with normal node processing
+		node_event_queue = _build_event_queue()
+		_continue_load_node()
+	)
+	choices_box.add_child(continue_btn)
 
 
 func _on_turn_limit_reached() -> void:
@@ -1241,46 +1256,7 @@ func _update_silhouette() -> void:
 
 
 func _update_status() -> void:
-	# Show dominant traits in status
-	var dominant_traits: Array = GameState.get_dominant_traits(2)
-	var traits_text: String = ""
-	if dominant_traits.size() > 0:
-		traits_text = " | %s" % LocaleManager.t("ui.status_traits", {"traits": ", ".join(dominant_traits)})
-	
-	# Phase 3: Show cross-link items if any
-	var items_text: String = ""
-	if GameState.cross_link_items.size() > 0:
-		var item_names: Array = []
-		for item_id: String in GameState.cross_link_items:
-			item_names.append(LocaleManager.get_item_name(item_id))
-		items_text = " | %s" % LocaleManager.t("ui.status_items", {"items": ", ".join(item_names)})
-	
-	# Build 19: Show relics
-	var relics_text: String = ""
-	var all_relics: Array = GameState.get_all_active_relics()
-	if all_relics.size() > 0:
-		var relic_icons: Array = []
-		for r: Variant in all_relics:
-			if r is Dictionary:
-				var rtype: String = r.get("relic_type", "")
-				var icon: String = "✦" if rtype == "artifact" else "☽" if rtype == "curse" else "✧"
-				relic_icons.append(icon)
-		relics_text = " | " + "".join(relic_icons)
-	
-	status_label.text = "%s%s%s%s" % [
-		LocaleManager.t("ui.status_full_turn", {
-			"hp": GameState.run_hp,
-			"maxhp": GameState.run_max_hp,
-			"gold": GameState.run_gold,
-			"depth": GameState.run_nodes_visited,
-			"kills": GameState.run_kills,
-			"turn": GameState.run_turn_count,
-			"maxturn": GameState.MAX_TURNS
-		}),
-		traits_text,
-		items_text,
-		relics_text
-	]
+	status_updated.emit()
 
 
 ## Set text display speed (for settings menu)
