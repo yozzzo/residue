@@ -121,6 +121,12 @@ func _create_ui() -> void:
 	turn_label.text = "0/30"
 	turn_section.add_child(turn_label)
 	
+	# Build 19: Relic icons section
+	var relic_section := HBoxContainer.new()
+	relic_section.name = "RelicSection"
+	relic_section.add_theme_constant_override("separation", 2)
+	hbox.add_child(relic_section)
+	
 	# Spacer
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -176,6 +182,16 @@ func update_status() -> void:
 	if node_name.is_empty():
 		node_name = node.get("name", "---")
 	location_label.text = LocaleManager.t("ui.location", {"name": node_name})
+	
+	# Build 19: Update relic display in location label suffix
+	var all_relics: Array = GameState.get_all_active_relics()
+	if all_relics.size() > 0:
+		var icons: Array = []
+		for r: Variant in all_relics:
+			if r is Dictionary:
+				var rtype: String = r.get("relic_type", "")
+				icons.append("✦" if rtype == "artifact" else "☽" if rtype == "curse" else "✧")
+		location_label.text += " " + "".join(icons)
 
 
 func update_location(node_name: String) -> void:

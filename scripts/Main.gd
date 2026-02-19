@@ -49,6 +49,7 @@ func _show_world_select() -> void:
 	await _swap_screen(WORLD_SELECT_SCENE.instantiate())
 	current_screen.back_requested.connect(_on_back_to_title)
 	current_screen.world_selected.connect(_on_world_selected)
+	current_screen.scenario_selected.connect(_on_scenario_selected)
 
 
 func _show_job_select() -> void:
@@ -158,6 +159,15 @@ func _on_world_selected(world_id: String) -> void:
 	GameState.select_world(world_id)
 	# Phase 3: Go to job select instead of directly to run
 	_show_job_select()
+
+
+# Build 19: Scenario direct entry
+func _on_scenario_selected(scenario_id: String, entry_node_id: String, world_id: String) -> void:
+	GameState.select_world(world_id)
+	ThemeManager.set_world(world_id)
+	GameState.start_new_run(world_id)
+	GameState.run_current_node_id = entry_node_id
+	_show_run_after_village()
 
 
 func _on_job_selected(job_id: String) -> void:

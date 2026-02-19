@@ -315,6 +315,46 @@ func check_ending(player_id: String, world_id: String, flags: Array, truth_stage
 	http.request(url)
 
 
+# Build 19: Fetch scenarios
+func fetch_scenarios(callback: Callable) -> void:
+	var url: String = API_BASE + "/scenarios"
+	var http := HTTPRequest.new()
+	http.timeout = REQUEST_TIMEOUT
+	add_child(http)
+	http.request_completed.connect(
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+			http.queue_free()
+			if result == HTTPRequest.RESULT_SUCCESS and code == 200:
+				var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
+				if parsed is Dictionary and parsed.has("scenarios"):
+					callback.call(parsed["scenarios"])
+					return
+			callback.call([])
+	)
+	http.request(url)
+
+
+# Build 19: Fetch relics
+func fetch_relics(callback: Callable, world_id: String = "") -> void:
+	var url: String = API_BASE + "/relics"
+	if not world_id.is_empty():
+		url += "?world_id=" + world_id
+	var http := HTTPRequest.new()
+	http.timeout = REQUEST_TIMEOUT
+	add_child(http)
+	http.request_completed.connect(
+		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+			http.queue_free()
+			if result == HTTPRequest.RESULT_SUCCESS and code == 200:
+				var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
+				if parsed is Dictionary and parsed.has("relics"):
+					callback.call(parsed["relics"])
+					return
+			callback.call([])
+	)
+	http.request(url)
+
+
 func _parse_json_field(row: Dictionary, field: String, default_value: Variant) -> Variant:
 	var raw: Variant = row.get(field)
 	if raw == null or raw is bool:

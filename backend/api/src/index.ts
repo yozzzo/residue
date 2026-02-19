@@ -8,6 +8,8 @@ import { runsRoutes } from './routes/runs';
 import { turnsRoutes } from './routes/turns';
 import { eventsRoutes } from './routes/events';
 import { actionsRoutes } from './routes/actions';
+import { scenariosRoutes } from './routes/scenarios';
+import { relicsRoutes } from './routes/relics';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -28,6 +30,8 @@ app.route('/api/v1', runsRoutes);
 app.route('/api/v1', turnsRoutes);
 app.route('/api/v1', eventsRoutes);
 app.route('/api/v1', actionsRoutes);
+app.route('/api/v1', scenariosRoutes);
+app.route('/api/v1', relicsRoutes);
 
 app.notFound((c) => c.json({ error: 'Not Found' }, 404));
 

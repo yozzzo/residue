@@ -239,6 +239,7 @@ func _show_village_main() -> void:
 	
 	_render_npc_buttons()
 	_render_shop_buttons()
+	_render_relic_button()
 
 
 func _get_inheritance_display() -> String:
@@ -288,6 +289,39 @@ func _render_shop_buttons() -> void:
 	var talisman_btn := UITheme.create_choice_button(LocaleManager.t("ui.shop_talisman", {"cost": 30}))
 	talisman_btn.pressed.connect(_on_buy_talisman)
 	shop_buttons.add_child(talisman_btn)
+
+
+func _render_relic_button() -> void:
+	var all_relics: Array = GameState.get_all_active_relics()
+	if all_relics.is_empty():
+		return
+	var relic_btn := UITheme.create_choice_button("🔮 遺物確認 (%d)" % all_relics.size())
+	relic_btn.pressed.connect(_on_show_relics)
+	npc_buttons.add_child(relic_btn)
+
+
+func _on_show_relics() -> void:
+	for child: Node in npc_buttons.get_children():
+		child.queue_free()
+	
+	var all_relics: Array = GameState.get_all_active_relics()
+	var text: String = "[b]所持遺物[/b]\n\n"
+	for r: Variant in all_relics:
+		if r is not Dictionary:
+			continue
+		var rname: String = r.get("name_ja", "???")
+		var rtype: String = r.get("relic_type", "")
+		var eff: Dictionary = r.get("effect", {})
+		var desc: String = str(eff.get("description_ja", ""))
+		var icon: String = "✦" if rtype == "artifact" else "☽" if rtype == "curse" else "✧"
+		var type_label: String = "遺物" if rtype == "artifact" else "呪い" if rtype == "curse" else "恩寵"
+		text += "%s [b]%s[/b] [%s]\n  %s\n\n" % [icon, rname, type_label, desc]
+	
+	body_text.text = text
+	
+	var back_btn := UITheme.create_choice_button("戻る")
+	back_btn.pressed.connect(_show_village_main)
+	npc_buttons.add_child(back_btn)
 
 
 func _on_npc_talk(npc_index: int) -> void:

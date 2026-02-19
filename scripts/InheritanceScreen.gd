@@ -116,6 +116,9 @@ func _generate_localized_candidates() -> Array:
 		var value: Variant = candidate.get("value", 0)
 		
 		match candidate_type:
+			"relic_inherit":
+				localized_candidate["label"] = candidate.get("label", "遺物継承")
+				localized_candidate["description"] = candidate.get("description", "")
 			"soul_bonus":
 				localized_candidate["label"] = LocaleManager.t("ui.inheritance_soul_bonus", {"amount": value})
 				localized_candidate["description"] = LocaleManager.t("ui.inheritance_soul_bonus_desc", {"amount": value})
@@ -215,6 +218,12 @@ func _on_candidate_selected(candidate: Dictionary) -> void:
 		"soul_bonus":
 			# Apply soul bonus immediately to current total
 			GameState.soul_points += int(value)
+		"relic_inherit":
+			# Build 19: Promote run relic to permanent
+			if value is Dictionary:
+				var relic_id: String = value.get("relic_id", "")
+				if not relic_id.is_empty():
+					GameState.grant_relic(relic_id, value)
 		"hp_bonus", "gold_start", "tag_boost", "memory_hint":
 			# Set pending inheritance for next run
 			GameState.set_pending_inheritance(bonus_type, value)

@@ -42,6 +42,20 @@ var node_event_queue: Array = []
 var showing_effect_result: bool = false
 var skip_start_new_run: bool = false  # Build 16: Set by Main when coming from village
 
+# Build 19: Choice timer
+var choice_timer: Timer = null
+var choice_time_remaining: float = 0.0
+var choice_time_limit: float = 0.0
+var timer_bar: ProgressBar = null
+var timer_label: Label = null
+var timer_flash_active: bool = false
+var current_filtered_choices: Array = []
+
+# Build 19: Background overlay layers
+var overlay_blood: ColorRect = null
+var overlay_corruption: ColorRect = null
+var overlay_time: ColorRect = null
+
 # Phase 4: Typewriter effect
 var typewriter: TypewriterEffect
 var text_speed: TypewriterEffect.Speed = TypewriterEffect.Speed.NORMAL
@@ -53,6 +67,8 @@ signal feedback_requested(data: Dictionary)
 func _ready() -> void:
 	_setup_gear_menu()
 	_setup_typewriter()
+	_setup_overlays()
+	_setup_choice_timer()
 	_apply_theme()
 	_update_texts()
 	_start_run()
@@ -75,6 +91,140 @@ func _setup_typewriter() -> void:
 	typewriter.setup(body_text)
 	add_child(typewriter)
 	typewriter.text_completed.connect(_on_text_completed)
+
+
+func _setup_overlays() -> void:
+	# Blood overlay (red splashes)
+	overlay_blood = ColorRect.new()
+	overlay_blood.color = Color(0.6, 0.05, 0.05, 0.0)
+	overlay_blood.anchors_preset = Control.PRESET_FULL_RECT
+	overlay_blood.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_blood.visible = false
+	add_child(overlay_blood)
+	move_child(overlay_blood, background_image.get_index() + 1)
+	
+	# Corruption overlay (distortion tint)
+	overlay_corruption = ColorRect.new()
+	overlay_corruption.color = Color(0.3, 0.0, 0.4, 0.0)
+	overlay_corruption.anchors_preset = Control.PRESET_FULL_RECT
+	overlay_corruption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay_corruption.visible = false
+	add_child(overlay_corruption)
+	move_child(overlay_corruption, overlay_blood.get_index() + 1)
+	
+	# Time/darkness overlay
+	overlay_time = ColorRect.new()
+	overlay_time.color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_time.anchors_preset = Control.PRESET_FULL_RECT
+	overlay_time.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay_time)
+	move_child(overlay_time, overlay_corruption.get_index() + 1)
+
+
+func _update_overlays() -> void:
+	var truth_stage: int = GameState.get_truth_stage()
+	var node_id: String = current_node.get("node_id", "")
+	var world_id: String = GameState.selected_world_id
+	
+	# Blood: show if deaths > 0 at this node
+	var death_count: int = GameState.get_death_count_at_node(world_id, node_id)
+	if death_count > 0:
+		overlay_blood.visible = true
+		var blood_alpha: float = clampf(0.05 + death_count * 0.03, 0.05, 0.2)
+		overlay_blood.color.a = blood_alpha
+	else:
+		overlay_blood.visible = false
+	
+	# Corruption: truth_stage >= 2
+	if truth_stage >= 2:
+		overlay_corruption.visible = true
+		var corrupt_alpha: float = 0.05 if truth_stage == 2 else 0.12
+		overlay_corruption.color.a = corrupt_alpha
+	else:
+		overlay_corruption.visible = false
+	
+	# Time darkness: proportional to turn_count
+	var darkness: float = float(GameState.run_turn_count) / float(GameState.MAX_TURNS) * 0.35
+	overlay_time.color.a = darkness
+
+
+func _setup_choice_timer() -> void:
+	choice_timer = Timer.new()
+	choice_timer.one_shot = false
+	choice_timer.wait_time = 0.1
+	choice_timer.timeout.connect(_on_choice_timer_tick)
+	add_child(choice_timer)
+
+
+func _start_choice_timer(time_limit: float) -> void:
+	choice_time_limit = time_limit
+	choice_time_remaining = time_limit
+	timer_flash_active = false
+	
+	# Create timer UI above choices
+	if timer_bar != null:
+		timer_bar.queue_free()
+	if timer_label != null:
+		timer_label.queue_free()
+	
+	timer_bar = ProgressBar.new()
+	timer_bar.custom_minimum_size = Vector2(0, 8)
+	timer_bar.max_value = time_limit
+	timer_bar.value = time_limit
+	timer_bar.show_percentage = false
+	var fill_style := StyleBoxFlat.new()
+	fill_style.bg_color = ThemeManager.get_accent_color()
+	fill_style.set_corner_radius_all(4)
+	timer_bar.add_theme_stylebox_override("fill", fill_style)
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = Color(0.2, 0.2, 0.2, 0.5)
+	bg_style.set_corner_radius_all(4)
+	timer_bar.add_theme_stylebox_override("background", bg_style)
+	
+	# Insert before choices_box
+	var root: VBoxContainer = $Margin/Root
+	root.add_child(timer_bar)
+	root.move_child(timer_bar, choices_box.get_index())
+	
+	choice_timer.start()
+
+
+func _stop_choice_timer() -> void:
+	choice_timer.stop()
+	if timer_bar != null:
+		timer_bar.queue_free()
+		timer_bar = null
+	if timer_label != null:
+		timer_label.queue_free()
+		timer_label = null
+
+
+func _on_choice_timer_tick() -> void:
+	choice_time_remaining -= 0.1
+	if timer_bar != null:
+		timer_bar.value = maxf(0.0, choice_time_remaining)
+	
+	# Flash red at 3 seconds
+	if choice_time_remaining <= 3.0 and not timer_flash_active:
+		timer_flash_active = true
+		if timer_bar != null:
+			var fill_style := StyleBoxFlat.new()
+			fill_style.bg_color = Color(0.9, 0.2, 0.2)
+			fill_style.set_corner_radius_all(4)
+			timer_bar.add_theme_stylebox_override("fill", fill_style)
+		# Show urgency text
+		body_text.text += "\n\n[center][shake rate=20 level=8][color=#ff3333]急げ——[/color][/shake][/center]"
+	
+	# Time's up
+	if choice_time_remaining <= 0.0:
+		_stop_choice_timer()
+		_on_timer_expired()
+
+
+func _on_timer_expired() -> void:
+	# Select first choice as default
+	if current_filtered_choices.size() > 0:
+		_on_choice_selected(current_filtered_choices[0])
 
 
 func _apply_theme() -> void:
@@ -376,9 +526,19 @@ func _render_event() -> void:
 	else:
 		formatted_text = "%s[i]%s[/i]\n\n%s%s" % [prefix, desc, _apply_atmosphere_effects(event_text), reaction_text]
 	
+	# Build 19: Update background overlays
+	_update_overlays()
+	
 	# Phase 2: Filter choices by conditions
 	var all_choices: Array = current_event.get("choices", [])
 	var filtered_choices: Array = GameState.filter_choices(all_choices)
+	
+	# Build 19: Random glitch relic — 10% chance to shuffle choices
+	if GameState.has_relic_effect("random_glitch") and randf() < 0.1 and filtered_choices.size() > 1:
+		filtered_choices.shuffle()
+	
+	# Store for timer expiry
+	current_filtered_choices = filtered_choices
 	
 	# Use 2 columns when 3+ choices to keep compact
 	choices_box.columns = 2 if filtered_choices.size() >= 3 else 1
@@ -398,6 +558,11 @@ func _render_event() -> void:
 	
 	# Build 18: Record when choices were shown for response_ms
 	GameState.choice_shown_at_ms = Time.get_ticks_msec()
+	
+	# Build 19: Start choice timer if event has time_limit
+	var time_limit: Variant = current_event.get("time_limit")
+	if time_limit != null and float(time_limit) > 0:
+		_start_choice_timer(float(time_limit))
 	
 	_update_status()
 
@@ -562,6 +727,7 @@ func _get_matching_reaction(reaction_slots: Array) -> String:
 
 func _render_navigation_only() -> void:
 	_clear_ui()
+	_update_overlays()
 	
 	var desc: String = LocaleManager.tr_data(current_node, "description")
 	if desc.is_empty():
@@ -617,6 +783,14 @@ func _render_navigation_buttons() -> void:
 			btn.pressed.connect(_on_navigate.bind(str(target_node)))
 			navigation_box.add_child(btn)
 	
+	# Build 19: Route overrides from cross-links
+	var overrides: Dictionary = GameState.get_route_overrides(current_node.get("node_id", ""))
+	for label: String in overrides.keys():
+		var target: String = str(overrides[label])
+		var override_btn := UITheme.create_choice_button("[color=#c0a0e0]%s[/color]" % label)
+		override_btn.pressed.connect(_on_navigate.bind(target))
+		navigation_box.add_child(override_btn)
+	
 	# Check if this is the final boss node and boss is defeated
 	var node_type: String = current_node.get("node_type", "")
 	if node_type == "boss":
@@ -626,6 +800,9 @@ func _render_navigation_buttons() -> void:
 
 
 func _on_choice_selected(choice: Dictionary) -> void:
+	# Build 19: Stop choice timer
+	_stop_choice_timer()
+	
 	# Skip typewriter if still playing
 	if waiting_for_text:
 		typewriter.skip()
@@ -694,6 +871,13 @@ func _on_choice_selected(choice: Dictionary) -> void:
 	var event_sets_flag: Variant = current_event.get("sets_flag")
 	if event_sets_flag != null and event_sets_flag is String and not event_sets_flag.is_empty():
 		GameState.set_memory_flag(event_sets_flag)
+	
+	# Build 19: Handle relic_grant effect
+	if effect != null and effect is Dictionary and str(effect.get("type", "")) == "relic_grant":
+		var relic_id: String = str(effect.get("relic_id", ""))
+		if not relic_id.is_empty() and not GameState.has_relic(relic_id):
+			var relic_data: Dictionary = effect.get("relic_data", {})
+			GameState.grant_relic(relic_id, relic_data)
 	
 	# Build 16: Check for cross-link item acquisition after flag changes
 	var acquired_items: Array = GameState.check_and_acquire_cross_link_items()
@@ -1066,7 +1250,19 @@ func _update_status() -> void:
 			item_names.append(LocaleManager.get_item_name(item_id))
 		items_text = " | %s" % LocaleManager.t("ui.status_items", {"items": ", ".join(item_names)})
 	
-	status_label.text = "%s%s%s" % [
+	# Build 19: Show relics
+	var relics_text: String = ""
+	var all_relics: Array = GameState.get_all_active_relics()
+	if all_relics.size() > 0:
+		var relic_icons: Array = []
+		for r: Variant in all_relics:
+			if r is Dictionary:
+				var rtype: String = r.get("relic_type", "")
+				var icon: String = "✦" if rtype == "artifact" else "☽" if rtype == "curse" else "✧"
+				relic_icons.append(icon)
+		relics_text = " | " + "".join(relic_icons)
+	
+	status_label.text = "%s%s%s%s" % [
 		LocaleManager.t("ui.status_full_turn", {
 			"hp": GameState.run_hp,
 			"maxhp": GameState.run_max_hp,
@@ -1077,7 +1273,8 @@ func _update_status() -> void:
 			"maxturn": GameState.MAX_TURNS
 		}),
 		traits_text,
-		items_text
+		items_text,
+		relics_text
 	]
 
 

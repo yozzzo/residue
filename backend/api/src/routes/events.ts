@@ -67,7 +67,7 @@ eventsRoutes.get('/events/resolve', async (c) => {
       playStyle: (profile?.play_style as string) || '',
       flags,
       conditionKey,
-    });
+    }, 0, (p) => c.executionCtx.waitUntil(p));
 
     return c.json({ ...event, cached: false });
   } catch (e: any) {

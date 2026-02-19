@@ -60,6 +60,17 @@ var saved_locale: String = "ja"
 # Build 18: Choice timing
 var choice_shown_at_ms: int = 0
 
+# Build 19: Route overrides from cross-link (persistent)
+var active_route_overrides: Dictionary = {}  # "node_id" -> {"label": "target_node_id", ...}
+
+# Build 19: Scenarios (persistent)
+var unlocked_scenarios: Array = []
+var scenario_fast_entry: Dictionary = {}  # scenario_id -> true (played before)
+
+# Build 19: Relics (GDD §4.5)
+var run_relics: Array = []  # Current run relics [{relic_id, name_ja, relic_type, effect}]
+var permanent_relics: Array = []  # Persistent relics (artifact type)
+
 # Player run state (reset each run)
 var run_hp: int = 100
 var run_max_hp: int = 100
@@ -380,6 +391,9 @@ func complete_cross_link(link_id: String) -> Dictionary:
 	# Mark cross_link_established for truth stage progression
 	set_memory_flag("cross_link_established")
 	
+	# Build 19: Set route overrides for hidden nodes
+	_apply_cross_link_route_overrides()
+	
 	# Unlock job if specified
 	if rewards.has("unlocks_job") and rewards["unlocks_job"] != null:
 		var job_to_unlock: String = str(rewards["unlocks_job"])
@@ -407,6 +421,105 @@ func check_and_acquire_cross_link_items() -> Array:
 	return acquired
 
 
+# Build 19: Apply route overrides when cross-link is completed
+func _apply_cross_link_route_overrides() -> void:
+	# Medieval: m_n10 → m_n13
+	if not active_route_overrides.has("m_n10"):
+		active_route_overrides["m_n10"] = {}
+	active_route_overrides["m_n10"]["封印の奥へ"] = "m_n13"
+	# Future: f_n05 → f_n13
+	if not active_route_overrides.has("f_n05"):
+		active_route_overrides["f_n05"] = {}
+	active_route_overrides["f_n05"]["隠されたセクター"] = "f_n13"
+
+
+# Build 19: Get route overrides for a node
+func get_route_overrides(node_id: String) -> Dictionary:
+	return active_route_overrides.get(node_id, {})
+
+
+# Build 19: Relic functions
+func grant_relic(relic_id: String, relic_data: Dictionary) -> void:
+	var entry: Dictionary = {
+		"relic_id": relic_id,
+		"name_ja": relic_data.get("name_ja", ""),
+		"relic_type": relic_data.get("relic_type", "blessing"),
+		"effect": {}
+	}
+	var effect_json: String = relic_data.get("effect_json", "{}")
+	if effect_json is String:
+		var parsed: Variant = JSON.parse_string(effect_json)
+		if parsed is Dictionary:
+			entry["effect"] = parsed
+	elif relic_data.has("effect") and relic_data["effect"] is Dictionary:
+		entry["effect"] = relic_data["effect"]
+	
+	if int(relic_data.get("is_permanent", 0)) == 1:
+		if not _has_relic_in_list(permanent_relics, relic_id):
+			permanent_relics.append(entry)
+	else:
+		if not _has_relic_in_list(run_relics, relic_id):
+			run_relics.append(entry)
+	save_persistent_state()
+
+
+func _has_relic_in_list(relic_list: Array, relic_id: String) -> bool:
+	for r: Variant in relic_list:
+		if r is Dictionary and r.get("relic_id", "") == relic_id:
+			return true
+	return false
+
+
+func has_relic(relic_id: String) -> bool:
+	return _has_relic_in_list(run_relics, relic_id) or _has_relic_in_list(permanent_relics, relic_id)
+
+
+func get_all_active_relics() -> Array:
+	var result: Array = []
+	result.append_array(run_relics)
+	result.append_array(permanent_relics)
+	return result
+
+
+func has_relic_effect(effect_type: String) -> bool:
+	for r: Variant in get_all_active_relics():
+		if r is Dictionary:
+			var eff: Dictionary = r.get("effect", {})
+			if str(eff.get("type", "")) == effect_type:
+				return true
+	return false
+
+
+func get_relic_effect_value(effect_type: String) -> int:
+	var total: int = 0
+	for r: Variant in get_all_active_relics():
+		if r is Dictionary:
+			var eff: Dictionary = r.get("effect", {})
+			if str(eff.get("type", "")) == effect_type:
+				total += int(eff.get("value", 0))
+	return total
+
+
+# Build 19: Scenario functions
+func is_scenario_unlocked(scenario_id: String) -> bool:
+	return unlocked_scenarios.has(scenario_id)
+
+
+func unlock_scenario(scenario_id: String) -> void:
+	if not unlocked_scenarios.has(scenario_id):
+		unlocked_scenarios.append(scenario_id)
+		save_persistent_state()
+
+
+func mark_scenario_played(scenario_id: String) -> void:
+	scenario_fast_entry[scenario_id] = true
+	save_persistent_state()
+
+
+func has_scenario_fast_entry(scenario_id: String) -> bool:
+	return scenario_fast_entry.get(scenario_id, false)
+
+
 # Run lifecycle
 func start_new_run(world_id: String) -> void:
 	selected_world_id = world_id
@@ -424,7 +537,11 @@ func start_new_run(world_id: String) -> void:
 	run_is_clear = false
 	run_turn_count = 0
 	run_items = []
+	run_relics = []  # Build 19: Reset per-run relics (permanent_relics persist)
 	_prev_truth_stage = get_truth_stage(world_id)
+	
+	# Build 19: Apply relic stat bonuses
+	_apply_relic_bonuses()
 	
 	# Phase 3: Check if using foreign job
 	run_is_foreign_job = is_foreign_job(current_job, world_id)
@@ -476,6 +593,21 @@ func _apply_inheritance_bonuses() -> void:
 	
 	# Clear pending inheritance after applying
 	pending_inheritance = {}
+
+
+func _apply_relic_bonuses() -> void:
+	# Apply permanent relic stat bonuses at run start
+	for relic: Variant in permanent_relics:
+		if relic is not Dictionary:
+			continue
+		var eff: Dictionary = relic.get("effect", {})
+		var etype: String = str(eff.get("type", ""))
+		var val: int = int(eff.get("value", 0))
+		match etype:
+			"defense_bonus":
+				run_defense_bonus += val
+			"attack_bonus":
+				run_attack_bonus += val
 
 
 # Build 16: Record death at current location
@@ -800,6 +932,17 @@ func generate_inheritance_candidates() -> Array:
 			"description": "次周で追加のヒントが出現"
 		})
 	
+	# Build 19: Add relic inheritance candidates
+	for relic: Variant in run_relics:
+		if relic is Dictionary and not _has_relic_in_list(permanent_relics, relic.get("relic_id", "")):
+			var eff: Dictionary = relic.get("effect", {})
+			pool.append({
+				"type": "relic_inherit",
+				"label": "遺物継承「%s」" % relic.get("name_ja", "???"),
+				"value": relic,
+				"description": str(eff.get("description_ja", "次周に持ち越し"))
+			})
+	
 	# Shuffle and pick 3
 	pool.shuffle()
 	for i: int in range(min(3, pool.size())):
@@ -833,6 +976,10 @@ func record_discovery() -> void:
 func record_node_visit() -> void:
 	run_nodes_visited += 1
 	run_turn_count += 1
+	# Build 19: hp_drain relic effect
+	var drain: int = get_relic_effect_value("hp_drain")
+	if drain > 0:
+		take_damage(drain)
 
 
 func is_turn_limit_reached() -> bool:
@@ -935,6 +1082,16 @@ func load_persistent_state() -> void:
 	if payload.has("seen_reactions") and payload["seen_reactions"] is Dictionary:
 		seen_reactions = payload["seen_reactions"]
 	
+	# Build 19: Load new persistent state
+	if payload.has("active_route_overrides") and payload["active_route_overrides"] is Dictionary:
+		active_route_overrides = payload["active_route_overrides"]
+	if payload.has("unlocked_scenarios") and payload["unlocked_scenarios"] is Array:
+		unlocked_scenarios = payload["unlocked_scenarios"]
+	if payload.has("scenario_fast_entry") and payload["scenario_fast_entry"] is Dictionary:
+		scenario_fast_entry = payload["scenario_fast_entry"]
+	if payload.has("permanent_relics") and payload["permanent_relics"] is Array:
+		permanent_relics = payload["permanent_relics"]
+	
 	# Phase 4: Load locale setting and apply
 	if payload.has("saved_locale"):
 		saved_locale = str(payload["saved_locale"])
@@ -965,7 +1122,12 @@ func save_persistent_state() -> void:
 		# Build 16: Save death/choice logs and seen reactions
 		"run_death_log": run_death_log,
 		"run_choice_log": run_choice_log,
-		"seen_reactions": seen_reactions
+		"seen_reactions": seen_reactions,
+		# Build 19
+		"active_route_overrides": active_route_overrides,
+		"unlocked_scenarios": unlocked_scenarios,
+		"scenario_fast_entry": scenario_fast_entry,
+		"permanent_relics": permanent_relics
 	}
 	_save_service.save_state(payload)
 
