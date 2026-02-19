@@ -97,12 +97,10 @@ func play_se_by_name(se_name: String) -> void:
 
 
 func _play_se_file(path: String) -> void:
-	if not ResourceLoader.exists(path):
-		print("[AudioManager] SE file not found: %s" % path)
-		return
-	
-	var stream: AudioStream = load(path)
+	# Try AssetManager cache first (convert res:// path to relative)
+	var stream: AudioStream = _load_audio_with_cache(path)
 	if stream == null:
+		print("[AudioManager] SE file not found: %s" % path)
 		return
 	
 	var player := _get_available_se_player()
@@ -158,12 +156,11 @@ func play_bgm(bgm_id: String, crossfade: bool = true) -> void:
 		current_bgm_id = bgm_id
 		return
 	
-	if not ResourceLoader.exists(bgm_path):
+	var stream: AudioStream = _load_audio_with_cache(bgm_path)
+	if stream == null:
 		print("[AudioManager] BGM file not found: %s" % bgm_path)
 		current_bgm_id = bgm_id
 		return
-	
-	var stream: AudioStream = load(bgm_path)
 	if stream == null:
 		return
 	
@@ -215,6 +212,28 @@ func _crossfade_to(stream: AudioStream) -> void:
 	tween.tween_callback(old_player.stop)
 	
 	active_bgm_player = new_player
+
+
+# === Asset Loading (Build 20: AssetManager integration) ===
+
+func _load_audio_with_cache(path: String) -> AudioStream:
+	## Try to load audio via AssetManager cache, fallback to res://
+	# Convert res://assets/audio/xxx to audio/xxx for AssetManager
+	var asset_key: String = ""
+	if path.begins_with("res://assets/audio/"):
+		asset_key = path.replace("res://assets/audio/", "audio/")
+	elif path.begins_with("res://assets/generated/"):
+		asset_key = path.replace("res://assets/generated/", "")
+	
+	if not asset_key.is_empty():
+		var cached: AudioStream = AssetManager.get_audio(asset_key)
+		if cached != null:
+			return cached
+	
+	# Direct res:// fallback
+	if ResourceLoader.exists(path):
+		return load(path)
+	return null
 
 
 # === Volume Control ===

@@ -13,18 +13,18 @@ signal status_updated
 @onready var background_image: TextureRect = $BackgroundImage
 @onready var silhouette_rect: TextureRect = $SilhouetteRect
 
-const WORLD_BACKGROUNDS := {
-	"medieval": "res://assets/generated/backgrounds/medieval_bg.png",
-	"future": "res://assets/generated/backgrounds/future_bg.png",
+const WORLD_BACKGROUND_KEYS := {
+	"medieval": "backgrounds/medieval_bg.png",
+	"future": "backgrounds/future_bg.png",
 }
 
-const SILHOUETTES := {
-	"elder": "res://assets/generated/silhouettes/elder.png",
-	"warrior": "res://assets/generated/silhouettes/warrior.png",
-	"scholar": "res://assets/generated/silhouettes/scholar.png",
-	"monster": "res://assets/generated/silhouettes/monster.png",
-	"cyborg": "res://assets/generated/silhouettes/cyborg.png",
-	"merchant": "res://assets/generated/silhouettes/merchant.png",
+const SILHOUETTE_KEYS := {
+	"elder": "silhouettes/elder.png",
+	"warrior": "silhouettes/warrior.png",
+	"scholar": "silhouettes/scholar.png",
+	"monster": "silhouettes/monster.png",
+	"cyborg": "silhouettes/cyborg.png",
+	"merchant": "silhouettes/merchant.png",
 }
 
 var village_data: Dictionary = {}
@@ -41,9 +41,14 @@ func _ready() -> void:
 
 func _apply_theme() -> void:
 	var world_id: String = ThemeManager.current_world
-	if WORLD_BACKGROUNDS.has(world_id) and ResourceLoader.exists(WORLD_BACKGROUNDS[world_id]):
-		background_image.texture = load(WORLD_BACKGROUNDS[world_id])
-		background.color = Color(ThemeManager.get_background_color(), 0.6)
+	if WORLD_BACKGROUND_KEYS.has(world_id):
+		var tex: Texture2D = AssetManager.get_texture(WORLD_BACKGROUND_KEYS[world_id])
+		if tex != null:
+			background_image.texture = tex
+			background.color = Color(ThemeManager.get_background_color(), 0.6)
+		else:
+			background_image.texture = null
+			background.color = ThemeManager.get_background_color()
 	else:
 		background_image.texture = null
 		background.color = ThemeManager.get_background_color()
@@ -380,12 +385,12 @@ func _on_buy_talisman() -> void:
 
 
 func _show_silhouette(sil_type: String) -> void:
-	if sil_type.is_empty() or not SILHOUETTES.has(sil_type):
+	if sil_type.is_empty() or not SILHOUETTE_KEYS.has(sil_type):
 		_hide_silhouette()
 		return
-	var path: String = SILHOUETTES[sil_type]
-	if ResourceLoader.exists(path):
-		silhouette_rect.texture = load(path)
+	var tex: Texture2D = AssetManager.get_texture(SILHOUETTE_KEYS[sil_type])
+	if tex != null:
+		silhouette_rect.texture = tex
 		silhouette_rect.visible = true
 		var tween: Tween = create_tween()
 		silhouette_rect.modulate.a = 0.0

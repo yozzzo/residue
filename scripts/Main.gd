@@ -20,10 +20,72 @@ var use_transitions: bool = true
 var transition_duration: float = 0.25
 
 
+var _update_label: Label = null
+var _update_progress_bar: ProgressBar = null
+
+
 func _ready() -> void:
 	_setup_transition_layer()
 	_setup_status_bar()
-	_show_title()
+	_check_asset_updates()
+
+
+func _check_asset_updates() -> void:
+	# Show update screen
+	var update_panel := ColorRect.new()
+	update_panel.name = "UpdatePanel"
+	update_panel.color = Color(0.08, 0.08, 0.12, 1.0)
+	update_panel.anchors_preset = Control.PRESET_FULL_RECT
+	add_child(update_panel)
+	move_child(update_panel, 0)
+	
+	var vbox := VBoxContainer.new()
+	vbox.anchors_preset = Control.PRESET_CENTER
+	vbox.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	vbox.grow_vertical = Control.GROW_DIRECTION_BOTH
+	vbox.custom_minimum_size = Vector2(300, 100)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	update_panel.add_child(vbox)
+	
+	_update_label = Label.new()
+	_update_label.text = "データ確認中..."
+	_update_label.add_theme_font_size_override("font_size", 18)
+	_update_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	_update_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_update_label)
+	
+	_update_progress_bar = ProgressBar.new()
+	_update_progress_bar.custom_minimum_size = Vector2(280, 8)
+	_update_progress_bar.show_percentage = false
+	_update_progress_bar.value = 0
+	var fill_style := StyleBoxFlat.new()
+	fill_style.bg_color = Color(0.5, 0.4, 0.6)
+	fill_style.set_corner_radius_all(4)
+	_update_progress_bar.add_theme_stylebox_override("fill", fill_style)
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = Color(0.2, 0.2, 0.2, 0.5)
+	bg_style.set_corner_radius_all(4)
+	_update_progress_bar.add_theme_stylebox_override("background", bg_style)
+	_update_progress_bar.visible = false
+	vbox.add_child(_update_progress_bar)
+	
+	AssetManager.update_progress.connect(_on_asset_update_progress)
+	AssetManager.check_and_update_assets(func() -> void:
+		# Remove update panel and show title
+		update_panel.queue_free()
+		_update_label = null
+		_update_progress_bar = null
+		_show_title()
+	)
+
+
+func _on_asset_update_progress(current: int, total: int) -> void:
+	if _update_label != null:
+		_update_label.text = "データ更新中... (%d/%d)" % [current + 1, total]
+	if _update_progress_bar != null:
+		_update_progress_bar.visible = true
+		_update_progress_bar.max_value = total
+		_update_progress_bar.value = current
 
 
 func _setup_transition_layer() -> void:

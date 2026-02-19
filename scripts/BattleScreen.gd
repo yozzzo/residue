@@ -20,9 +20,9 @@ signal battle_ended(result: String)  # "victory", "defeat", "flee"
 @onready var background_image: TextureRect = $BackgroundImage
 @onready var popup_container: Control = $PopupContainer
 
-const WORLD_BACKGROUNDS := {
-	"medieval": "res://assets/generated/backgrounds/medieval_bg.png",
-	"future": "res://assets/generated/backgrounds/future_bg.png",
+const WORLD_BACKGROUND_KEYS := {
+	"medieval": "backgrounds/medieval_bg.png",
+	"future": "backgrounds/future_bg.png",
 }
 
 var enemy_id: String = ""
@@ -61,10 +61,11 @@ func _update_button_texts() -> void:
 
 
 func _apply_theme() -> void:
-	# Load world-specific background image
+	# Load world-specific background image via AssetManager
 	var world_id: String = ThemeManager.current_world
-	if WORLD_BACKGROUNDS.has(world_id) and ResourceLoader.exists(WORLD_BACKGROUNDS[world_id]):
-		background_image.texture = load(WORLD_BACKGROUNDS[world_id])
+	if WORLD_BACKGROUND_KEYS.has(world_id):
+		var tex: Texture2D = AssetManager.get_texture(WORLD_BACKGROUND_KEYS[world_id])
+		background_image.texture = tex
 	else:
 		background_image.texture = null
 	
