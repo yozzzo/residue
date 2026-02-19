@@ -406,3 +406,4 @@ func _on_depart() -> void:
 
 
 func _update_status() -> void:
+	status_updated.emit()
