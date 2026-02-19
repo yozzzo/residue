@@ -93,12 +93,6 @@ theme_override_constants/margin_bottom = 24
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Header" type="Label" parent="Margin/Root"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.75, 0.75, 0.8, 1)
-text = "Run"
-
 [node name="LocationPanel" type="PanelContainer" parent="Margin/Root"]
 layout_mode = 2
 

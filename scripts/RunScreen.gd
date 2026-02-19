@@ -4,7 +4,6 @@ signal run_ended(soul_gain: int, is_clear: bool)
 signal battle_requested(enemy_id: String)
 signal status_updated
 
-@onready var header: Label = $Margin/Root/Header
 @onready var location_label: Label = $Margin/Root/LocationPanel/LocationVBox/LocationName
 @onready var direction_label: Label = $Margin/Root/LocationPanel/LocationVBox/DirectionInfo
 @onready var body_text: RichTextLabel = $Margin/Root/BodyText
@@ -368,21 +367,6 @@ func _continue_load_node() -> void:
 	var world: Dictionary = GameState.get_world_by_id(GameState.selected_world_id)
 	var world_name: String = LocaleManager.tr_data(world, "name")
 	var truth_stage: int = GameState.get_truth_stage()
-	
-	# Phase 3: Show job info in header
-	var job: Dictionary = GameState.get_job_by_id(GameState.current_job)
-	var job_name: String = LocaleManager.tr_data(job, "name")
-	var foreign_indicator: String = ""
-	if GameState.run_is_foreign_job:
-		foreign_indicator = LocaleManager.t("ui.foreign_indicator")
-	
-	header.text = LocaleManager.t("ui.run_header", {
-		"world": world_name,
-		"job": job_name,
-		"foreign": foreign_indicator,
-		"loop": GameState.loop_count,
-		"truth": truth_stage
-	})
 	
 	_update_location_display()
 	status_updated.emit()
